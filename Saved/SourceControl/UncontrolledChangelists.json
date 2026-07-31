@@ -1,0 +1,24 @@
+{
+	"version": 1,
+	"changelists": [
+		{
+			"guid": "00000000000000000000000000000000",
+			"description": "Default Uncontrolled Changelist",
+			"files": [
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Splash/EdSplash.uasset",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Splash/Splash.uasset",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Utilities/Textures/Utility/TX_Cube_01a_CUBE.uasset",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/AncientTreasures/Textures/Utility/TX_Cube_01a_CUBE.uasset",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Utilities/ThirdPersonBP/Maps/ThirdPersonExampleMap_BuiltData.uasset",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Main/Maps/DefaultTestLevel.umap",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Utilities/ThirdPersonBP/Blueprints/TPSGameMode.uasset",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Main/GameData/TPSGameMode.uasset",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Main/BP/Character/ThirdPersonCharacter.uasset",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Main/BP/Character/MasterCharacter_BP.uasset",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Main/UI/OptionsMenu_UI.uasset",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Utilities/ThirdPersonBP/Blueprints/ThirdPersonCharacter.uasset",
+				"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Content/Main/UI/GraphicsMenu_UI1.uasset"
+			]
+		}
+	]
+}
