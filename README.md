@@ -13,7 +13,6 @@ This project is intended for:
 Research and development
 Educational purposes
 Unreal Engine experimentation
-Multiplayer systems development
 Gameplay prototyping
 Community learning and collaboration
 Preservation and study of classic gameplay concepts
