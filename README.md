@@ -36,7 +36,7 @@ Dedicated server support
 Modern Unreal Engine 5 systems
 Development
 Engine: Unreal Engine 5.7
-Programming: C++ and Blueprints
+Programming: Blueprints
 Platform: Windows
 Status: Early research and development
 Project Type: Open-source, experimental and non-commercial
@@ -46,7 +46,7 @@ Original source code created specifically for this project is released under the
 
 The MIT License does not apply to third-party names, trademarks, characters, assets, sounds, textures, models, maps or other copyrighted material.
 
-See the LICENSE and THIRD_PARTY.md files for more information.
+See the LICENSE files for more information.
 
 Contributing
 
