@@ -47,6 +47,9 @@ Renegade NXT currently uses the NVIDIA DLSS 4.5 Unreal Engine plugin by default.
 
 DLSS can be disabled and the project can be configured to use Temporal Anti-Aliasing (TAA) instead. When using TAA, the NVIDIA DLSS plugin is not required.
 
+Assets Credits:
+I want to say a huge thank you to Totem Arts for having the RenX UDK open source for all, without their hard work creating assets this would not be possible at all.
+
 License:
 
 Original source code created specifically for this project is released under the MIT License, unless otherwise stated.
