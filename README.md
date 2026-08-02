@@ -74,8 +74,10 @@ Command & Conquer, C&C, Renegade, Renegade X and all related names, trademarks a
 
 This repository does not claim ownership of third-party intellectual property.
 
-<img width="3840" height="2083" alt="NOD" src="https://github.com/user-attachments/assets/8adfc370-36f5-476d-9ab3-4af5be0be769" />
+<img width="3816" height="2008" alt="GDI1" src="https://github.com/user-attachments/assets/00877a63-fcb1-4678-9287-e3c821d851d1" />
 
-<img width="3840" height="2078" alt="NOD2" src="https://github.com/user-attachments/assets/e5909d6e-1302-4913-bb04-7bffa8137e3c" />
+<img width="3819" height="2007" alt="NOD1" src="https://github.com/user-attachments/assets/0e36629c-a5f7-48b0-a116-bc1485419810" />
 
-<img width="3840" height="2079" alt="NOD3" src="https://github.com/user-attachments/assets/24f94372-627f-40a0-a0ce-2c290de7e60c" />
+<img width="3809" height="1999" alt="NOD2" src="https://github.com/user-attachments/assets/8b053c7c-b5ea-4d0d-9a9e-c1c1ce00b18f" />
+
+<img width="3814" height="2005" alt="NOD3" src="https://github.com/user-attachments/assets/f517578e-bffe-48aa-a787-5457d41414bf" />
