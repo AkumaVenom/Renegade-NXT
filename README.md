@@ -4,7 +4,7 @@
 
 C&C Renegade NXT is an open-source third-person action game project being developed in Unreal Engine 5.7.
 
-The project explores and modernises infantry combat, vehicles, team bases, resource systems and multiplayer gameplay inspired by Command & Conquer: Renegade and Renegade X.
+The project explores and modernises infantry combat TPS, vehicles, team bases, resource systems and single player gameplay inspired by Command & Conquer: Renegade and Renegade X.
 
 ========================================================================================================================================================
 
