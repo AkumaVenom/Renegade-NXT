@@ -91,7 +91,7 @@ This repository does not claim ownership of third-party intellectual property.
 
 <img width="3814" height="2005" alt="GDI3" src="https://github.com/user-attachments/assets/8bff0fcc-89db-4474-9467-32b9561fa5d6" />
 
-<img width="3809" height="1999" alt="NOD2" src="https://github.com/user-attachments/assets/8b053c7c-b5ea-4d0d-9a9e-c1c1ce00b18f" />
+<img width="3820" height="2008" alt="wwwww" src="https://github.com/user-attachments/assets/0101fd9b-4888-4142-809f-a24266fd1c83" />
 
 <img width="3813" height="2001" alt="NOD6" src="https://github.com/user-attachments/assets/3a4a75a9-5d27-4f49-b836-423bea9d9925" />
 
