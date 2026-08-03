@@ -81,22 +81,5 @@ This repository does not claim ownership of third-party intellectual property.
 
 ========================================================================================================================================================
 
-<img width="3816" height="2003" alt="TiberiumField" src="https://github.com/user-attachments/assets/c5328511-e682-4b0d-a05a-796e9bb3cad3" />
-
-<img width="3830" height="2014" alt="TiberiumField2" src="https://github.com/user-attachments/assets/d953702e-4496-4341-a1ad-478649545fb7" />
-
-<img width="3816" height="2008" alt="GDI1" src="https://github.com/user-attachments/assets/00877a63-fcb1-4678-9287-e3c821d851d1" />
-
-<img width="3815" height="2010" alt="GDI2GLASSDISTORT" src="https://github.com/user-attachments/assets/b81d6dc0-bcff-48ec-987e-40608725e085" />
-
-<img width="3814" height="2005" alt="GDI3" src="https://github.com/user-attachments/assets/8bff0fcc-89db-4474-9467-32b9561fa5d6" />
-
-<img width="3820" height="2008" alt="wwwww" src="https://github.com/user-attachments/assets/0101fd9b-4888-4142-809f-a24266fd1c83" />
-
-<img width="3813" height="2001" alt="NOD6" src="https://github.com/user-attachments/assets/3a4a75a9-5d27-4f49-b836-423bea9d9925" />
-
-<img width="3819" height="2008" alt="NOD4GLASSDISTORT" src="https://github.com/user-attachments/assets/b15ca0fb-2188-45e0-8610-87f186a278c5" />
-
-<img width="3821" height="2005" alt="NOD5GLASSDISTORT" src="https://github.com/user-attachments/assets/076e83e0-fc8f-4724-901d-71c1bb7652fe" />
 
 ========================================================================================================================================================
