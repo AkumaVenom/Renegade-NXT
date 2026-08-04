@@ -13884,6 +13884,18 @@
 			"Type": "RequiredResource"
 		},
 		{
+			"Path": "$(ProjectDir)/Plugins/RenegadeSoldierCombat/Binaries/Win64/UnrealEditor-RenegadeSoldierCombat.dll",
+			"Type": "DynamicLibrary"
+		},
+		{
+			"Path": "$(ProjectDir)/Plugins/RenegadeSoldierCombat/Binaries/Win64/UnrealEditor-RenegadeSoldierCombat.pdb",
+			"Type": "SymbolFile"
+		},
+		{
+			"Path": "$(ProjectDir)/Plugins/RenegadeSoldierCombat/Binaries/Win64/UnrealEditor.modules",
+			"Type": "RequiredResource"
+		},
+		{
 			"Path": "$(ProjectDir)/Plugins/RenegadeSplineAI/Binaries/Win64/UnrealEditor-RenegadeSplineAI.dll",
 			"Type": "DynamicLibrary"
 		},
@@ -40394,6 +40406,10 @@
 			"Type": "UFS"
 		},
 		{
+			"Path": "$(ProjectDir)/Plugins/RenegadeSoldierCombat/RenegadeSoldierCombat.uplugin",
+			"Type": "UFS"
+		},
+		{
 			"Path": "$(ProjectDir)/Plugins/RenegadeSplineAI/RenegadeSplineAI.uplugin",
 			"Type": "UFS"
 		},
@@ -40601,6 +40617,7 @@
 		"RenderDocPlugin",
 		"RenderGraphInsights",
 		"RenderTraceInsights",
+		"RenegadeSoldierCombat",
 		"RenegadeSplineAI",
 		"ResonanceAudio",
 		"RiderSourceCodeAccess",

@@ -5,3 +5,7 @@
 #include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSplineAI/Intermediate/Build/Win64/UnrealEditor/Inc/RenegadeSplineAI/UHT/RenegadeSplineFollowerComponent.gen.cpp"
 #include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSplineAI/Intermediate/Build/Win64/UnrealEditor/Inc/RenegadeSplineAI/UHT/RenegadeSplinePath.gen.cpp"
 #include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSplineAI/Intermediate/Build/Win64/x64/UnrealEditor/Development/RenegadeSplineAI/PerModuleInline.gen.cpp"
+#include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSplineAI/Source/RenegadeSplineAI/Private/RenegadeSplineAIBlueprintLibrary.cpp"
+#include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSplineAI/Source/RenegadeSplineAI/Private/RenegadeSplineAIModule.cpp"
+#include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSplineAI/Source/RenegadeSplineAI/Private/RenegadeSplineFollowerComponent.cpp"
+#include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSplineAI/Source/RenegadeSplineAI/Private/RenegadeSplinePath.cpp"

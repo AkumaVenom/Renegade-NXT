@@ -1,0 +1,21 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.RenegadeSoldierCombat.cpp.obj": [
+			"RenegadeCombatBlueprintLibrary.gen.cpp.obj",
+			"RenegadeCombatMovementBridge.gen.cpp.obj",
+			"RenegadeCombatRegistrySubsystem.gen.cpp.obj",
+			"RenegadeCombatTypes.gen.cpp.obj",
+			"RenegadeSoldierCombat.init.gen.cpp.obj",
+			"RenegadeSoldierCombatComponent.gen.cpp.obj",
+			"RenegadeSoldierSpawnPoint.gen.cpp.obj",
+			"RenegadeWeaponProfile.gen.cpp.obj",
+			"PerModuleInline.gen.cpp.obj",
+			"RenegadeCombatBlueprintLibrary.cpp.obj",
+			"RenegadeCombatRegistrySubsystem.cpp.obj",
+			"RenegadeSoldierCombatComponent.cpp.obj",
+			"RenegadeSoldierCombatModule.cpp.obj",
+			"RenegadeSoldierSpawnPoint.cpp.obj"
+		]
+	}
+}
