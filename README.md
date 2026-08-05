@@ -2,7 +2,7 @@
 
 <img width="1254" height="1254" alt="RenNXT" src="https://github.com/user-attachments/assets/e562dc64-d013-46f3-a6f3-2b089de417c2" />
 
-C&C Renegade NXT is an open-source third-person action game project being developed in Unreal Engine 5.7.
+C&C Renegade NXT is an open-source third-person action game project being developed in Unreal Engine 5.8
 
 The project explores and modernises infantry combat TPS, vehicles, team bases, resource systems and single player gameplay inspired by Command & Conquer: Renegade and Renegade X.
 
@@ -41,8 +41,8 @@ Harvester Tiberium gathering resource systems
 
 Development:
 
-Engine: Unreal Engine 5.7
-Programming: Blueprints
+Engine: Unreal Engine 5.8
+Programming: Blueprints & C++ Plugins
 Platform: Windows
 Status: Early research and development
 Project Type: Open-source, experimental and non-commercial
