@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "RenegadeSplineAITypes.generated.h"
 
-/** Runtime state of a spline follower. */
+/** Runtime state of a spline follower. Existing values are kept stable for saved Blueprints. */
 UENUM(BlueprintType)
 enum class ERenegadeSplineFollowState : uint8
 {
@@ -14,7 +14,8 @@ enum class ERenegadeSplineFollowState : uint8
     CombatPaused    UMETA(DisplayName = "Paused For Combat"),
     Suspended       UMETA(DisplayName = "Suspended By External Movement"),
     Blocked         UMETA(DisplayName = "Blocked"),
-    Completed       UMETA(DisplayName = "Completed")
+    Completed       UMETA(DisplayName = "Completed"),
+    ExternalPaused  UMETA(DisplayName = "Paused For External AI")
 };
 
 /** Direction in which a pawn travels along an authored spline. */
@@ -36,6 +37,16 @@ enum class ERenegadeSplineResumePolicy : uint8
     PreserveProgress UMETA(DisplayName = "Preserve Progress")
 };
 
+/** Starting configurations for Character Blueprints that visually represent vehicles. */
+UENUM(BlueprintType)
+enum class ERenegadeCharacterVehiclePreset : uint8
+{
+    LightTracked UMETA(DisplayName = "Light Tracked Vehicle"),
+    HeavyTracked UMETA(DisplayName = "Heavy Tank"),
+    Harvester    UMETA(DisplayName = "Harvester / Heavy Utility"),
+    Custom       UMETA(DisplayName = "Custom")
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
     FRenegadeSplineStateChangedSignature,
     ERenegadeSplineFollowState, PreviousState,
@@ -54,3 +65,16 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(
     FRenegadeSplineMoveFailureSignature,
     int32, ConsecutiveFailures,
     FVector, FailedGoalLocation);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
+    FRenegadeSplineExternalControlSignature,
+    FName, SourceName,
+    bool, bActive,
+    int32, ActiveClaimCount);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(
+    FRenegadeCharacterVehicleDriveSignature,
+    float, Throttle,
+    float, Steering,
+    float, SpeedKPH,
+    bool, bPivotTurning);

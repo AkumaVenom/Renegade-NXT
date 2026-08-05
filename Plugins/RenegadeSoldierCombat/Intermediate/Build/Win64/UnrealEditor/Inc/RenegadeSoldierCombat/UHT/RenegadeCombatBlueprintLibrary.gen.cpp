@@ -21,6 +21,7 @@ ENGINE_API UClass* Z_Construct_UClass_AActor(ETypeConstructPhase);
 UPackage* Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UClass* Z_Construct_UClass_URenegadeCombatBlueprintLibrary(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeWeaponSettings(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UClass* Z_Construct_UClass_URenegadeBuildingCombatComponent(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UClass* Z_Construct_UClass_URenegadeCombatBlueprintLibrary(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UClass* Z_Construct_UClass_URenegadeSoldierCombatComponent(ETypeConstructPhase);
 // ********** End Same Module References ***********************************************************
@@ -98,6 +99,70 @@ DEFINE_FUNCTION(URenegadeCombatBlueprintLibrary::execAreRenegadeActorsHostile)
 	P_NATIVE_END;
 }
 // ********** End Class URenegadeCombatBlueprintLibrary Function AreRenegadeActorsHostile **********
+
+// ********** Begin Class URenegadeCombatBlueprintLibrary Function GetRenegadeBuildingCombatComponent 
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_GetRenegadeBuildingCombatComponent_Statics
+struct UHT_STATICS
+{
+	struct RenegadeCombatBlueprintLibrary_eventGetRenegadeBuildingCombatComponent_Parms
+	{
+		const AActor* Actor;
+		URenegadeBuildingCombatComponent* ReturnValue;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Buildings" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatBlueprintLibrary.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_Actor_MetaData[] = {
+		{ "NativeConst", "" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ReturnValue_MetaData[] = {
+		{ "EditInline", "true" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function GetRenegadeBuildingCombatComponent constinit property declarations ****
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_Actor;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_ReturnValue;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function GetRenegadeBuildingCombatComponent constinit property declarations ******
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function GetRenegadeBuildingCombatComponent Property Definitions ***************
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_Actor = { "Actor", nullptr, (EPropertyFlags)0x0010000000000082, UECodeGen_Private::EPropertyGenFlags::Object, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeCombatBlueprintLibrary_eventGetRenegadeBuildingCombatComponent_Parms, Actor), Z_Construct_UClass_AActor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_Actor_MetaData), NewProp_Actor_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000080588, UECodeGen_Private::EPropertyGenFlags::Object, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeCombatBlueprintLibrary_eventGetRenegadeBuildingCombatComponent_Parms, ReturnValue), Z_Construct_UClass_URenegadeBuildingCombatComponent, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ReturnValue_MetaData), NewProp_ReturnValue_MetaData) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_Actor,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ReturnValue,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function GetRenegadeBuildingCombatComponent Property Definitions *****************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeCombatBlueprintLibrary, nullptr, "GetRenegadeBuildingCombatComponent", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::RenegadeCombatBlueprintLibrary_eventGetRenegadeBuildingCombatComponent_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x14022401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::RenegadeCombatBlueprintLibrary_eventGetRenegadeBuildingCombatComponent_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_GetRenegadeBuildingCombatComponent(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeCombatBlueprintLibrary::execGetRenegadeBuildingCombatComponent)
+{
+	P_GET_OBJECT(AActor,Z_Param_Actor);
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	*(URenegadeBuildingCombatComponent**)Z_Param__Result=URenegadeCombatBlueprintLibrary::GetRenegadeBuildingCombatComponent(Z_Param_Actor);
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeCombatBlueprintLibrary Function GetRenegadeBuildingCombatComponent 
 
 // ********** Begin Class URenegadeCombatBlueprintLibrary Function GetRenegadeCombatComponent ******
 #ifdef UHT_STATICS
@@ -415,6 +480,7 @@ struct UHT_STATICS
 // ********** End Class URenegadeCombatBlueprintLibrary constinit property declarations ************
 	static constexpr UE::CodeGen::FClassNativeFunction Funcs[] = {
 		{ .NameUTF8 = UTF8TEXT("AreRenegadeActorsHostile"), .Pointer = &URenegadeCombatBlueprintLibrary::execAreRenegadeActorsHostile },
+		{ .NameUTF8 = UTF8TEXT("GetRenegadeBuildingCombatComponent"), .Pointer = &URenegadeCombatBlueprintLibrary::execGetRenegadeBuildingCombatComponent },
 		{ .NameUTF8 = UTF8TEXT("GetRenegadeCombatComponent"), .Pointer = &URenegadeCombatBlueprintLibrary::execGetRenegadeCombatComponent },
 		{ .NameUTF8 = UTF8TEXT("GetRenegadeTeamId"), .Pointer = &URenegadeCombatBlueprintLibrary::execGetRenegadeTeamId },
 		{ .NameUTF8 = UTF8TEXT("MakeAutomaticRiflePreset"), .Pointer = &URenegadeCombatBlueprintLibrary::execMakeAutomaticRiflePreset },
@@ -424,6 +490,7 @@ struct UHT_STATICS
 	static FTypeConstructFunc* DependentSingletons[];
 	static constexpr FClassFunctionLinkInfo FuncInfo[] = {
 		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_AreRenegadeActorsHostile, "AreRenegadeActorsHostile" }, // 87c92ea00944bd7a06152a466d970ecd3fbde1c1
+		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_GetRenegadeBuildingCombatComponent, "GetRenegadeBuildingCombatComponent" }, // 256b966a96dd9d3bfa9ad2701a5acc81e290a0d3
 		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_GetRenegadeCombatComponent, "GetRenegadeCombatComponent" }, // 1f727dff974c927143882b36ef69a93506f75fc1
 		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_GetRenegadeTeamId, "GetRenegadeTeamId" }, // 7d14c5be73c62f97d3869e52786462f12c5060ff
 		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_MakeAutomaticRiflePreset, "MakeAutomaticRiflePreset" }, // 37ead9a1cc3c611522378918ffc8475fa68a04d6
@@ -508,10 +575,10 @@ URenegadeCombatBlueprintLibrary::~URenegadeCombatBlueprintLibrary() {}
 struct UHT_STATICS
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
-		{ Z_Construct_UClass_URenegadeCombatBlueprintLibrary, TEXT("URenegadeCombatBlueprintLibrary"), &Z_Registration_Info_UClass_URenegadeCombatBlueprintLibrary, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeCombatBlueprintLibrary), 911260437U) },
+		{ Z_Construct_UClass_URenegadeCombatBlueprintLibrary, TEXT("URenegadeCombatBlueprintLibrary"), &Z_Registration_Info_UClass_URenegadeCombatBlueprintLibrary, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeCombatBlueprintLibrary), 1413628419U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatBlueprintLibrary_h__Script_RenegadeSoldierCombat_35104234d457b9eae917a74bec54e867b82f1f4a{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatBlueprintLibrary_h__Script_RenegadeSoldierCombat_e08be100f1101b176d60b6bd4b138f9936af254f{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	UHT_STATICS::ClassInfo, UE_ARRAY_COUNT(UHT_STATICS::ClassInfo),
 	nullptr, 0,

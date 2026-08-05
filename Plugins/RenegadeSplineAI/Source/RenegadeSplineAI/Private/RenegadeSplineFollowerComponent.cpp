@@ -4,8 +4,12 @@
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Pawn.h"
 #include "Net/UnrealNetwork.h"
+#include "RenegadeCharacterVehicleComponent.h"
 #include "RenegadeSplinePath.h"
 #include "TimerManager.h"
+
+const FName URenegadeSplineFollowerComponent::CombatMovementClaimName(TEXT("Combat"));
+const FName URenegadeSplineFollowerComponent::DefaultExternalMovementClaimName(TEXT("ExternalAI"));
 
 URenegadeSplineFollowerComponent::URenegadeSplineFollowerComponent()
 {
@@ -19,6 +23,7 @@ void URenegadeSplineFollowerComponent::BeginPlay()
     Super::BeginPlay();
 
     ResolveOwnerAndController();
+    GetCharacterVehicleComponent();
 
     if (GetOwner() && GetOwner()->HasAuthority() && bAutoStart && IsValid(AssignedPath))
     {
@@ -30,7 +35,10 @@ void URenegadeSplineFollowerComponent::EndPlay(const EEndPlayReason::Type EndPla
 {
     ClearRuntimeTimers();
     UnbindCombatTarget();
+    ClearVehicleSteeringTarget();
     UnbindMoveFinishedDelegate();
+    ExternalMovementClaims.Reset();
+    ExternalMovementClaimCount = 0;
     Super::EndPlay(EndPlayReason);
 }
 
@@ -41,6 +49,7 @@ void URenegadeSplineFollowerComponent::GetLifetimeReplicatedProps(TArray<FLifeti
     DOREPLIFETIME(URenegadeSplineFollowerComponent, AssignedPath);
     DOREPLIFETIME(URenegadeSplineFollowerComponent, FollowState);
     DOREPLIFETIME(URenegadeSplineFollowerComponent, CurrentDistanceAlongSpline);
+    DOREPLIFETIME(URenegadeSplineFollowerComponent, ExternalMovementClaimCount);
 }
 
 bool URenegadeSplineFollowerComponent::ResolveOwnerAndController()
@@ -111,11 +120,14 @@ bool URenegadeSplineFollowerComponent::StartFollowing(
     }
 
     ClearRuntimeTimers();
-    UnbindCombatTarget();
-    ActiveCombatTarget.Reset();
+    bRouteFollowingRequested = true;
 
-    ActiveMoveRequestId = FAIRequestID::InvalidRequest;
-    CachedAIController->StopMovement();
+    // Never abort a movement request currently owned by combat or another plugin.
+    if (!HasExternalMovementClaims())
+    {
+        ActiveMoveRequestId = FAIRequestID::InvalidRequest;
+        CachedAIController->StopMovement();
+    }
 
     AssignedPath = NewPath;
     ConsecutiveMoveFailures = 0;
@@ -126,6 +138,7 @@ bool URenegadeSplineFollowerComponent::StartFollowing(
         SetFollowState(ERenegadeSplineFollowState::Reacquiring);
         if (!ReacquireRouteFromCurrentLocation())
         {
+            bRouteFollowingRequested = false;
             SetFollowState(ERenegadeSplineFollowState::Blocked);
             return false;
         }
@@ -133,13 +146,28 @@ bool URenegadeSplineFollowerComponent::StartFollowing(
     else
     {
         const float Length = AssignedPath->GetRouteLength();
-        CurrentDistanceAlongSpline = TravelDirection == ERenegadeSplineTravelDirection::Forward ? 0.0f : Length;
+        if (Length <= UE_KINDA_SMALL_NUMBER)
+        {
+            bRouteFollowingRequested = false;
+            SetFollowState(ERenegadeSplineFollowState::Blocked);
+            return false;
+        }
+
+        CurrentDistanceAlongSpline =
+            TravelDirection == ERenegadeSplineTravelDirection::Forward ? 0.0f : Length;
         LastCommittedDistance = CurrentDistanceAlongSpline;
         bHasCommittedProgress = true;
     }
 
-    SetFollowState(ERenegadeSplineFollowState::Following);
     BroadcastProgress();
+
+    if (HasExternalMovementClaims())
+    {
+        UpdatePausedStateFromClaims();
+        return true;
+    }
+
+    SetFollowState(ERenegadeSplineFollowState::Following);
     ScheduleNextMove(0.0f);
     return true;
 }
@@ -151,14 +179,15 @@ void URenegadeSplineFollowerComponent::StopFollowing(const bool bClearAssignedPa
         return;
     }
 
+    bRouteFollowingRequested = false;
     ClearRuntimeTimers();
-    UnbindCombatTarget();
-    ActiveCombatTarget.Reset();
+    ClearVehicleSteeringTarget();
 
     ActiveMoveRequestId = FAIRequestID::InvalidRequest;
     SetFollowState(ERenegadeSplineFollowState::Idle);
 
-    if (ResolveOwnerAndController())
+    // Do not stop a controller request owned by an active combat/external claim.
+    if (!HasExternalMovementClaims() && ResolveOwnerAndController())
     {
         CachedAIController->StopMovement();
     }
@@ -166,33 +195,15 @@ void URenegadeSplineFollowerComponent::StopFollowing(const bool bClearAssignedPa
     if (bClearAssignedPath)
     {
         AssignedPath = nullptr;
+        bHasCommittedProgress = false;
+        CurrentDistanceAlongSpline = 0.0f;
+        LastCommittedDistance = 0.0f;
     }
 }
 
 void URenegadeSplineFollowerComponent::PauseForCombat(AActor* CombatTarget)
 {
-    if (!GetOwner() || !GetOwner()->HasAuthority())
-    {
-        return;
-    }
-
-    ClearRuntimeTimers();
-    UnbindCombatTarget();
-    ActiveCombatTarget = CombatTarget;
-
-    if (IsValid(CombatTarget) && bResumeWhenCombatTargetDestroyed)
-    {
-        CombatTarget->OnDestroyed.AddDynamic(this, &URenegadeSplineFollowerComponent::HandleCombatTargetDestroyed);
-    }
-
-    SetFollowState(ERenegadeSplineFollowState::CombatPaused);
-
-    if (ResolveOwnerAndController())
-    {
-        CachedAIController->StopMovement();
-    }
-
-    ActiveMoveRequestId = FAIRequestID::InvalidRequest;
+    SetCombatActive(true, CombatTarget, -1.0f);
 }
 
 bool URenegadeSplineFollowerComponent::ResumeFollowing(const bool bReacquireFromCurrentLocation)
@@ -202,9 +213,14 @@ bool URenegadeSplineFollowerComponent::ResumeFollowing(const bool bReacquireFrom
         return false;
     }
 
+    bRouteFollowingRequested = true;
     ClearRuntimeTimers();
-    UnbindCombatTarget();
-    ActiveCombatTarget.Reset();
+
+    if (HasExternalMovementClaims())
+    {
+        UpdatePausedStateFromClaims();
+        return false;
+    }
 
     if (!AssignedPath->IsTeamAllowed(TeamId) || !ResolveOwnerAndController())
     {
@@ -213,6 +229,7 @@ bool URenegadeSplineFollowerComponent::ResumeFollowing(const bool bReacquireFrom
     }
 
     ConsecutiveMoveFailures = 0;
+    ActiveMoveRequestId = FAIRequestID::InvalidRequest;
 
     if (bReacquireFromCurrentLocation)
     {
@@ -235,39 +252,151 @@ void URenegadeSplineFollowerComponent::SetCombatActive(
     AActor* CombatTarget,
     const float ResumeDelayOverride)
 {
-    if (bCombatActive)
+    if (!GetOwner() || !GetOwner()->HasAuthority())
     {
-        PauseForCombat(CombatTarget);
         return;
     }
 
-    if (!GetOwner() || !GetOwner()->HasAuthority())
+    if (bCombatActive)
     {
+        UnbindCombatTarget();
+        ActiveCombatTarget = CombatTarget;
+
+        if (IsValid(CombatTarget) && bResumeWhenCombatTargetDestroyed)
+        {
+            CombatTarget->OnDestroyed.AddDynamic(
+                this,
+                &URenegadeSplineFollowerComponent::HandleCombatTargetDestroyed);
+        }
+
+        AcquireExternalMovementClaim(CombatMovementClaimName, true);
         return;
     }
 
     UnbindCombatTarget();
     ActiveCombatTarget.Reset();
 
-    const float Delay = ResumeDelayOverride < 0.0f ? DefaultCombatResumeDelay : ResumeDelayOverride;
-    if (Delay <= 0.0f)
+    const float Delay =
+        ResumeDelayOverride < 0.0f ? DefaultCombatResumeDelay : ResumeDelayOverride;
+    ReleaseExternalMovementClaim(CombatMovementClaimName, true, Delay);
+}
+
+bool URenegadeSplineFollowerComponent::AcquireExternalMovementClaim(
+    FName SourceName,
+    const bool bStopCurrentMovement)
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority())
     {
-        ResumeFollowing(true);
-        return;
+        return false;
     }
 
-    GetWorld()->GetTimerManager().ClearTimer(CombatResumeTimerHandle);
-    GetWorld()->GetTimerManager().SetTimer(
-        CombatResumeTimerHandle,
-        this,
-        &URenegadeSplineFollowerComponent::ResumeAfterCombatDelay,
-        Delay,
-        false);
+    SourceName = NormalizeExternalSourceName(SourceName);
+    if (ExternalMovementClaims.Contains(SourceName))
+    {
+        UpdatePausedStateFromClaims();
+        return false;
+    }
+
+    if (UWorld* World = GetWorld())
+    {
+        World->GetTimerManager().ClearTimer(NextMoveTimerHandle);
+        World->GetTimerManager().ClearTimer(ResumeTimerHandle);
+    }
+
+    ExternalMovementClaims.Add(SourceName);
+    ExternalMovementClaimCount = ExternalMovementClaims.Num();
+
+    // Invalidate first so our own StopMovement abort cannot be mistaken for an outside interruption.
+    ActiveMoveRequestId = FAIRequestID::InvalidRequest;
+    ClearVehicleSteeringTarget();
+
+    if (bStopCurrentMovement && ResolveOwnerAndController())
+    {
+        CachedAIController->StopMovement();
+    }
+
+    UpdatePausedStateFromClaims();
+    OnExternalMovementControlChanged.Broadcast(SourceName, true, ExternalMovementClaimCount);
+    return true;
+}
+
+bool URenegadeSplineFollowerComponent::ReleaseExternalMovementClaim(
+    FName SourceName,
+    const bool bResumeWhenAllClaimsReleased,
+    const float ResumeDelayOverride)
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority())
+    {
+        return false;
+    }
+
+    SourceName = NormalizeExternalSourceName(SourceName);
+    if (ExternalMovementClaims.Remove(SourceName) == 0)
+    {
+        return false;
+    }
+
+    ExternalMovementClaimCount = ExternalMovementClaims.Num();
+    OnExternalMovementControlChanged.Broadcast(SourceName, false, ExternalMovementClaimCount);
+
+    if (HasExternalMovementClaims())
+    {
+        UpdatePausedStateFromClaims();
+        return true;
+    }
+
+    if (!bResumeWhenAllClaimsReleased || !bRouteFollowingRequested || !IsValid(AssignedPath))
+    {
+        SetFollowState(ERenegadeSplineFollowState::Idle);
+        return true;
+    }
+
+    const float Delay =
+        ResumeDelayOverride < 0.0f ? DefaultExternalResumeDelay : ResumeDelayOverride;
+    ScheduleResume(Delay);
+    return true;
+}
+
+void URenegadeSplineFollowerComponent::SetExternalMovementActive(
+    const bool bExternalActive,
+    FName SourceName,
+    const bool bStopCurrentMovement,
+    const float ResumeDelayOverride)
+{
+    if (bExternalActive)
+    {
+        AcquireExternalMovementClaim(SourceName, bStopCurrentMovement);
+    }
+    else
+    {
+        ReleaseExternalMovementClaim(SourceName, true, ResumeDelayOverride);
+    }
+}
+
+TArray<FName> URenegadeSplineFollowerComponent::GetExternalMovementClaims() const
+{
+    TArray<FName> Claims;
+    Claims.Reserve(ExternalMovementClaims.Num());
+    for (const FName& Claim : ExternalMovementClaims)
+    {
+        Claims.Add(Claim);
+    }
+
+    Claims.Sort([](const FName& Left, const FName& Right)
+    {
+        return Left.ToString() < Right.ToString();
+    });
+    return Claims;
 }
 
 bool URenegadeSplineFollowerComponent::ReacquireRouteFromCurrentLocation()
 {
-    if (!IsValid(AssignedPath) || !OwnerPawn.IsValid())
+    if (!IsValid(AssignedPath))
+    {
+        return false;
+    }
+
+    if (!OwnerPawn.IsValid() && !ResolveOwnerAndController())
     {
         return false;
     }
@@ -278,7 +407,8 @@ bool URenegadeSplineFollowerComponent::ReacquireRouteFromCurrentLocation()
         return false;
     }
 
-    float ProjectedDistance = AssignedPath->GetClosestDistanceAlongRoute(OwnerPawn->GetActorLocation());
+    float ProjectedDistance =
+        AssignedPath->GetClosestDistanceAlongRoute(OwnerPawn->GetActorLocation());
 
     if (bHasCommittedProgress &&
         !AssignedPath->IsClosedLoop() &&
@@ -286,11 +416,13 @@ bool URenegadeSplineFollowerComponent::ReacquireRouteFromCurrentLocation()
     {
         if (TravelDirection == ERenegadeSplineTravelDirection::Forward)
         {
-            ProjectedDistance = FMath::Max(ProjectedDistance, LastCommittedDistance - MaximumResumeBacktrack);
+            ProjectedDistance =
+                FMath::Max(ProjectedDistance, LastCommittedDistance - MaximumResumeBacktrack);
         }
         else
         {
-            ProjectedDistance = FMath::Min(ProjectedDistance, LastCommittedDistance + MaximumResumeBacktrack);
+            ProjectedDistance =
+                FMath::Min(ProjectedDistance, LastCommittedDistance + MaximumResumeBacktrack);
         }
     }
 
@@ -333,7 +465,7 @@ bool URenegadeSplineFollowerComponent::SetRouteDistance(
     bHasCommittedProgress = true;
     BroadcastProgress();
 
-    if (bImmediatelyMove && IsActivelyFollowing())
+    if (bImmediatelyMove && IsActivelyFollowing() && !HasExternalMovementClaims())
     {
         ActiveMoveRequestId = FAIRequestID::InvalidRequest;
         if (ResolveOwnerAndController())
@@ -365,8 +497,26 @@ float URenegadeSplineFollowerComponent::GetNormalizedRouteProgress() const
         return 0.0f;
     }
 
-    const float RawProgress = FMath::Clamp(CurrentDistanceAlongSpline / Length, 0.0f, 1.0f);
-    return TravelDirection == ERenegadeSplineTravelDirection::Forward ? RawProgress : 1.0f - RawProgress;
+    const float RawProgress =
+        FMath::Clamp(CurrentDistanceAlongSpline / Length, 0.0f, 1.0f);
+    return TravelDirection == ERenegadeSplineTravelDirection::Forward
+        ? RawProgress
+        : 1.0f - RawProgress;
+}
+
+URenegadeCharacterVehicleComponent*
+URenegadeSplineFollowerComponent::GetCharacterVehicleComponent() const
+{
+    if (!CachedCharacterVehicle.IsValid())
+    {
+        if (AActor* OwnerActor = GetOwner())
+        {
+            CachedCharacterVehicle =
+                OwnerActor->FindComponentByClass<URenegadeCharacterVehicleComponent>();
+        }
+    }
+
+    return CachedCharacterVehicle.Get();
 }
 
 void URenegadeSplineFollowerComponent::ClearRuntimeTimers()
@@ -374,14 +524,17 @@ void URenegadeSplineFollowerComponent::ClearRuntimeTimers()
     if (UWorld* World = GetWorld())
     {
         World->GetTimerManager().ClearTimer(NextMoveTimerHandle);
-        World->GetTimerManager().ClearTimer(CombatResumeTimerHandle);
+        World->GetTimerManager().ClearTimer(ResumeTimerHandle);
         World->GetTimerManager().ClearTimer(AutoStartTimerHandle);
     }
 }
 
 void URenegadeSplineFollowerComponent::ScheduleNextMove(const float DelaySeconds)
 {
-    if (!GetWorld() || FollowState != ERenegadeSplineFollowState::Following)
+    if (!GetWorld() ||
+        FollowState != ERenegadeSplineFollowState::Following ||
+        HasExternalMovementClaims() ||
+        !bRouteFollowingRequested)
     {
         return;
     }
@@ -405,6 +558,31 @@ void URenegadeSplineFollowerComponent::ScheduleNextMove(const float DelaySeconds
     }
 }
 
+void URenegadeSplineFollowerComponent::ScheduleResume(const float DelaySeconds)
+{
+    if (!GetWorld() || HasExternalMovementClaims() || !bRouteFollowingRequested)
+    {
+        return;
+    }
+
+    GetWorld()->GetTimerManager().ClearTimer(ResumeTimerHandle);
+
+    if (DelaySeconds <= 0.0f)
+    {
+        ResumeTimerHandle = GetWorld()->GetTimerManager().SetTimerForNextTick(
+            this,
+            &URenegadeSplineFollowerComponent::ResumeAfterPauseDelay);
+    }
+    else
+    {
+        GetWorld()->GetTimerManager().SetTimer(
+            ResumeTimerHandle,
+            this,
+            &URenegadeSplineFollowerComponent::ResumeAfterPauseDelay,
+            DelaySeconds,
+            false);
+    }
+}
 
 void URenegadeSplineFollowerComponent::TryAutoStart()
 {
@@ -419,7 +597,7 @@ void URenegadeSplineFollowerComponent::TryAutoStart()
         return;
     }
 
-    // AI possession can occur just after BeginPlay for dynamically spawned pawns.
+    // AI possession can occur shortly after BeginPlay for dynamically spawned pawns.
     constexpr float RetryInterval = 0.2f;
     constexpr float MaximumWait = 5.0f;
     AutoStartElapsed += RetryInterval;
@@ -437,14 +615,21 @@ void URenegadeSplineFollowerComponent::TryAutoStart()
 
 void URenegadeSplineFollowerComponent::IssueNextMove()
 {
-    if (!GetOwner() || !GetOwner()->HasAuthority() || FollowState != ERenegadeSplineFollowState::Following)
+    if (!GetOwner() ||
+        !GetOwner()->HasAuthority() ||
+        FollowState != ERenegadeSplineFollowState::Following ||
+        HasExternalMovementClaims() ||
+        !bRouteFollowingRequested)
     {
         return;
     }
 
-    if (!IsValid(AssignedPath) || !AssignedPath->IsTeamAllowed(TeamId) || !ResolveOwnerAndController())
+    if (!IsValid(AssignedPath) ||
+        !AssignedPath->IsTeamAllowed(TeamId) ||
+        !ResolveOwnerAndController())
     {
         SetFollowState(ERenegadeSplineFollowState::Blocked);
+        ClearVehicleSteeringTarget();
         return;
     }
 
@@ -454,22 +639,34 @@ void URenegadeSplineFollowerComponent::IssueNextMove()
         return;
     }
 
-    PendingTargetDistance = AdvanceDistance(CurrentDistanceAlongSpline, GetEffectiveLookAheadDistance());
-    CurrentMoveGoal = AssignedPath->GetRouteLocationAtDistance(PendingTargetDistance, LaneOffset);
+    PendingTargetDistance =
+        AdvanceDistance(CurrentDistanceAlongSpline, GetEffectiveLookAheadDistance());
+    CurrentMoveGoal =
+        AssignedPath->GetRouteLocationAtDistance(PendingTargetDistance, LaneOffset);
+    UpdateVehicleSteeringTarget();
 
     if (bDrawDebug && GetWorld() && OwnerPawn.IsValid())
     {
-        DrawDebugSphere(GetWorld(), CurrentMoveGoal, 28.0f, 12, FColor::Cyan, false, 2.0f, 0, 2.0f);
-        DrawDebugLine(GetWorld(), OwnerPawn->GetActorLocation(), CurrentMoveGoal, FColor::Cyan, false, 2.0f, 0, 1.5f);
+        DrawDebugSphere(
+            GetWorld(), CurrentMoveGoal, 28.0f, 12, FColor::Cyan, false, 2.0f, 0, 2.0f);
+        DrawDebugLine(
+            GetWorld(), OwnerPawn->GetActorLocation(), CurrentMoveGoal,
+            FColor::Cyan, false, 2.0f, 0, 1.5f);
     }
+
+    const URenegadeCharacterVehicleComponent* CharacterVehicle =
+        bAutoDetectCharacterVehicle ? GetCharacterVehicleComponent() : nullptr;
+    const bool bCharacterVehicleReady =
+        IsValid(CharacterVehicle) && CharacterVehicle->IsCharacterVehicleReady();
 
     FAIMoveRequest MoveRequest;
     MoveRequest.SetGoalLocation(CurrentMoveGoal);
-    MoveRequest.SetAcceptanceRadius(AcceptanceRadius);
+    MoveRequest.SetAcceptanceRadius(GetEffectiveAcceptanceRadius());
     MoveRequest.SetUsePathfinding(bUsePathfinding);
     MoveRequest.SetProjectGoalLocation(bProjectGoalsToNavigation);
     MoveRequest.SetAllowPartialPath(bAllowPartialPaths);
-    MoveRequest.SetCanStrafe(bCanStrafe);
+    MoveRequest.SetCanStrafe(
+        bCharacterVehicleReady && bForceNoStrafeForCharacterVehicles ? false : bCanStrafe);
     MoveRequest.SetReachTestIncludesAgentRadius(bStopOnOverlap);
 
     const FPathFollowingRequestResult RequestResult = CachedAIController->MoveTo(MoveRequest);
@@ -481,15 +678,26 @@ void URenegadeSplineFollowerComponent::IssueNextMove()
             break;
 
         case EPathFollowingRequestResult::AlreadyAtGoal:
+            ActiveMoveRequestId = FAIRequestID::InvalidRequest;
             CurrentDistanceAlongSpline = PendingTargetDistance;
             LastCommittedDistance = CurrentDistanceAlongSpline;
+            bHasCommittedProgress = true;
             ConsecutiveMoveFailures = 0;
             BroadcastProgress();
-            ScheduleNextMove(SegmentDelay);
+
+            if (IsAtEndOfOpenRoute(CurrentDistanceAlongSpline))
+            {
+                CompleteRoute();
+            }
+            else
+            {
+                ScheduleNextMove(SegmentDelay);
+            }
             break;
 
         case EPathFollowingRequestResult::Failed:
         default:
+            ActiveMoveRequestId = FAIRequestID::InvalidRequest;
             HandleMoveRequestFailure();
             break;
     }
@@ -499,15 +707,26 @@ void URenegadeSplineFollowerComponent::HandleMoveFinished(
     const FAIRequestID RequestId,
     const FPathFollowingResult& Result)
 {
+    // This can be the end of an outside MoveTo that interrupted us. The fallback is deliberately
+    // opt-in; explicit movement claims remain the preferred integration contract.
     if (RequestId != ActiveMoveRequestId)
     {
+        if (FollowState == ERenegadeSplineFollowState::Suspended &&
+            bAutoResumeAfterUnexpectedExternalMove &&
+            !HasExternalMovementClaims() &&
+            bRouteFollowingRequested &&
+            IsControllerMovementIdle())
+        {
+            ScheduleResume(UnexpectedExternalMoveResumeDelay);
+        }
         return;
     }
 
     ActiveMoveRequestId = FAIRequestID::InvalidRequest;
 
-    // Combat and explicit stop intentionally abort the active request.
-    if (FollowState == ERenegadeSplineFollowState::CombatPaused ||
+    if (HasExternalMovementClaims() ||
+        FollowState == ERenegadeSplineFollowState::CombatPaused ||
+        FollowState == ERenegadeSplineFollowState::ExternalPaused ||
         FollowState == ERenegadeSplineFollowState::Idle ||
         FollowState == ERenegadeSplineFollowState::Completed ||
         FollowState == ERenegadeSplineFollowState::Disabled)
@@ -519,6 +738,7 @@ void URenegadeSplineFollowerComponent::HandleMoveFinished(
     {
         CurrentDistanceAlongSpline = PendingTargetDistance;
         LastCommittedDistance = CurrentDistanceAlongSpline;
+        bHasCommittedProgress = true;
         ConsecutiveMoveFailures = 0;
         BroadcastProgress();
 
@@ -535,8 +755,7 @@ void URenegadeSplineFollowerComponent::HandleMoveFinished(
 
     if (Result.IsInterrupted())
     {
-        // Another system used the controller without first pausing this component.
-        // Yield permanently until ResumeFollowing is explicitly called, avoiding movement tug-of-war.
+        ClearVehicleSteeringTarget();
         SetFollowState(ERenegadeSplineFollowState::Suspended);
         return;
     }
@@ -546,30 +765,46 @@ void URenegadeSplineFollowerComponent::HandleMoveFinished(
 
 void URenegadeSplineFollowerComponent::HandleMoveRequestFailure()
 {
+    if (HasExternalMovementClaims() || !bRouteFollowingRequested)
+    {
+        UpdatePausedStateFromClaims();
+        return;
+    }
+
     ++ConsecutiveMoveFailures;
     OnMoveFailure.Broadcast(ConsecutiveMoveFailures, CurrentMoveGoal);
 
     if (ConsecutiveMoveFailures > MaximumConsecutiveMoveFailures)
     {
+        ClearVehicleSteeringTarget();
         SetFollowState(ERenegadeSplineFollowState::Blocked);
         return;
     }
 
-    // Reproject after failures in case avoidance or physics displaced the pawn.
-    ReacquireRouteFromCurrentLocation();
+    // Reproject after failures in case avoidance, combat, or physics displaced the pawn.
+    if (!ReacquireRouteFromCurrentLocation())
+    {
+        ClearVehicleSteeringTarget();
+        SetFollowState(ERenegadeSplineFollowState::Blocked);
+        return;
+    }
+
     ScheduleNextMove(FailedMoveRetryDelay);
 }
 
 void URenegadeSplineFollowerComponent::CompleteRoute()
 {
     ClearRuntimeTimers();
+    ClearVehicleSteeringTarget();
     ActiveMoveRequestId = FAIRequestID::InvalidRequest;
+    bRouteFollowingRequested = false;
     SetFollowState(ERenegadeSplineFollowState::Completed);
     BroadcastProgress();
     OnRouteCompleted.Broadcast(AssignedPath);
 }
 
-void URenegadeSplineFollowerComponent::SetFollowState(const ERenegadeSplineFollowState NewState)
+void URenegadeSplineFollowerComponent::SetFollowState(
+    const ERenegadeSplineFollowState NewState)
 {
     if (FollowState == NewState)
     {
@@ -590,14 +825,105 @@ void URenegadeSplineFollowerComponent::UnbindCombatTarget()
 {
     if (AActor* CombatTarget = ActiveCombatTarget.Get())
     {
-        CombatTarget->OnDestroyed.RemoveDynamic(this, &URenegadeSplineFollowerComponent::HandleCombatTargetDestroyed);
+        CombatTarget->OnDestroyed.RemoveDynamic(
+            this,
+            &URenegadeSplineFollowerComponent::HandleCombatTargetDestroyed);
+    }
+}
+
+void URenegadeSplineFollowerComponent::UpdatePausedStateFromClaims()
+{
+    if (!HasExternalMovementClaims())
+    {
+        return;
+    }
+
+    SetFollowState(
+        HasCombatMovementClaim()
+            ? ERenegadeSplineFollowState::CombatPaused
+            : ERenegadeSplineFollowState::ExternalPaused);
+}
+
+FName URenegadeSplineFollowerComponent::NormalizeExternalSourceName(FName SourceName) const
+{
+    return SourceName.IsNone() ? DefaultExternalMovementClaimName : SourceName;
+}
+
+bool URenegadeSplineFollowerComponent::HasCombatMovementClaim() const
+{
+    return ExternalMovementClaims.Contains(CombatMovementClaimName);
+}
+
+void URenegadeSplineFollowerComponent::ClearVehicleSteeringTarget()
+{
+    if (URenegadeCharacterVehicleComponent* Vehicle = GetCharacterVehicleComponent())
+    {
+        Vehicle->ClearSteeringTarget();
+    }
+}
+
+void URenegadeSplineFollowerComponent::UpdateVehicleSteeringTarget()
+{
+    if (!bAutoDetectCharacterVehicle)
+    {
+        return;
+    }
+
+    if (URenegadeCharacterVehicleComponent* Vehicle = GetCharacterVehicleComponent())
+    {
+        Vehicle->SetSteeringTarget(CurrentMoveGoal);
     }
 }
 
 float URenegadeSplineFollowerComponent::GetEffectiveLookAheadDistance() const
 {
+    float BaseLookAhead = LookAheadDistance;
+
+    if (bAutoDetectCharacterVehicle)
+    {
+        const URenegadeCharacterVehicleComponent* Vehicle = GetCharacterVehicleComponent();
+        if (IsValid(Vehicle) &&
+            Vehicle->IsCharacterVehicleReady() &&
+            Vehicle->bOverrideSplineFollowerDistances)
+        {
+            BaseLookAhead = Vehicle->RecommendedSplineLookAheadDistance;
+        }
+    }
+
     const float FailureScale = FMath::Pow(0.65f, static_cast<float>(ConsecutiveMoveFailures));
-    return FMath::Max(MinimumLookAheadDistance, LookAheadDistance * FailureScale);
+    return FMath::Max(MinimumLookAheadDistance, BaseLookAhead * FailureScale);
+}
+
+float URenegadeSplineFollowerComponent::GetEffectiveAcceptanceRadius() const
+{
+    if (bAutoDetectCharacterVehicle)
+    {
+        const URenegadeCharacterVehicleComponent* Vehicle = GetCharacterVehicleComponent();
+        if (IsValid(Vehicle) &&
+            Vehicle->IsCharacterVehicleReady() &&
+            Vehicle->bOverrideSplineFollowerDistances)
+        {
+            return Vehicle->RecommendedAcceptanceRadius;
+        }
+    }
+
+    return AcceptanceRadius;
+}
+
+float URenegadeSplineFollowerComponent::GetEffectiveRouteEndTolerance() const
+{
+    if (bAutoDetectCharacterVehicle)
+    {
+        const URenegadeCharacterVehicleComponent* Vehicle = GetCharacterVehicleComponent();
+        if (IsValid(Vehicle) &&
+            Vehicle->IsCharacterVehicleReady() &&
+            Vehicle->bOverrideSplineFollowerDistances)
+        {
+            return Vehicle->RecommendedRouteEndTolerance;
+        }
+    }
+
+    return RouteEndTolerance;
 }
 
 float URenegadeSplineFollowerComponent::AdvanceDistance(
@@ -610,9 +936,10 @@ float URenegadeSplineFollowerComponent::AdvanceDistance(
     }
 
     const float Length = AssignedPath->GetRouteLength();
-    const float SignedDelta = TravelDirection == ERenegadeSplineTravelDirection::Forward
-        ? DeltaDistance
-        : -DeltaDistance;
+    const float SignedDelta =
+        TravelDirection == ERenegadeSplineTravelDirection::Forward
+            ? DeltaDistance
+            : -DeltaDistance;
 
     float NewDistance = FromDistance + SignedDelta;
 
@@ -629,7 +956,8 @@ float URenegadeSplineFollowerComponent::AdvanceDistance(
     return FMath::Clamp(NewDistance, 0.0f, Length);
 }
 
-bool URenegadeSplineFollowerComponent::IsAtEndOfOpenRoute(const float DistanceAlongSpline) const
+bool URenegadeSplineFollowerComponent::IsAtEndOfOpenRoute(
+    const float DistanceAlongSpline) const
 {
     if (!IsValid(AssignedPath) || AssignedPath->IsClosedLoop())
     {
@@ -637,25 +965,48 @@ bool URenegadeSplineFollowerComponent::IsAtEndOfOpenRoute(const float DistanceAl
     }
 
     const float Length = AssignedPath->GetRouteLength();
+    const float EndTolerance = GetEffectiveRouteEndTolerance();
     return TravelDirection == ERenegadeSplineTravelDirection::Forward
-        ? DistanceAlongSpline >= Length - RouteEndTolerance
-        : DistanceAlongSpline <= RouteEndTolerance;
+        ? DistanceAlongSpline >= Length - EndTolerance
+        : DistanceAlongSpline <= EndTolerance;
+}
+
+bool URenegadeSplineFollowerComponent::IsControllerMovementIdle() const
+{
+    const AAIController* AIController = CachedAIController.Get();
+    if (!IsValid(AIController))
+    {
+        return true;
+    }
+
+    const UPathFollowingComponent* PathFollowing = AIController->GetPathFollowingComponent();
+    return !IsValid(PathFollowing) || PathFollowing->GetStatus() == EPathFollowingStatus::Idle;
 }
 
 void URenegadeSplineFollowerComponent::HandleCombatTargetDestroyed(AActor* DestroyedActor)
 {
-    if (DestroyedActor == ActiveCombatTarget.Get() && FollowState == ERenegadeSplineFollowState::CombatPaused)
+    if (DestroyedActor == ActiveCombatTarget.Get() && HasCombatMovementClaim())
     {
         SetCombatActive(false, nullptr, -1.0f);
     }
 }
 
-void URenegadeSplineFollowerComponent::ResumeAfterCombatDelay()
+void URenegadeSplineFollowerComponent::ResumeAfterPauseDelay()
 {
-    ResumeFollowing(true);
+    if (HasExternalMovementClaims())
+    {
+        UpdatePausedStateFromClaims();
+        return;
+    }
+
+    if (bRouteFollowingRequested && IsValid(AssignedPath))
+    {
+        ResumeFollowing(true);
+    }
 }
 
-void URenegadeSplineFollowerComponent::OnRep_FollowState(const ERenegadeSplineFollowState PreviousState)
+void URenegadeSplineFollowerComponent::OnRep_FollowState(
+    const ERenegadeSplineFollowState PreviousState)
 {
     OnFollowStateChanged.Broadcast(PreviousState, FollowState);
 }

@@ -3,6 +3,8 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "RenegadeCharacterVehicleComponent.h"
+#include "RenegadeSplineFollowerComponent.h"
 #include "RenegadeSplinePath.h"
 
 ARenegadeSplinePath* URenegadeSplineAIBlueprintLibrary::FindNearestCompatiblePath(
@@ -17,7 +19,9 @@ ARenegadeSplinePath* URenegadeSplineAIBlueprintLibrary::FindNearestCompatiblePat
         return nullptr;
     }
 
-    UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::ReturnNull);
+    UWorld* World = GEngine->GetWorldFromContextObject(
+        WorldContextObject,
+        EGetWorldErrorMode::ReturnNull);
     if (!IsValid(World))
     {
         return nullptr;
@@ -53,4 +57,59 @@ ARenegadeSplinePath* URenegadeSplineAIBlueprintLibrary::FindNearestCompatiblePat
     }
 
     return BestPath;
+}
+
+URenegadeSplineFollowerComponent*
+URenegadeSplineAIBlueprintLibrary::GetSplineFollowerComponent(AActor* Actor)
+{
+    return IsValid(Actor)
+        ? Actor->FindComponentByClass<URenegadeSplineFollowerComponent>()
+        : nullptr;
+}
+
+URenegadeCharacterVehicleComponent*
+URenegadeSplineAIBlueprintLibrary::GetCharacterVehicleComponent(AActor* Actor)
+{
+    return IsValid(Actor)
+        ? Actor->FindComponentByClass<URenegadeCharacterVehicleComponent>()
+        : nullptr;
+}
+
+bool URenegadeSplineAIBlueprintLibrary::SetSplineCombatActiveForActor(
+    AActor* ControlledActor,
+    const bool bCombatActive,
+    AActor* CombatTarget,
+    const float ResumeDelayOverride)
+{
+    URenegadeSplineFollowerComponent* Follower =
+        GetSplineFollowerComponent(ControlledActor);
+    if (!IsValid(Follower))
+    {
+        return false;
+    }
+
+    Follower->SetCombatActive(bCombatActive, CombatTarget, ResumeDelayOverride);
+    return true;
+}
+
+bool URenegadeSplineAIBlueprintLibrary::SetSplineExternalMovementActiveForActor(
+    AActor* ControlledActor,
+    const bool bExternalActive,
+    const FName SourceName,
+    const bool bStopCurrentMovement,
+    const float ResumeDelayOverride)
+{
+    URenegadeSplineFollowerComponent* Follower =
+        GetSplineFollowerComponent(ControlledActor);
+    if (!IsValid(Follower))
+    {
+        return false;
+    }
+
+    Follower->SetExternalMovementActive(
+        bExternalActive,
+        SourceName,
+        bStopCurrentMovement,
+        ResumeDelayOverride);
+    return true;
 }

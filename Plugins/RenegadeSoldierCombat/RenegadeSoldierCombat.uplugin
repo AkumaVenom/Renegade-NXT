@@ -1,9 +1,9 @@
 {
   "FileVersion": 3,
-  "Version": 134,
-  "VersionName": "1.3.4",
-  "FriendlyName": "Renegade NXT Soldier Combat",
-  "Description": "Blueprint-first AI and player infantry combat with always-editable player input and aiming configuration, repaired hit resolution, authoritative shot debug lines, keyboard/mouse/gamepad controls, polished aiming and FOV zoom, bullet visuals, ground blood, ragdoll death, and custom same-actor respawning for Unreal Engine 5.8.",
+  "Version": 143,
+  "VersionName": "1.4.3",
+  "FriendlyName": "Renegade NXT Combat and Building Warfare",
+  "Description": "Blueprint-first infantry and building warfare for Unreal Engine 5.8: AI/player combat, targetable team buildings, AGT dual rockets, Obelisk charge-and-laser defence with automatic Niagara/Cascade trace alignment, deterministic laser lifetime cleanup, and exposed visual scaling, bullet visuals, blood, aiming, ragdoll death, and same-actor respawning.",
   "Category": "AI",
   "CreatedBy": "Renegade NXT",
   "CreatedByURL": "",
@@ -18,6 +18,12 @@
       "Name": "RenegadeSoldierCombat",
       "Type": "Runtime",
       "LoadingPhase": "Default"
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "Niagara",
+      "Enabled": true
     }
   ]
 }

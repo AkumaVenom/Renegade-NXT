@@ -15,7 +15,8 @@ public class RenegadeSoldierCombat : ModuleRules
             "AIModule",
             "NavigationSystem",
             "GameplayTasks",
-            "NetCore"
+            "NetCore",
+            "Niagara"
         });
     }
 }

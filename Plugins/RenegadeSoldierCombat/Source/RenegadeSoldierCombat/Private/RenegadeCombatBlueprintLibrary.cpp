@@ -1,5 +1,6 @@
 #include "RenegadeCombatBlueprintLibrary.h"
 #include "GameFramework/Actor.h"
+#include "RenegadeBuildingCombatComponent.h"
 #include "RenegadeSoldierCombatComponent.h"
 
 URenegadeSoldierCombatComponent* URenegadeCombatBlueprintLibrary::GetRenegadeCombatComponent(const AActor* Actor)
@@ -7,28 +8,61 @@ URenegadeSoldierCombatComponent* URenegadeCombatBlueprintLibrary::GetRenegadeCom
     return Actor ? Actor->FindComponentByClass<URenegadeSoldierCombatComponent>() : nullptr;
 }
 
+URenegadeBuildingCombatComponent* URenegadeCombatBlueprintLibrary::GetRenegadeBuildingCombatComponent(const AActor* Actor)
+{
+    return Actor ? Actor->FindComponentByClass<URenegadeBuildingCombatComponent>() : nullptr;
+}
+
 bool URenegadeCombatBlueprintLibrary::AreRenegadeActorsHostile(const AActor* FirstActor, const AActor* SecondActor)
 {
-    const URenegadeSoldierCombatComponent* FirstCombat = GetRenegadeCombatComponent(FirstActor);
-    return FirstCombat && FirstCombat->IsHostileToActor(SecondActor);
+    if (const URenegadeSoldierCombatComponent* FirstCombat = GetRenegadeCombatComponent(FirstActor))
+    {
+        return FirstCombat->IsHostileToActor(SecondActor);
+    }
+
+    if (const URenegadeBuildingCombatComponent* FirstBuilding = GetRenegadeBuildingCombatComponent(FirstActor))
+    {
+        return FirstBuilding->IsHostileToActor(SecondActor);
+    }
+
+    return false;
 }
 
 FName URenegadeCombatBlueprintLibrary::GetRenegadeTeamId(const AActor* Actor)
 {
-    const URenegadeSoldierCombatComponent* Combat = GetRenegadeCombatComponent(Actor);
-    return Combat ? Combat->TeamId : NAME_None;
+    if (const URenegadeSoldierCombatComponent* Combat = GetRenegadeCombatComponent(Actor))
+    {
+        return Combat->TeamId;
+    }
+
+    if (const URenegadeBuildingCombatComponent* Building = GetRenegadeBuildingCombatComponent(Actor))
+    {
+        return Building->TeamId;
+    }
+
+    return NAME_None;
 }
 
 bool URenegadeCombatBlueprintLibrary::SetRenegadeTeamId(AActor* Actor, FName NewTeamId)
 {
-    URenegadeSoldierCombatComponent* Combat = GetRenegadeCombatComponent(Actor);
-    if (!Combat || !Actor || !Actor->HasAuthority())
+    if (!Actor || !Actor->HasAuthority())
     {
         return false;
     }
 
-    Combat->SetTeamId(NewTeamId);
-    return true;
+    if (URenegadeSoldierCombatComponent* Combat = GetRenegadeCombatComponent(Actor))
+    {
+        Combat->SetTeamId(NewTeamId);
+        return true;
+    }
+
+    if (URenegadeBuildingCombatComponent* Building = GetRenegadeBuildingCombatComponent(Actor))
+    {
+        Building->SetTeamId(NewTeamId);
+        return true;
+    }
+
+    return false;
 }
 
 FRenegadeWeaponSettings URenegadeCombatBlueprintLibrary::MakeAutomaticRiflePreset()

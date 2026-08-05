@@ -1,5 +1,60 @@
 # Changelog
 
+## 1.4.3 - Deterministic Obelisk Laser Activation and Cleanup
+
+- Fixed looping Cascade Obelisk beams remaining permanently visible after firing.
+- Added exposed `Laser Visual Lifetime Seconds` to control exactly how long each laser visual remains active.
+- Cascade laser components are now created with auto activation disabled, fully configured with trace endpoints, transform, and scale, and only then activated.
+- Removed the pre-activation window that could briefly display a Cascade asset's authored default beam before the first valid shot.
+- Cascade cleanup now forcibly deactivates the system, kills remaining particles, clears its template, and destroys the temporary runtime component.
+- Niagara laser visuals now use deterministic lifetime cleanup instead of relying on the authored system to stop itself.
+- A new Obelisk shot removes any previous active laser visual before spawning the next one, preventing overlaps and accumulated looping beams.
+- Optional Blueprint laser-effect actors now receive the same configured lifetime through Actor lifespan.
+- Preserved the working Obelisk charge, trace, damage, kill, sound, endpoint alignment, scale controls, AGT defence, building warfare, player combat, and NPC combat.
+
+## 1.4.2 - Automatic Cascade Trace Alignment and Laser Scaling
+
+- Fixed the Obelisk Cascade effect spawning without visually reaching the authoritative damage-trace endpoint.
+- Cascade source and target points are now applied automatically regardless of the legacy v1.4.1 checkbox value.
+- Cascade endpoints are written before activation and again after activation for compatibility with native Beam TypeData emitters.
+- Added automatic trace-length fitting for fixed-length or non-beam Cascade particle assets.
+- Added exposed `Laser Visual Scale` XYZ control.
+- Added independent `Laser Length Scale Multiplier` and `Laser Thickness Scale Multiplier` controls.
+- Added exposed `Laser Visual Rotation Offset` for effects authored along an axis other than local +X.
+- Kept `Authored Laser Length` exposed so transform-fitted effects terminate at the confirmed trace endpoint.
+- Added safe upgrade handling so newly introduced scale fields cannot deserialize as zero and make the effect invisible.
+- Preserved the working server-authoritative Obelisk targeting, charge timing, damage, kills, sounds, Niagara fallback, AGT defence, building health, player combat, and NPC combat.
+
+## 1.4.1 - Cascade Obelisk Laser Fallback
+
+- Added classic Cascade `Particle System` support for the Obelisk laser.
+- Added exposed `Particle System Preference` with Niagara-first or Cascade-first fallback order.
+- Added `Laser Cascade Particle System` asset selection.
+- Added Cascade beam source/target assignment through emitter, source, and target indices.
+- Added optional Cascade vector instance parameter names for assets driven by named start/end vectors.
+- Cascade effects receive the same trace-facing rotation and optional +X distance scaling as Niagara.
+- Preserved the existing Blueprint laser-effect actor as an optional additional presentation layer.
+- Preserved all v1.4.0 building health, infantry building targeting, AGT rockets, Obelisk damage, power dependency, under-attack audio serialization, player combat, and NPC combat.
+
+## 1.4.0 - Building Warfare, AGT Rockets, and Obelisk Laser
+
+- Added `Renegade Building Combat Component` for all GDI/Nod building Blueprint actors.
+- Added building types for Refinery, Barracks, Silo, Hand of Nod, Weapons Factory, Power Plant, Helipad, Repair Pad, Airstrip, Obelisk, Advanced Guard Tower, Generic, and custom use.
+- Added replicated building team, health, destruction state, repair/restoration, targetability, defence target, Obelisk charging, and team-power state.
+- Added Blueprint health, under-attack, destroyed, restored, defence-target, defence-fired, and team-power events.
+- Expanded AI infantry target acquisition to include hostile buildings through the existing world registry.
+- Added exposed infantry policies for ignoring buildings, attacking buildings only when no soldier is available, comparing closest targets, or preferring buildings.
+- Expanded player and AI shot hierarchy resolution so attached building meshes redirect point damage to the owning building actor.
+- Added global per-world/client under-attack audio serialization so several damaged buildings cannot overlap announcer sounds.
+- Added AGT dual server traces, two selectable rocket muzzle Scene Components/tags, per-rocket damage, range, cadence, spread, fire sound, pooled visual rocket meshes, impact effect actors, and debug traces.
+- Added Obelisk target acquisition, configurable charge time, separate charge and shoot sounds, post-charge server damage trace, and automatic reacquisition.
+- Added Fab Niagara laser support with exposed start/end parameter names, Position or Vector3 parameter type, trace-facing rotation, optional +X distance scaling, and Blueprint actor visual fallback.
+- Added optional team Power Plant dependency for AGT/Obelisk operation.
+- Added defence target selection by closest enemy, lowest health, or random enemy.
+- Added preview nodes for AGT rocket travel and Obelisk laser effects.
+- Added `Docs/Building_Warfare.md` with full Blueprint, collision, Niagara, audio, power, debugging, and performance setup.
+- Preserved all v1.3.4 player input, aiming, hit registration, NPC combat, bullet visuals, blood, ragdoll, spline integration, and respawning.
+
 ## 1.3.4 - Editable Player Input and Aim Defaults
 
 - Fixed the complete Player Input and Player Aim Presentation settings being greyed out whenever `Player Controlled Combat` was disabled.

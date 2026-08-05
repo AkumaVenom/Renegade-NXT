@@ -29,6 +29,7 @@ ENGINE_API UClass* Z_Construct_UClass_UStaticMesh(ETypeConstructPhase);
 
 // ********** Begin Same Module References *********************************************************
 UPackage* Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeBuildingTargetPolicy(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeCombatMoveType(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnLocationSelection(ETypeConstructPhase);
@@ -699,6 +700,27 @@ struct UHT_STATICS
 		{ "ClampMin", "0.0" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BuildingTargetPolicy_MetaData[] = {
+		{ "Category", "Targeting|Buildings" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Controls whether autonomous infantry may acquire hostile building components as combat targets. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Controls whether autonomous infantry may acquire hostile building components as combat targets." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BuildingTargetDistanceScoreMultiplier_MetaData[] = {
+		{ "Category", "Targeting|Buildings" },
+		{ "ClampMin", "0.01" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Multiplies building distance score. Values below 1 make buildings more attractive; values above 1 favour soldiers. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Multiplies building distance score. Values below 1 make buildings more attractive; values above 1 favour soldiers." },
+#endif
+	};
 #endif // WITH_METADATA
 
 // ********** Begin ScriptStruct FRenegadeTargetingSettings constinit property declarations ********
@@ -717,6 +739,9 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FBoolPropertyParams NewProp_bRetaliateWhenDamaged;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_LoseTargetRadiusMultiplier;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_AimHeightOffset;
+	static const UECodeGen_Private::FBytePropertyParams NewProp_BuildingTargetPolicy_Underlying;
+	static const UECodeGen_Private::FEnumPropertyParams NewProp_BuildingTargetPolicy;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_BuildingTargetDistanceScoreMultiplier;
 	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
 // ********** End ScriptStruct FRenegadeTargetingSettings constinit property declarations **********
 	static void* NewStructOps()
@@ -734,6 +759,9 @@ const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bRequireLineOf
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bRetaliateWhenDamaged = { "bRetaliateWhenDamaged", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeTargetingSettings), &UHT_STATICS::NewProp_bRetaliateWhenDamaged_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bRetaliateWhenDamaged_MetaData), NewProp_bRetaliateWhenDamaged_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_LoseTargetRadiusMultiplier = { "LoseTargetRadiusMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, LoseTargetRadiusMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LoseTargetRadiusMultiplier_MetaData), NewProp_LoseTargetRadiusMultiplier_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AimHeightOffset = { "AimHeightOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, AimHeightOffset), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimHeightOffset_MetaData), NewProp_AimHeightOffset_MetaData) };
+const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_BuildingTargetPolicy_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_BuildingTargetPolicy = { "BuildingTargetPolicy", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, BuildingTargetPolicy), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeBuildingTargetPolicy, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BuildingTargetPolicy_MetaData), NewProp_BuildingTargetPolicy_MetaData) }; // 3f4a6f6bbc08b327f762e02f063cc8907da1ea50
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_BuildingTargetDistanceScoreMultiplier = { "BuildingTargetDistanceScoreMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, BuildingTargetDistanceScoreMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BuildingTargetDistanceScoreMultiplier_MetaData), NewProp_BuildingTargetDistanceScoreMultiplier_MetaData) };
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_SearchRadius,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TargetRefreshSeconds,
@@ -742,6 +770,9 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bRetaliateWhenDamaged,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LoseTargetRadiusMultiplier,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimHeightOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BuildingTargetPolicy_Underlying,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BuildingTargetPolicy,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BuildingTargetDistanceScoreMultiplier,
 };
 static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
 // ********** End ScriptStruct FRenegadeTargetingSettings Property Definitions *********************
@@ -2798,7 +2829,7 @@ struct UHT_STATICS
 	};
 	static constexpr FStructRegisterCompiledInInfo ScriptStructInfo[] = {
 		{ Z_Construct_UScriptStruct_FRenegadeWeaponSettings, Z_Construct_UScriptStruct_FRenegadeWeaponSettings_Statics::NewStructOps, TEXT("RenegadeWeaponSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeWeaponSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeWeaponSettings), 3105848085U) },
-		{ Z_Construct_UScriptStruct_FRenegadeTargetingSettings, Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics::NewStructOps, TEXT("RenegadeTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeTargetingSettings), 2865162924U) },
+		{ Z_Construct_UScriptStruct_FRenegadeTargetingSettings, Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics::NewStructOps, TEXT("RenegadeTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeTargetingSettings), 1843514437U) },
 		{ Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings, Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings_Statics::NewStructOps, TEXT("RenegadeCombatMovementSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatMovementSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatMovementSettings), 3050183974U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings, Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings_Statics::NewStructOps, TEXT("RenegadePlayerCombatSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerCombatSettings), 3336172806U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings, Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings_Statics::NewStructOps, TEXT("RenegadePlayerAimPresentationSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerAimPresentationSettings), 2735215814U) },
@@ -2807,7 +2838,7 @@ struct UHT_STATICS
 		{ Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings, Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics::NewStructOps, TEXT("RenegadeHealthRespawnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeHealthRespawnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeHealthRespawnSettings), 1785623175U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_12704f037f7f1ce173653633593576ef4cd61f84{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_88f0acd0ef1fc7b88a62ef3a5b572bfad8f90bba{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	nullptr, 0,
 	UHT_STATICS::ScriptStructInfo, UE_ARRAY_COUNT(UHT_STATICS::ScriptStructInfo),

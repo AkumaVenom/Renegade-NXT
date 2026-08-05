@@ -18,18 +18,25 @@
 PRAGMA_DISABLE_DEPRECATION_WARNINGS
 class AActor;
 class ARenegadeSplinePath;
+class URenegadeCharacterVehicleComponent;
 enum class ERenegadeSplineFollowState : uint8;
 
 // ********** Begin Class URenegadeSplineFollowerComponent *****************************************
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_26_RPC_WRAPPERS_NO_PURE_DECLS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_27_RPC_WRAPPERS_NO_PURE_DECLS \
 	DECLARE_FUNCTION(execOnRep_FollowState); \
-	DECLARE_FUNCTION(execResumeAfterCombatDelay); \
+	DECLARE_FUNCTION(execResumeAfterPauseDelay); \
 	DECLARE_FUNCTION(execHandleCombatTargetDestroyed); \
+	DECLARE_FUNCTION(execGetCharacterVehicleComponent); \
 	DECLARE_FUNCTION(execGetCombatTarget); \
 	DECLARE_FUNCTION(execGetNormalizedRouteProgress); \
 	DECLARE_FUNCTION(execIsActivelyFollowing); \
 	DECLARE_FUNCTION(execSetRouteDistance); \
 	DECLARE_FUNCTION(execReacquireRouteFromCurrentLocation); \
+	DECLARE_FUNCTION(execGetExternalMovementClaims); \
+	DECLARE_FUNCTION(execHasExternalMovementClaims); \
+	DECLARE_FUNCTION(execSetExternalMovementActive); \
+	DECLARE_FUNCTION(execReleaseExternalMovementClaim); \
+	DECLARE_FUNCTION(execAcquireExternalMovementClaim); \
 	DECLARE_FUNCTION(execSetCombatActive); \
 	DECLARE_FUNCTION(execResumeFollowing); \
 	DECLARE_FUNCTION(execPauseForCombat); \
@@ -40,7 +47,7 @@ enum class ERenegadeSplineFollowState : uint8;
 struct Z_Construct_UClass_URenegadeSplineFollowerComponent_Statics;
 RENEGADESPLINEAI_API UClass* Z_Construct_UClass_URenegadeSplineFollowerComponent(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_26_INCLASS_NO_PURE_DECLS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_27_INCLASS_NO_PURE_DECLS \
 private: \
 	friend struct ::Z_Construct_UClass_URenegadeSplineFollowerComponent_Statics; \
 	friend RENEGADESPLINEAI_API UClass* ::Z_Construct_UClass_URenegadeSplineFollowerComponent(ETypeConstructPhase); \
@@ -53,11 +60,12 @@ public: \
 		AssignedPath=NETFIELD_REP_START, \
 		FollowState, \
 		CurrentDistanceAlongSpline, \
-		NETFIELD_REP_END=CurrentDistanceAlongSpline	}; \
+		ExternalMovementClaimCount, \
+		NETFIELD_REP_END=ExternalMovementClaimCount	}; \
 	DECLARE_VALIDATE_GENERATED_REP_ENUMS(NO_API)
 
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_26_ENHANCED_CONSTRUCTORS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_27_ENHANCED_CONSTRUCTORS \
 	/** Deleted move- and copy-constructors, should never be used */ \
 	URenegadeSplineFollowerComponent(URenegadeSplineFollowerComponent&&) = delete; \
 	URenegadeSplineFollowerComponent(const URenegadeSplineFollowerComponent&) = delete; \
@@ -67,13 +75,13 @@ public: \
 	NO_API virtual ~URenegadeSplineFollowerComponent();
 
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_23_PROLOG
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_26_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_24_PROLOG
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_27_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_26_RPC_WRAPPERS_NO_PURE_DECLS \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_26_INCLASS_NO_PURE_DECLS \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_26_ENHANCED_CONSTRUCTORS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_27_RPC_WRAPPERS_NO_PURE_DECLS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_27_INCLASS_NO_PURE_DECLS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplineFollowerComponent_h_27_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 

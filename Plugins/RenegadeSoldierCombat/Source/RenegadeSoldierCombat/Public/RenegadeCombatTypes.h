@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/EngineTypes.h"
 #include "InputCoreTypes.h"
+#include "RenegadeBuildingCombatTypes.h"
 #include "RenegadeCombatTypes.generated.h"
 
 class AActor;
@@ -160,6 +161,14 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadeTargetingSettings
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting", meta=(ClampMin="0.0"))
     float AimHeightOffset = 8.0f;
+
+    /** Controls whether autonomous infantry may acquire hostile building components as combat targets. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting|Buildings")
+    ERenegadeBuildingTargetPolicy BuildingTargetPolicy = ERenegadeBuildingTargetPolicy::WhenNoSoldierTarget;
+
+    /** Multiplies building distance score. Values below 1 make buildings more attractive; values above 1 favour soldiers. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting|Buildings", meta=(ClampMin="0.01"))
+    float BuildingTargetDistanceScoreMultiplier = 1.0f;
 };
 
 USTRUCT(BlueprintType)

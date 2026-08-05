@@ -3,7 +3,7 @@
     "Data": {
         "Source": "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesplineai\\source\\renegadesplineai\\private\\renegadesplinefollowercomponent.cpp",
         "ProvidedModule": "",
-        "PCH": "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.valexpapi.cpp20.h.pch",
+        "PCH": "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\intermediate\\build\\win64\\x64\\renegadenxteditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.valexpapi.cpp20.h.pch",
         "Includes": [
             "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesplineai\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\renegadesplineai\\definitions.renegadesplineai.h",
             "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesplineai\\source\\renegadesplineai\\public\\renegadesplinefollowercomponent.h",
@@ -41,6 +41,8 @@
             "c:\\program files\\epic games\\ue_5.8\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\aimodule\\uht\\aicontroller.generated.h",
             "c:\\program files\\epic games\\ue_5.8\\engine\\source\\runtime\\engine\\public\\net\\unrealnetwork.h",
             "c:\\program files\\epic games\\ue_5.8\\engine\\source\\runtime\\net\\core\\public\\net\\core\\propertyconditions\\propertyconditions.h",
+            "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesplineai\\source\\renegadesplineai\\public\\renegadecharactervehiclecomponent.h",
+            "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesplineai\\intermediate\\build\\win64\\unrealeditor\\inc\\renegadesplineai\\uht\\renegadecharactervehiclecomponent.generated.h",
             "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesplineai\\source\\renegadesplineai\\public\\renegadesplinepath.h",
             "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesplineai\\intermediate\\build\\win64\\unrealeditor\\inc\\renegadesplineai\\uht\\renegadesplinepath.generated.h"
         ],

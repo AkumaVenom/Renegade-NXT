@@ -1,13 +1,18 @@
-# Renegade NXT Soldier Combat
+# Renegade NXT Combat and Building Warfare
 
-**Current version: 1.3.4** — UE 5.8
+**Current version: 1.4.3** — UE 5.8
 
-**Plugin version: 1.3.2**
-
-A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat and manual player rifle/pistol combat.
+A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manual player rifle/pistol combat, damageable team buildings, and automated base defences.
 
 ## Main features
 
+- Reusable `Renegade Building Combat Component` for the Refinery, Barracks, Silo, Hand of Nod, Weapons Factory, Power Plant, Helipad, Repair Pad, Airstrip, Obelisk, Advanced Guard Tower, and custom structures.
+- Server-authoritative building health, damage, destruction, repair, team ownership, target registration, and replicated Blueprint events.
+- Infantry building-target policies: never, only when no soldier is available, closest valid target, or prefer buildings.
+- World-wide non-overlapping building under-attack announcements.
+- Advanced Guard Tower dual traced rockets with selectable launch Scene Components, pooled rocket meshes, damage, sounds, range, cadence, spread, impact effects, and debug lines.
+- Obelisk charge-and-fire sequence with selectable start component, separate charge/shoot sounds, server damage trace, Fab Niagara or classic Cascade beam support, automatic fallback order, automatic trace endpoint alignment, exposed XYZ/length/thickness scaling, rotation correction, deterministic visual lifetime cleanup, and debug lines.
+- Optional Power Plant dependency that disables and restores team defensive buildings.
 - One reusable Actor Component works on multiple Character Blueprint classes.
 - Exposed `Player Controlled Combat` mode disables automatic AI decisions while preserving teams, health, damage, visuals, ragdoll, and respawn.
 - Blueprint input nodes for held automatic-rifle fire, single-shot pistol fire, reload, and weapon selection.
@@ -27,6 +32,16 @@ A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat and ma
 - Original, team spawn-point, custom transform, custom transform list, tagged actor, and runtime-override respawning.
 - Replicated health, target, team, ammo, death state, ragdoll/respawn RPCs, and shot cosmetic RPCs.
 
+
+## Building warfare (v1.4.3)
+
+Add `Renegade Building Combat Component` to each building Blueprint, set its GDI/Nod team, choose the matching building type, assign health and a target Scene Component, then provide the shared under-attack sound. Player and AI point damage now resolve attached building meshes back to the owning building component.
+
+AGT and Obelisk types automatically select their matching defence when `Defense Type` remains None. Both use server-authoritative traces against registered hostile player/AI combatants while rocket meshes, Niagara/Cascade lasers, and sounds are multicast as cosmetic presentation. A world registry audio lock ensures only one building under-attack announcement plays at once.
+
+Set `Laser Visual Lifetime Seconds` on the Obelisk settings to control how long Niagara, Cascade, and optional Blueprint laser visuals remain visible. Looping Cascade beams are forcibly deactivated and destroyed after this duration, and a new shot clears any previous beam first.
+
+See `Docs/Building_Warfare.md` for complete building, AGT, Obelisk, Niagara/Cascade, power, collision, event, and debugging setup.
 
 ## Player combat (v1.3.2)
 

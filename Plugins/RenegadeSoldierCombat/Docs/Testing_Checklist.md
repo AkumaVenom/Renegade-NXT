@@ -84,3 +84,26 @@
 - [ ] Call `Player Start Aiming` and `Player Stop Aiming` manually from Blueprint and verify they produce the same rotation/zoom as built-in input.
 - [ ] Kill the player while aimed and verify yaw settings and FOV restore before/through ragdoll and respawn.
 - [ ] Test a pawn without a Camera Component and verify PlayerCameraManager fallback zooms and unlocks cleanly.
+
+## Building warfare — v1.4.0
+
+- [ ] Every building Blueprint has `Renegade Building Combat Component` and the correct GDI/Nod Team Id.
+- [ ] The visible building collision blocks the infantry weapon trace channel, normally Visibility.
+- [ ] The selected Target Point Scene Component is inside the visible structure and not behind unrelated collision.
+- [ ] AI soldiers with `Buildings When No Soldier Target` fight soldiers first, then acquire a hostile building.
+- [ ] Player and AI bullets reduce the building's replicated Current Health.
+- [ ] Attached child meshes resolve damage to the owning building actor.
+- [ ] Destroyed buildings stop being valid infantry targets.
+- [ ] `On Building Destroyed` fires once and Blueprint destruction presentation runs.
+- [ ] Repair/Restore returns the building to a targetable operational state.
+- [ ] Multiple buildings damaged simultaneously play only one under-attack sound.
+- [ ] AGT resolves both rocket muzzle Scene Components and launches two visual meshes.
+- [ ] AGT traces can damage and kill both AI soldiers and the player.
+- [ ] AGT rocket meshes have no collision and reach the confirmed trace endpoints.
+- [ ] Obelisk charge sound plays before the configured Charge Seconds delay.
+- [ ] Obelisk shoot sound and Niagara laser appear after charging.
+- [ ] Niagara start/end parameter names exactly match the Fab laser system's user parameters.
+- [ ] Obelisk trace damages and can kill both AI soldiers and the player.
+- [ ] Defence debug traces show expected hit/block/miss colours.
+- [ ] When power dependency is enabled, destroying the team's Power Plant disables AGT/Obelisk attacks.
+- [ ] Restoring the Power Plant automatically returns team defences to service.

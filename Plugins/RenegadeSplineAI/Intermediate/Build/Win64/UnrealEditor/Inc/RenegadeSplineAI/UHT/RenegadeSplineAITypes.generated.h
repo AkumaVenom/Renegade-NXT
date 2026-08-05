@@ -32,7 +32,8 @@ enum class ERenegadeSplineFollowState : uint8;
 	op(ERenegadeSplineFollowState::CombatPaused) \
 	op(ERenegadeSplineFollowState::Suspended) \
 	op(ERenegadeSplineFollowState::Blocked) \
-	op(ERenegadeSplineFollowState::Completed) 
+	op(ERenegadeSplineFollowState::Completed) \
+	op(ERenegadeSplineFollowState::ExternalPaused) 
 
 enum class ERenegadeSplineFollowState : uint8;
 template<> struct TIsUEnumClass<ERenegadeSplineFollowState> { enum { Value = true }; };
@@ -58,5 +59,17 @@ enum class ERenegadeSplineResumePolicy : uint8;
 template<> struct TIsUEnumClass<ERenegadeSplineResumePolicy> { enum { Value = true }; };
 template<> UE_NODEBUG RENEGADESPLINEAI_NON_ATTRIBUTED_API UEnum* StaticEnum<ERenegadeSplineResumePolicy>();
 // ********** End Enum ERenegadeSplineResumePolicy *************************************************
+
+// ********** Begin Enum ERenegadeCharacterVehiclePreset *******************************************
+#define FOREACH_ENUM_ERENEGADECHARACTERVEHICLEPRESET(op) \
+	op(ERenegadeCharacterVehiclePreset::LightTracked) \
+	op(ERenegadeCharacterVehiclePreset::HeavyTracked) \
+	op(ERenegadeCharacterVehiclePreset::Harvester) \
+	op(ERenegadeCharacterVehiclePreset::Custom) 
+
+enum class ERenegadeCharacterVehiclePreset : uint8;
+template<> struct TIsUEnumClass<ERenegadeCharacterVehiclePreset> { enum { Value = true }; };
+template<> UE_NODEBUG RENEGADESPLINEAI_NON_ATTRIBUTED_API UEnum* StaticEnum<ERenegadeCharacterVehiclePreset>();
+// ********** End Enum ERenegadeCharacterVehiclePreset *********************************************
 
 PRAGMA_ENABLE_DEPRECATION_WARNINGS

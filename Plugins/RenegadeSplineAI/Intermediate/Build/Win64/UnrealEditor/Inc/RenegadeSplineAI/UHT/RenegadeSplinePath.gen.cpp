@@ -394,13 +394,13 @@ struct UHT_STATICS
 	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
 		{ "BlueprintType", "true" },
 #if !UE_BUILD_SHIPPING
-		{ "Comment", "/**\n * An authored route for infantry or other AI-controlled pawns.\n * The spline is only a route guide. Followers navigate on the NavMesh and are never attached to it.\n */" },
+		{ "Comment", "/**\n * An authored route for infantry, Character-based vehicles, or other AI-controlled pawns.\n * The spline is only a route guide. Followers navigate on the NavMesh and are never attached to it.\n */" },
 #endif
 		{ "IncludePath", "RenegadeSplinePath.h" },
 		{ "IsBlueprintBase", "true" },
 		{ "ModuleRelativePath", "Public/RenegadeSplinePath.h" },
 #if !UE_BUILD_SHIPPING
-		{ "ToolTip", "An authored route for infantry or other AI-controlled pawns.\nThe spline is only a route guide. Followers navigate on the NavMesh and are never attached to it." },
+		{ "ToolTip", "An authored route for infantry, Character-based vehicles, or other AI-controlled pawns.\nThe spline is only a route guide. Followers navigate on the NavMesh and are never attached to it." },
 #endif
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_Spline_MetaData[] = {
@@ -568,10 +568,10 @@ ARenegadeSplinePath::~ARenegadeSplinePath() {}
 struct UHT_STATICS
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
-		{ Z_Construct_UClass_ARenegadeSplinePath, TEXT("ARenegadeSplinePath"), &Z_Registration_Info_UClass_ARenegadeSplinePath, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(ARenegadeSplinePath), 2291146083U) },
+		{ Z_Construct_UClass_ARenegadeSplinePath, TEXT("ARenegadeSplinePath"), &Z_Registration_Info_UClass_ARenegadeSplinePath, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(ARenegadeSplinePath), 4198106923U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplinePath_h__Script_RenegadeSplineAI_77370c3d84ab9bcc021cb78559bbb7cc9bcc49b2{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSplineAI_Source_RenegadeSplineAI_Public_RenegadeSplinePath_h__Script_RenegadeSplineAI_46a27adbdb957ba69ef9608e161e8e0b5b21e996{
 	TEXT("/Script/RenegadeSplineAI"),
 	UHT_STATICS::ClassInfo, UE_ARRAY_COUNT(UHT_STATICS::ClassInfo),
 	nullptr, 0,

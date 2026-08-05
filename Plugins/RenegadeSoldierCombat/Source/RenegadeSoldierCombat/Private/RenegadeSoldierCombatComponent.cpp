@@ -13,6 +13,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/DamageType.h"
+#include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "InputCoreTypes.h"
 #include "Components/CapsuleComponent.h"
@@ -27,6 +28,7 @@
 #include "Net/UnrealNetwork.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 #include "PhysicsEngine/SkeletalBodySetup.h"
+#include "RenegadeBuildingCombatComponent.h"
 #include "RenegadeCombatMovementBridge.h"
 #include "RenegadeCombatRegistrySubsystem.h"
 #include "RenegadeSoldierSpawnPoint.h"
@@ -163,6 +165,56 @@ namespace RenegadeCombatPrivate
             if (URenegadeSoldierCombatComponent* CombatComponent = Candidate->FindComponentByClass<URenegadeSoldierCombatComponent>())
             {
                 return CombatComponent;
+            }
+
+            if (AActor* ParentActor = Candidate->GetAttachParentActor())
+            {
+                PendingActors.Add(ParentActor);
+            }
+
+            if (AActor* OwnerActor = Candidate->GetOwner())
+            {
+                PendingActors.Add(OwnerActor);
+            }
+
+            if (APawn* InstigatorPawn = Candidate->GetInstigator())
+            {
+                PendingActors.Add(InstigatorPawn);
+            }
+        }
+
+        return nullptr;
+    }
+
+    /** Resolve a building component through child-actor, attachment, owner, or instigator chains. */
+    static URenegadeBuildingCombatComponent* ResolveBuildingComponentFromActorHierarchy(AActor* StartActor)
+    {
+        if (!IsValid(StartActor))
+        {
+            return nullptr;
+        }
+
+        TArray<AActor*> PendingActors;
+        TSet<AActor*> VisitedActors;
+        PendingActors.Add(StartActor);
+
+        constexpr int32 MaximumActorsToInspect = 24;
+        int32 InspectedActors = 0;
+
+        while (PendingActors.Num() > 0 && InspectedActors < MaximumActorsToInspect)
+        {
+            AActor* Candidate = PendingActors.Pop(EAllowShrinking::No);
+            if (!IsValid(Candidate) || VisitedActors.Contains(Candidate))
+            {
+                continue;
+            }
+
+            VisitedActors.Add(Candidate);
+            ++InspectedActors;
+
+            if (URenegadeBuildingCombatComponent* BuildingComponent = Candidate->FindComponentByClass<URenegadeBuildingCombatComponent>())
+            {
+                return BuildingComponent;
             }
 
             if (AActor* ParentActor = Candidate->GetAttachParentActor())
@@ -646,18 +698,26 @@ bool URenegadeSoldierCombatComponent::IsHostileToActor(const AActor* OtherActor)
         return false;
     }
 
-    const URenegadeSoldierCombatComponent* OtherCombat = OtherActor->FindComponentByClass<URenegadeSoldierCombatComponent>();
-    if (!OtherCombat)
+    FName OtherTeam = NAME_None;
+    if (const URenegadeSoldierCombatComponent* OtherCombat = OtherActor->FindComponentByClass<URenegadeSoldierCombatComponent>())
+    {
+        OtherTeam = OtherCombat->TeamId;
+    }
+    else if (const URenegadeBuildingCombatComponent* OtherBuilding = OtherActor->FindComponentByClass<URenegadeBuildingCombatComponent>())
+    {
+        OtherTeam = OtherBuilding->TeamId;
+    }
+    else
     {
         return false;
     }
 
-    if (RenegadeCombatPrivate::IsNeutralTeamName(TeamId) || RenegadeCombatPrivate::IsNeutralTeamName(OtherCombat->TeamId))
+    if (RenegadeCombatPrivate::IsNeutralTeamName(TeamId) || RenegadeCombatPrivate::IsNeutralTeamName(OtherTeam))
     {
         return false;
     }
 
-    if (TeamId.IsEqual(OtherCombat->TeamId, ENameCase::IgnoreCase))
+    if (TeamId.IsEqual(OtherTeam, ENameCase::IgnoreCase))
     {
         return false;
     }
@@ -672,19 +732,26 @@ bool URenegadeSoldierCombatComponent::IsValidCombatTarget(const AActor* Possible
         return false;
     }
 
-    const URenegadeSoldierCombatComponent* TargetCombat = PossibleTarget->FindComponentByClass<URenegadeSoldierCombatComponent>();
-    if (!TargetCombat || !TargetCombat->bRegisterAsCombatTarget || TargetCombat->bIsDead)
+    bool bTargetOperational = false;
+    if (const URenegadeSoldierCombatComponent* TargetCombat = PossibleTarget->FindComponentByClass<URenegadeSoldierCombatComponent>())
     {
-        return false;
+        bTargetOperational = TargetCombat->bRegisterAsCombatTarget && !TargetCombat->bIsDead;
+    }
+    else if (const URenegadeBuildingCombatComponent* TargetBuilding = PossibleTarget->FindComponentByClass<URenegadeBuildingCombatComponent>())
+    {
+        bTargetOperational = Targeting.BuildingTargetPolicy != ERenegadeBuildingTargetPolicy::Never
+            && TargetBuilding->TargetSettings.bRegisterAsCombatTarget
+            && !TargetBuilding->bIsDestroyed
+            && TargetBuilding->CurrentHealth > 0.0f;
     }
 
-    if (!IsHostileToActor(PossibleTarget))
+    if (!bTargetOperational || !IsHostileToActor(PossibleTarget))
     {
         return false;
     }
 
     const float LoseRadius = FMath::Max(100.0f, Targeting.SearchRadius * FMath::Max(1.0f, Targeting.LoseTargetRadiusMultiplier));
-    return FVector::DistSquared(GetOwner()->GetActorLocation(), PossibleTarget->GetActorLocation()) <= FMath::Square(LoseRadius);
+    return FVector::DistSquared(GetOwner()->GetActorLocation(), GetAimLocation(PossibleTarget)) <= FMath::Square(LoseRadius);
 }
 
 float URenegadeSoldierCombatComponent::GetHealthPercent() const
@@ -2288,8 +2355,8 @@ AActor* URenegadeSoldierCombatComponent::FindBestTarget() const
 
     const FVector OwnerLocation = GetOwner()->GetActorLocation();
     const float SearchRadiusSquared = FMath::Square(FMath::Max(100.0f, Targeting.SearchRadius));
-    float BestScore = TNumericLimits<float>::Max();
-    AActor* BestActor = nullptr;
+    float BestSoldierScore = TNumericLimits<float>::Max();
+    AActor* BestSoldier = nullptr;
 
     for (URenegadeSoldierCombatComponent* CandidateCombat : Combatants)
     {
@@ -2304,7 +2371,7 @@ AActor* URenegadeSoldierCombatComponent::FindBestTarget() const
             continue;
         }
 
-        const float DistanceSquared = FVector::DistSquared(OwnerLocation, CandidateActor->GetActorLocation());
+        const float DistanceSquared = FVector::DistSquared(OwnerLocation, GetAimLocation(CandidateActor));
         if (DistanceSquared > SearchRadiusSquared)
         {
             continue;
@@ -2317,14 +2384,81 @@ AActor* URenegadeSoldierCombatComponent::FindBestTarget() const
 
         const float HealthBias = FMath::Clamp(CandidateCombat->GetHealthPercent(), 0.0f, 1.0f) * 25000.0f;
         const float Score = DistanceSquared + HealthBias;
-        if (Score < BestScore)
+        if (Score < BestSoldierScore)
         {
-            BestScore = Score;
-            BestActor = CandidateActor;
+            BestSoldierScore = Score;
+            BestSoldier = CandidateActor;
         }
     }
 
-    return BestActor;
+    if (Targeting.BuildingTargetPolicy == ERenegadeBuildingTargetPolicy::Never)
+    {
+        return BestSoldier;
+    }
+
+    if (Targeting.BuildingTargetPolicy == ERenegadeBuildingTargetPolicy::WhenNoSoldierTarget && IsValid(BestSoldier))
+    {
+        return BestSoldier;
+    }
+
+    TArray<URenegadeBuildingCombatComponent*> Buildings;
+    Registry->GetBuildings(Buildings);
+
+    float BestBuildingScore = TNumericLimits<float>::Max();
+    AActor* BestBuilding = nullptr;
+
+    for (URenegadeBuildingCombatComponent* CandidateBuilding : Buildings)
+    {
+        if (!IsValid(CandidateBuilding)
+            || CandidateBuilding->bIsDestroyed
+            || CandidateBuilding->CurrentHealth <= 0.0f
+            || !CandidateBuilding->TargetSettings.bRegisterAsCombatTarget)
+        {
+            continue;
+        }
+
+        AActor* CandidateActor = CandidateBuilding->GetOwner();
+        if (!IsValid(CandidateActor) || !IsHostileToActor(CandidateActor))
+        {
+            continue;
+        }
+
+        const float DistanceSquared = FVector::DistSquared(OwnerLocation, CandidateBuilding->GetTargetAimLocation());
+        if (DistanceSquared > SearchRadiusSquared)
+        {
+            continue;
+        }
+
+        if (Targeting.bRequireLineOfSight && !HasLineOfSightTo(CandidateActor))
+        {
+            continue;
+        }
+
+        const float Priority = FMath::Max(0.01f, CandidateBuilding->TargetSettings.InfantryTargetPriority);
+        const float Score = (DistanceSquared * FMath::Max(0.01f, Targeting.BuildingTargetDistanceScoreMultiplier)) / Priority;
+        if (Score < BestBuildingScore)
+        {
+            BestBuildingScore = Score;
+            BestBuilding = CandidateActor;
+        }
+    }
+
+    if (!IsValid(BestBuilding))
+    {
+        return BestSoldier;
+    }
+
+    if (!IsValid(BestSoldier))
+    {
+        return BestBuilding;
+    }
+
+    if (Targeting.BuildingTargetPolicy == ERenegadeBuildingTargetPolicy::PreferBuildings)
+    {
+        return BestBuilding;
+    }
+
+    return BestBuildingScore < BestSoldierScore ? BestBuilding : BestSoldier;
 }
 
 bool URenegadeSoldierCombatComponent::HasLineOfSightTo(const AActor* Target, FVector* OutAimLocation) const
@@ -2347,19 +2481,21 @@ bool URenegadeSoldierCombatComponent::HasLineOfSightTo(const AActor* Target, FVe
     FHitResult Hit;
     const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
     const bool bBlocked = RenegadeCombatPrivate::PerformWeaponTrace(GetWorld(), Hit, Start, AimLocation, Weapon, QueryParams);
-    if (!bBlocked)
-    {
-        return true;
-    }
-
-    if (Hit.GetActor() == Target)
+    if (!bBlocked || Hit.GetActor() == Target)
     {
         return true;
     }
 
     const URenegadeSoldierCombatComponent* ResolvedHitCombat =
         RenegadeCombatPrivate::ResolveCombatComponentFromActorHierarchy(Hit.GetActor());
-    return IsValid(ResolvedHitCombat) && ResolvedHitCombat->GetOwner() == Target;
+    if (IsValid(ResolvedHitCombat) && ResolvedHitCombat->GetOwner() == Target)
+    {
+        return true;
+    }
+
+    const URenegadeBuildingCombatComponent* ResolvedBuilding =
+        RenegadeCombatPrivate::ResolveBuildingComponentFromActorHierarchy(Hit.GetActor());
+    return IsValid(ResolvedBuilding) && ResolvedBuilding->GetOwner() == Target;
 }
 
 FVector URenegadeSoldierCombatComponent::GetAimLocation(const AActor* Target) const
@@ -2367,6 +2503,11 @@ FVector URenegadeSoldierCombatComponent::GetAimLocation(const AActor* Target) co
     if (!IsValid(Target))
     {
         return FVector::ZeroVector;
+    }
+
+    if (const URenegadeBuildingCombatComponent* TargetBuilding = Target->FindComponentByClass<URenegadeBuildingCombatComponent>())
+    {
+        return TargetBuilding->GetTargetAimLocation();
     }
 
     if (const URenegadeSoldierCombatComponent* TargetCombat = Target->FindComponentByClass<URenegadeSoldierCombatComponent>())
@@ -2638,12 +2779,31 @@ bool URenegadeSoldierCombatComponent::ExecuteWeaponShot(
     URenegadeSoldierCombatComponent* HitCombat = bFinalBlockingHit
         ? RenegadeCombatPrivate::ResolveCombatComponentFromActorHierarchy(RawHitActor)
         : nullptr;
-    AActor* DamageActor = IsValid(HitCombat) ? HitCombat->GetOwner() : RawHitActor;
+    URenegadeBuildingCombatComponent* HitBuilding = bFinalBlockingHit
+        ? RenegadeCombatPrivate::ResolveBuildingComponentFromActorHierarchy(RawHitActor)
+        : nullptr;
 
+    AActor* DamageActor = nullptr;
+    if (IsValid(HitCombat))
+    {
+        DamageActor = HitCombat->GetOwner();
+    }
+    else if (IsValid(HitBuilding))
+    {
+        DamageActor = HitBuilding->GetOwner();
+    }
+    else
+    {
+        DamageActor = RawHitActor;
+    }
+
+    const bool bResolvedSoldierOperational = IsValid(HitCombat) && !HitCombat->bIsDead;
+    const bool bResolvedBuildingOperational = IsValid(HitBuilding) && !HitBuilding->bIsDestroyed && HitBuilding->CurrentHealth > 0.0f;
+    const bool bResolvedCombatTarget = bResolvedSoldierOperational || bResolvedBuildingOperational;
     const bool bCanDamageHitActor = IsValid(DamageActor)
+        && bResolvedCombatTarget
         && (Weapon.bAllowFriendlyFire || IsHostileToActor(DamageActor));
-    const bool bDamagedCombatActor = bCanDamageHitActor && (!HitCombat || !HitCombat->bIsDead);
-    const bool bSpawnGroundBloodForHit = bDamagedCombatActor && HitCombat != nullptr;
+    const bool bSpawnGroundBloodForHit = bCanDamageHitActor && bResolvedSoldierOperational;
 
     MulticastShotFired(
         FinalTraceStart,
@@ -2651,9 +2811,9 @@ bool URenegadeSoldierCombatComponent::ExecuteWeaponShot(
         bFinalBlockingHit,
         FinalHit,
         bSpawnGroundBloodForHit,
-        bDamagedCombatActor);
+        bCanDamageHitActor);
 
-    if (bDamagedCombatActor)
+    if (bCanDamageHitActor)
     {
         const float Damage = CalculateDamageForHit(Weapon, FinalHit, FVector::Distance(FinalTraceStart, FinalHit.ImpactPoint));
         const FVector DamageDirection = (TraceEnd - FinalTraceStart).GetSafeNormal();
@@ -2683,9 +2843,10 @@ bool URenegadeSoldierCombatComponent::ExecuteWeaponShot(
             UE_LOG(
                 LogRenegadeSoldierCombat,
                 Log,
-                TEXT("%s shot hit raw actor %s, resolved damage actor %s, applied %.2f damage."),
+                TEXT("%s shot hit raw actor %s, resolved %s target %s, applied %.2f damage."),
                 *GetNameSafe(GetOwner()),
                 *GetNameSafe(RawHitActor),
+                HitBuilding ? TEXT("building") : TEXT("soldier"),
                 *GetNameSafe(DamageActor),
                 AppliedDamage);
         }
@@ -2700,7 +2861,7 @@ bool URenegadeSoldierCombatComponent::ExecuteWeaponShot(
         UE_LOG(
             LogRenegadeSoldierCombat,
             Log,
-            TEXT("%s shot was blocked by %s but no hostile combat target was resolved."),
+            TEXT("%s shot was blocked by %s but no hostile soldier or building target was resolved."),
             *GetNameSafe(GetOwner()),
             *GetNameSafe(RawHitActor));
     }

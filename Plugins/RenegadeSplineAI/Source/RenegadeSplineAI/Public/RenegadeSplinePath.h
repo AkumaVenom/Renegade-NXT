@@ -7,7 +7,7 @@
 class USplineComponent;
 
 /**
- * An authored route for infantry or other AI-controlled pawns.
+ * An authored route for infantry, Character-based vehicles, or other AI-controlled pawns.
  * The spline is only a route guide. Followers navigate on the NavMesh and are never attached to it.
  */
 UCLASS(BlueprintType, Blueprintable)

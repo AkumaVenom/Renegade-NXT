@@ -5,6 +5,7 @@
 #include "RenegadeCombatTypes.h"
 #include "RenegadeCombatBlueprintLibrary.generated.h"
 
+class URenegadeBuildingCombatComponent;
 class URenegadeSoldierCombatComponent;
 
 UCLASS()
@@ -15,6 +16,9 @@ class RENEGADESOLDIERCOMBAT_API URenegadeCombatBlueprintLibrary : public UBluepr
 public:
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Combat")
     static URenegadeSoldierCombatComponent* GetRenegadeCombatComponent(const AActor* Actor);
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Buildings")
+    static URenegadeBuildingCombatComponent* GetRenegadeBuildingCombatComponent(const AActor* Actor);
 
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Combat")
     static bool AreRenegadeActorsHostile(const AActor* FirstActor, const AActor* SecondActor);
