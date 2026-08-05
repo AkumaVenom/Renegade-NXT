@@ -81,7 +81,7 @@ This repository does not claim ownership of third-party intellectual property.
 
 ==================================================
 
-<img width="3840" height="2160" alt="2" src="https://github.com/user-attachments/assets/ad370fd6-fc82-41d5-8674-5086a29146c7" />
+<img width="3840" height="2073" alt="Perfect" src="https://github.com/user-attachments/assets/ce249797-8541-4529-a931-c772c1b6c5c7" />
 
 <img width="3813" height="2004" alt="1" src="https://github.com/user-attachments/assets/d4d4e3e7-5c10-465d-b84a-1fa346a925e3" />
 
