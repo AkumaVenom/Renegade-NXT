@@ -80,6 +80,17 @@ Command & Conquer, C&C, Renegade, Renegade X and all related names, trademarks a
 This repository does not claim ownership of third-party intellectual property.
 
 ==================================================
+Player Inputs:
+| Action                 | Keyboard and mouse | Gamepad              |
+| ---------------------- | ------------------ | -------------------- |
+| Fire active weapon     | Left Mouse Button  | Right Trigger        |
+| Aim                    | Right Mouse Button | Left Trigger         |
+| Reload                 | R                  | Face Button Left / X |
+| Select automatic rifle | 1                  | D-Pad Up             |
+| Select pistol          | 2                  | D-Pad Down           |
+| Look and aim direction | Mouse X/Y          | Right Stick          |
+
+==================================================
 
 <img width="3840" height="2073" alt="Perfect" src="https://github.com/user-attachments/assets/ce249797-8541-4529-a931-c772c1b6c5c7" />
 
