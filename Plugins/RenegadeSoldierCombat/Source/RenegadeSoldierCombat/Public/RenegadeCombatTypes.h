@@ -4,7 +4,10 @@
 #include "Engine/EngineTypes.h"
 #include "RenegadeCombatTypes.generated.h"
 
+class AActor;
 class UDamageType;
+class UMaterialInterface;
+class UStaticMesh;
 
 UENUM(BlueprintType)
 enum class ERenegadeWeaponClass : uint8
@@ -174,6 +177,107 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadeCombatMovementSettings
     bool bUsePathfinding = true;
 };
 
+
+USTRUCT(BlueprintType)
+struct RENEGADESOLDIERCOMBAT_API FRenegadeCombatVisualSettings
+{
+    GENERATED_BODY()
+
+    /** Enables the lightweight pooled static-mesh bullet visual. Damage remains instant hitscan. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual")
+    bool bEnableBulletMeshVisual = true;
+
+    /** Static mesh used for the visible bullet/tracer. Leave empty to suppress automatic mesh spawning. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual", meta=(EditCondition="bEnableBulletMeshVisual"))
+    TObjectPtr<UStaticMesh> BulletMesh = nullptr;
+
+    /** Optional material override for material slot zero of the bullet mesh. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual", meta=(EditCondition="bEnableBulletMeshVisual"))
+    TObjectPtr<UMaterialInterface> BulletMaterialOverride = nullptr;
+
+    /** World scale applied to the bullet mesh. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual", meta=(EditCondition="bEnableBulletMeshVisual"))
+    FVector BulletMeshScale = FVector(0.12f, 0.12f, 0.12f);
+
+    /** Added after orienting the mesh's local X axis toward travel direction. Useful when the mesh points along Y or Z. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual", meta=(EditCondition="bEnableBulletMeshVisual"))
+    FRotator BulletMeshRotationOffset = FRotator::ZeroRotator;
+
+    /** Cosmetic travel speed in centimetres per second. The authoritative weapon remains hitscan. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual", meta=(ClampMin="100.0", EditCondition="bEnableBulletMeshVisual"))
+    float BulletVisualSpeed = 30000.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual", meta=(ClampMin="0.001", EditCondition="bEnableBulletMeshVisual"))
+    float MinimumBulletVisualSeconds = 0.025f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual", meta=(ClampMin="0.001", EditCondition="bEnableBulletMeshVisual"))
+    float MaximumBulletVisualSeconds = 0.40f;
+
+    /** Moves the visual forward along its travel direction to prevent it appearing inside the gun mesh. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual|Spawn", meta=(ClampMin="0.0", EditCondition="bEnableBulletMeshVisual"))
+    float BulletVisualMuzzleForwardOffset = 6.0f;
+
+    /** Stops the visual slightly before the impact surface to prevent mesh clipping. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual", meta=(ClampMin="0.0", EditCondition="bEnableBulletMeshVisual"))
+    float BulletVisualImpactStopShortDistance = 2.0f;
+
+    /** Maximum simultaneously allocated bullet mesh components per soldier. Components are reused instead of constantly spawned. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual|Performance", meta=(ClampMin="1", ClampMax="32", EditCondition="bEnableBulletMeshVisual"))
+    int32 BulletVisualPoolSize = 6;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bullet Visual|Performance", meta=(EditCondition="bEnableBulletMeshVisual"))
+    bool bBulletVisualCastsShadow = false;
+
+    /** Enables automatic blood placement beneath a successfully damaged hostile actor. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood")
+    bool bEnableGroundBloodSplatter = true;
+
+    /** One material is selected randomly for each blood decal. These must use the Deferred Decal material domain. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood", meta=(EditCondition="bEnableGroundBloodSplatter"))
+    TArray<TObjectPtr<UMaterialInterface>> GroundBloodDecalMaterials;
+
+    /** Optional local-only Blueprint actor for blood assets that are not decal materials, such as a Niagara/decal effect actor. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood", meta=(EditCondition="bEnableGroundBloodSplatter"))
+    TSubclassOf<AActor> GroundBloodEffectActorClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood", meta=(ClampMin="0.0", ClampMax="1.0", EditCondition="bEnableGroundBloodSplatter"))
+    float GroundBloodSpawnChance = 1.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood", meta=(ClampMin="1.0", EditCondition="bEnableGroundBloodSplatter"))
+    float GroundBloodTraceUpDistance = 40.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood", meta=(ClampMin="1.0", EditCondition="bEnableGroundBloodSplatter"))
+    float GroundBloodTraceDownDistance = 260.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood", meta=(EditCondition="bEnableGroundBloodSplatter"))
+    TEnumAsByte<ECollisionChannel> GroundBloodTraceChannel = ECC_Visibility;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood", meta=(ClampMin="1.0", EditCondition="bEnableGroundBloodSplatter"))
+    FVector2D GroundBloodSizeRange = FVector2D(35.0f, 70.0f);
+
+    /** Decal projection depth (the X value of Decal Size). */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood", meta=(ClampMin="1.0", EditCondition="bEnableGroundBloodSplatter"))
+    float GroundBloodDecalDepth = 18.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood", meta=(ClampMin="0.0", EditCondition="bEnableGroundBloodSplatter"))
+    float GroundBloodSurfaceOffset = 1.5f;
+
+    /** Zero keeps decals alive indefinitely. A positive value automatically removes them. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood|Lifetime", meta=(ClampMin="0.0", EditCondition="bEnableGroundBloodSplatter"))
+    float GroundBloodLifeSeconds = 30.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood|Lifetime", meta=(ClampMin="0.0", EditCondition="bEnableGroundBloodSplatter"))
+    float GroundBloodFadeSeconds = 5.0f;
+
+    /** Per-soldier throttle that protects large battles from producing excessive decals. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood|Performance", meta=(ClampMin="0.0", EditCondition="bEnableGroundBloodSplatter"))
+    float MinimumSecondsBetweenGroundBlood = 0.06f;
+
+    /** When enabled, blood appears when the visible bullet reaches the trace end instead of immediately when the hitscan fires. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ground Blood", meta=(EditCondition="bEnableGroundBloodSplatter"))
+    bool bDelayGroundBloodUntilBulletArrives = true;
+};
+
 USTRUCT(BlueprintType)
 struct RENEGADESOLDIERCOMBAT_API FRenegadeHealthRespawnSettings
 {
@@ -226,9 +330,9 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadeHealthRespawnSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ragdoll|Stability")
     bool bUseRagdollRootBone = true;
 
-    /** First bone whose body and descendants should enter ragdoll. Usually pelvis or hips. */
+    /** First bone whose body and descendants should enter ragdoll. Renegade NXT soldiers currently use spine. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ragdoll|Stability", meta=(EditCondition="bUseRagdollRootBone"))
-    FName RagdollRootBone = TEXT("pelvis");
+    FName RagdollRootBone = TEXT("spine");
 
     /** Include the Ragdoll Root Bone itself when starting physics. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ragdoll|Stability", meta=(EditCondition="bUseRagdollRootBone"))

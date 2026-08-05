@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/EngineTypes.h"
 #include "RenegadeCombatTypes.h"
 #include "TimerManager.h"
 #include "RenegadeSoldierCombatComponent.generated.h"
@@ -18,6 +19,8 @@ class USceneComponent;
 class USkeletalMeshComponent;
 class UDamageType;
 class UPrimitiveComponent;
+class UDecalComponent;
+class UStaticMeshComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadeTargetChangedSignature, AActor*, PreviousTarget, AActor*, NewTarget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeCombatStartedSignature, AActor*, Target);
@@ -30,6 +33,19 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRenegadeSimpleSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadeCombatMoveSignature, FVector, Destination, ERenegadeCombatMoveType, MoveType);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeSplinePauseSignature, AActor*, CombatTarget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeSplineResumeSignature, FVector, ResumeFromLocation);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FRenegadeGroundBloodSpawnedSignature, UDecalComponent*, DecalComponent, const FHitResult&, BulletHit, const FHitResult&, GroundHit);
+
+struct FRenegadeBulletVisualRuntimeState
+{
+    FVector StartLocation = FVector::ZeroVector;
+    FVector EndLocation = FVector::ZeroVector;
+    FRotator TravelRotation = FRotator::ZeroRotator;
+    float ElapsedSeconds = 0.0f;
+    float DurationSeconds = 0.0f;
+    bool bActive = false;
+    bool bSpawnBloodOnArrival = false;
+    FHitResult PendingBloodHit;
+};
 
 UCLASS(ClassGroup=(RenegadeNXT), BlueprintType, Blueprintable, meta=(BlueprintSpawnableComponent))
 class RENEGADESOLDIERCOMBAT_API URenegadeSoldierCombatComponent : public UActorComponent
@@ -85,6 +101,25 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Health and Respawn")
     FRenegadeHealthRespawnSettings HealthAndRespawn;
 
+    /** Automatic client-side bullet mesh travel and ground blood effects. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Combat Visuals")
+    FRenegadeCombatVisualSettings CombatVisuals;
+
+    /**
+     * Scene Component on this soldier used as the visible bullet-mesh origin.
+     * Add a Scene Component at the weapon muzzle, then choose it with this component picker.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Combat Visuals|Bullet Spawn", meta=(UseComponentPicker, AllowedClasses="/Script/Engine.SceneComponent"))
+    FComponentReference BulletVisualSpawnComponent;
+
+    /** Local-space offset from Bullet Visual Spawn Component. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Combat Visuals|Bullet Spawn")
+    FVector BulletVisualSpawnRelativeOffset = FVector::ZeroVector;
+
+    /** Optional tag fallback used when Bullet Visual Spawn Component is not assigned. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Combat Visuals|Bullet Spawn")
+    FName BulletVisualSpawnComponentTag = NAME_None;
+
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CurrentHealth, Category="Renegade NXT|Runtime")
     float CurrentHealth = 100.0f;
 
@@ -126,6 +161,10 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Events")
     FRenegadeSimpleSignature OnRespawned;
+
+    /** Fired after an automatic ground-blood effect is placed. DecalComponent can be null when only an effect actor is configured. */
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Events")
+    FRenegadeGroundBloodSpawnedSignature OnGroundBloodSpawned;
 
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Events")
     FRenegadeCombatMoveSignature OnCombatMoveRequested;
@@ -199,6 +238,37 @@ public:
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Weapon")
     FRenegadeWeaponSettings GetActiveWeaponSettings() const;
 
+    /**
+     * Assigns the Scene Component used as the local bullet visual origin at runtime.
+     * The component must belong to the same soldier actor. This runtime override takes priority over the Details-panel reference.
+     */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Combat Visuals|Bullet Spawn")
+    void SetBulletVisualSpawnComponent(USceneComponent* NewSpawnComponent);
+
+    /** Clears the runtime bullet-spawn override and returns to the Details-panel component reference/tag/fallback muzzle. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Combat Visuals|Bullet Spawn")
+    void ClearBulletVisualSpawnComponent();
+
+    /** Returns the currently resolved Scene Component used for bullet visuals, or null when the trace-start fallback is active. */
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Combat Visuals|Bullet Spawn")
+    USceneComponent* GetBulletVisualSpawnComponent() const;
+
+    /** Returns the final world-space visual spawn position, including the configured local offset. */
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Combat Visuals|Bullet Spawn")
+    FVector GetBulletVisualSpawnLocation() const;
+
+    /** Local cosmetic preview; useful for testing the assigned bullet mesh without applying damage. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Combat Visuals")
+    void PreviewBulletMeshVisual(FVector TraceStart, FVector TraceEnd);
+
+    /** Uses the configured bullet-spawn component and previews travel to Trace End. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Combat Visuals|Bullet Spawn")
+    void PreviewBulletMeshFromConfiguredSpawn(FVector TraceEnd);
+
+    /** Traces down and places the configured ground-blood effect locally. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Combat Visuals")
+    bool PreviewGroundBloodAtLocation(FVector BulletImpactLocation);
+
     void PrepareIncomingCombatHit(const FHitResult& HitResult, const FVector& ShotDirection);
     void ClearIncomingCombatHit();
 
@@ -219,7 +289,7 @@ protected:
     void OnRep_CurrentTarget();
 
     UFUNCTION(NetMulticast, Unreliable)
-    void MulticastShotFired(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult);
+    void MulticastShotFired(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult, bool bSpawnGroundBloodForHit);
 
     UFUNCTION(NetMulticast, Reliable)
     void MulticastReloadStarted();
@@ -257,6 +327,18 @@ private:
     void FinishReload();
     float CalculateDamageForHit(const FRenegadeWeaponSettings& Weapon, const FHitResult& Hit, float Distance) const;
 
+    bool ShouldRunCosmeticVisuals() const;
+    USceneComponent* ResolveBulletVisualSpawnComponent() const;
+    FVector ResolveBulletVisualSpawnLocation(const FVector& FallbackTraceStart) const;
+    bool SpawnBulletMeshVisual(const FVector& TraceStart, const FVector& TraceEnd, const FHitResult* BloodHitToDelay = nullptr);
+    void UpdateBulletMeshVisuals(float DeltaTime);
+    bool HasActiveBulletMeshVisuals() const;
+    UStaticMeshComponent* AcquireBulletVisualComponent(int32& OutVisualIndex);
+    void DeactivateBulletVisual(int32 VisualIndex, bool bProcessPendingBlood);
+    void StopAllBulletMeshVisuals();
+    bool SpawnGroundBloodSplatter(const FHitResult& BulletHit);
+    void UpdateComponentTickState();
+
     bool CanTakeCombatMovementControl() const;
     void TakeCombatMovementControl(AActor* AgainstTarget);
     void ReleaseCombatMovementControl();
@@ -289,6 +371,16 @@ private:
     UPROPERTY(Transient)
     TObjectPtr<UCharacterMovementComponent> OwnerMovement;
 
+    /** Optional runtime Blueprint override for the visual bullet origin. */
+    UPROPERTY(Transient)
+    TObjectPtr<USceneComponent> RuntimeBulletVisualSpawnComponent;
+
+    /** Per-soldier component pool; normally only one or two entries are active at a time. */
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UStaticMeshComponent>> BulletVisualComponents;
+
+    TArray<FRenegadeBulletVisualRuntimeState> BulletVisualStates;
+
     FTimerHandle TargetRefreshTimer;
     FTimerHandle CombatMovementTimer;
     FTimerHandle FireTimer;
@@ -317,6 +409,7 @@ private:
     bool bHasPendingIncomingHit = false;
 
     float LastTargetSeenTime = -BIG_NUMBER;
+    float LastGroundBloodTime = -BIG_NUMBER;
     FVector LastKnownTargetLocation = FVector::ZeroVector;
     int32 BurstShotsRemaining = 0;
     int32 StrafeDirection = 1;

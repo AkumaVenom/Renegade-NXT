@@ -57,7 +57,46 @@ From the component, bind these Blueprint dispatchers:
 The plugin performs the trace and damage. Your existing weapon particles and sounds remain fully controlled in Blueprint.
 
 
-## 5. Combat-facing rotation lock
+## 5. Automatic bullet mesh and ground blood
+
+Select the combat component and expand **Renegade NXT | Combat Visuals**.
+
+### Bullet mesh
+
+1. Enable `Enable Bullet Mesh Visual`.
+2. Assign a Static Mesh to `Bullet Mesh`.
+3. Set `Bullet Mesh Scale` so it reads clearly without appearing oversized.
+4. The plugin aligns local +X to the shot path. Adjust `Bullet Mesh Rotation Offset` if your mesh uses another forward axis.
+5. Use `Preview Bullet Mesh Visual` from Blueprint while testing. Supply any two world locations.
+
+The moving mesh is a pooled cosmetic representation of the existing hitscan shot. It has no collision and never applies damage a second time. `Trace Start` is still taken from the weapon's configured muzzle socket, and `Trace End` is the actual hit point or maximum-range end.
+
+### Ground blood
+
+1. Enable `Enable Ground Blood Splatter`.
+2. Add your blood decal materials to `Ground Blood Decal Materials`. Each material must use the **Deferred Decal** material domain.
+3. Make sure the landscape/floor blocks `Ground Blood Trace Channel`. `Visibility` is the default.
+4. Set size, depth, life, fade, surface offset, and random spawn chance.
+5. Leave `Delay Ground Blood Until Bullet Arrives` enabled for synchronised impact timing.
+6. Use `Preview Ground Blood At Location` to test a world position without firing.
+
+For Niagara or a packaged multi-component blood effect, make a Blueprint Actor containing the effect and assign it to `Ground Blood Effect Actor Class`. The plugin forces spawned effect actors to remain local-only. Assigning both decal materials and an effect actor intentionally spawns both.
+
+`On Ground Blood Spawned` provides the original bullet hit, the ground hit, and the spawned decal component for optional extra Blueprint logic.
+
+### Large-battle recommendation
+
+For approximately 40 automatic-rifle soldiers:
+
+- Bullet Visual Pool Size: `4-6`
+- Bullet Visual Speed: `25000-35000`
+- Bullet Visual Casts Shadow: `false`
+- Ground Blood Life Seconds: `12-20`
+- Ground Blood Fade Seconds: `3-5`
+- Minimum Seconds Between Ground Blood: `0.15-0.25` when many decals accumulate
+
+
+## 6. Combat-facing rotation lock
 
 In the component's **Renegade NXT | Combat Facing** category:
 
@@ -69,7 +108,7 @@ The plugin temporarily overrides `Orient Rotation to Movement`, `Use Controller 
 
 This allows the AI to run backward or strafe sideways while its body remains aimed at the current enemy. Directional locomotion or strafe animations are recommended for the best visual result.
 
-## 6. Required ragdoll setup
+## 7. Required ragdoll setup
 
 The Character Skeletal Mesh must have a valid Physics Asset. The project should contain the standard `Ragdoll` collision profile.
 
@@ -85,7 +124,7 @@ On death the plugin:
 
 The actor is not destroyed.
 
-## 7. Respawn choices
+## 8. Respawn choices
 
 Inside `Health And Respawn`, choose:
 
@@ -95,7 +134,7 @@ Inside `Health And Respawn`, choose:
 
 Higher-priority matching spawn points are selected before lower-priority points. Equal-priority points are selected randomly.
 
-## 8. Multiplayer
+## 9. Multiplayer
 
 Place and possess soldiers on the server as normal. Target selection, movement decisions, firing, damage, death, and respawn are server authoritative. Shot/reload/ragdoll/respawn cosmetic events are multicast so Blueprint effects can run on clients.
 
@@ -114,8 +153,14 @@ Recommended defaults:
 
 - `Resolve Leader Pose Mesh For Ragdoll`: true
 - `Use Ragdoll Root Bone`: true
-- `Ragdoll Root Bone`: `pelvis` (or the skeleton's hip/root physics bone)
+- `Ragdoll Root Bone`: `spine` for the current Renegade NXT soldier Physics Assets
 - `Include Ragdoll Root Bone`: true
 - `Disable Secondary Animation During Ragdoll`: true
 
 For modular characters using Set Leader Pose Component, put the `CombatRagdollMesh` component tag on the leader/body mesh. Do not independently simulate a head, clothing, hands, or other follower component.
+
+## Bullet visual spawn origin
+
+Add a Scene Component named `BulletSpawn` to the soldier Blueprint and attach it to the gun or weapon socket. Position it at the barrel. In the combat component, assign that component to **Renegade NXT > Combat Visuals > Bullet Spawn > Bullet Visual Spawn Component**.
+
+For dynamically attached weapons, call **Set Bullet Visual Spawn Component** on Begin Play after the weapon is attached. The supplied component must be owned by the same soldier actor.

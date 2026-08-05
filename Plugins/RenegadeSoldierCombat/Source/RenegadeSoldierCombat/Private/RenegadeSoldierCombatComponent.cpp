@@ -10,9 +10,13 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/DamageType.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/DecalComponent.h"
+#include "Components/SceneComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SkinnedMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Materials/MaterialInterface.h"
 #include "NavigationSystem.h"
 #include "Net/UnrealNetwork.h"
 #include "PhysicsEngine/PhysicsAsset.h"
@@ -86,6 +90,17 @@ void URenegadeSoldierCombatComponent::BeginPlay()
 void URenegadeSoldierCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     RestoreCombatFacingMode(true);
+    StopAllBulletMeshVisuals();
+
+    for (UStaticMeshComponent* BulletComponent : BulletVisualComponents)
+    {
+        if (IsValid(BulletComponent))
+        {
+            BulletComponent->DestroyComponent();
+        }
+    }
+    BulletVisualComponents.Reset();
+    BulletVisualStates.Reset();
     SetComponentTickEnabled(false);
 
     if (AActor* Owner = GetOwner())
@@ -107,22 +122,22 @@ void URenegadeSoldierCombatComponent::TickComponent(float DeltaTime, ELevelTick 
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    if (!HasAuthority() || bIsDead || !IsValid(CurrentTarget))
+    // Cosmetic bullet components run on clients and on the listen-server view.
+    UpdateBulletMeshVisuals(DeltaTime);
+
+    if (HasAuthority())
     {
-        RestoreCombatFacingMode(true);
-        SetComponentTickEnabled(false);
-        return;
+        if (!bIsDead && bLockCombatRotationToCurrentTarget && IsValid(CurrentTarget))
+        {
+            UpdateCombatFacing(DeltaTime);
+        }
+        else
+        {
+            RestoreCombatFacingMode(true);
+        }
     }
 
-    if (bLockCombatRotationToCurrentTarget)
-    {
-        UpdateCombatFacing(DeltaTime);
-    }
-    else
-    {
-        RestoreCombatFacingMode(true);
-        SetComponentTickEnabled(false);
-    }
+    UpdateComponentTickState();
 }
 
 void URenegadeSoldierCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -388,14 +403,14 @@ void URenegadeSoldierCombatComponent::SetCombatRotationLockEnabled(bool bEnabled
     if (bEnabled && !bIsDead && IsValid(CurrentTarget))
     {
         ApplyCombatFacingMode();
-        SetComponentTickEnabled(true);
         UpdateCombatFacing(0.0f);
     }
     else
     {
         RestoreCombatFacingMode(true);
-        SetComponentTickEnabled(false);
     }
+
+    UpdateComponentTickState();
 
     if (AActor* Owner = GetOwner())
     {
@@ -605,6 +620,58 @@ FRenegadeWeaponSettings URenegadeSoldierCombatComponent::GetActiveWeaponSettings
         return WeaponProfile->Settings;
     }
     return InlineWeaponSettings;
+}
+
+void URenegadeSoldierCombatComponent::SetBulletVisualSpawnComponent(USceneComponent* NewSpawnComponent)
+{
+    if (!IsValid(NewSpawnComponent))
+    {
+        RuntimeBulletVisualSpawnComponent = nullptr;
+        return;
+    }
+
+    if (NewSpawnComponent->GetOwner() != GetOwner())
+    {
+        UE_LOG(LogRenegadeSoldierCombat, Warning,
+            TEXT("%s rejected bullet visual spawn component %s because it belongs to a different actor."),
+            *GetNameSafe(GetOwner()), *GetNameSafe(NewSpawnComponent));
+        return;
+    }
+
+    RuntimeBulletVisualSpawnComponent = NewSpawnComponent;
+}
+
+void URenegadeSoldierCombatComponent::ClearBulletVisualSpawnComponent()
+{
+    RuntimeBulletVisualSpawnComponent = nullptr;
+}
+
+USceneComponent* URenegadeSoldierCombatComponent::GetBulletVisualSpawnComponent() const
+{
+    return ResolveBulletVisualSpawnComponent();
+}
+
+FVector URenegadeSoldierCombatComponent::GetBulletVisualSpawnLocation() const
+{
+    return ResolveBulletVisualSpawnLocation(GetMuzzleLocation());
+}
+
+void URenegadeSoldierCombatComponent::PreviewBulletMeshVisual(FVector TraceStart, FVector TraceEnd)
+{
+    SpawnBulletMeshVisual(TraceStart, TraceEnd, nullptr);
+}
+
+void URenegadeSoldierCombatComponent::PreviewBulletMeshFromConfiguredSpawn(FVector TraceEnd)
+{
+    SpawnBulletMeshVisual(GetMuzzleLocation(), TraceEnd, nullptr);
+}
+
+bool URenegadeSoldierCombatComponent::PreviewGroundBloodAtLocation(FVector BulletImpactLocation)
+{
+    FHitResult PreviewHit;
+    PreviewHit.ImpactPoint = BulletImpactLocation;
+    PreviewHit.Location = BulletImpactLocation;
+    return SpawnGroundBloodSplatter(PreviewHit);
 }
 
 void URenegadeSoldierCombatComponent::PrepareIncomingCombatHit(const FHitResult& HitResult, const FVector& ShotDirection)
@@ -880,12 +947,12 @@ void URenegadeSoldierCombatComponent::HandleLocalTargetTransition(AActor* Previo
         if (HasAuthority())
         {
             TakeCombatMovementControl(NewTarget);
-            SetComponentTickEnabled(bLockCombatRotationToCurrentTarget);
             if (bLockCombatRotationToCurrentTarget)
             {
                 ApplyCombatFacingMode();
                 UpdateCombatFacing(0.0f);
             }
+            UpdateComponentTickState();
         }
     }
     else if (PreviousTarget)
@@ -895,7 +962,6 @@ void URenegadeSoldierCombatComponent::HandleLocalTargetTransition(AActor* Previo
         if (HasAuthority())
         {
             RestoreCombatFacingMode(true);
-            SetComponentTickEnabled(false);
 
             if (bResumeSplineWhenCleared && !bIsDead)
             {
@@ -910,6 +976,7 @@ void URenegadeSoldierCombatComponent::HandleLocalTargetTransition(AActor* Previo
                 }
                 bMovementControlTaken = false;
             }
+            UpdateComponentTickState();
         }
     }
 }
@@ -970,42 +1037,41 @@ void URenegadeSoldierCombatComponent::TryFireShot()
     const bool bBlockingHit = GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, DesiredTraceEnd, Weapon.TraceChannel, QueryParams);
     const FVector TraceEnd = bBlockingHit ? Hit.ImpactPoint : DesiredTraceEnd;
 
-    MulticastShotFired(TraceStart, TraceEnd, bBlockingHit, Hit);
+    AActor* HitActor = bBlockingHit ? Hit.GetActor() : nullptr;
+    const bool bCanDamageHitActor = IsValid(HitActor) && (Weapon.bAllowFriendlyFire || IsHostileToActor(HitActor));
+    URenegadeSoldierCombatComponent* HitCombat = bCanDamageHitActor
+        ? HitActor->FindComponentByClass<URenegadeSoldierCombatComponent>()
+        : nullptr;
+    const bool bDamagedCombatActor = bCanDamageHitActor && (!HitCombat || !HitCombat->bIsDead);
+    const bool bSpawnGroundBloodForHit = bDamagedCombatActor && HitCombat != nullptr;
+
+    MulticastShotFired(TraceStart, TraceEnd, bBlockingHit, Hit, bSpawnGroundBloodForHit);
 
     if (Weapon.bUseMagazine)
     {
         CurrentMagazineAmmo = FMath::Max(0, CurrentMagazineAmmo - 1);
     }
 
-    if (bBlockingHit)
+    if (bDamagedCombatActor)
     {
-        AActor* HitActor = Hit.GetActor();
-        const bool bCanDamageHitActor = IsValid(HitActor) && (Weapon.bAllowFriendlyFire || IsHostileToActor(HitActor));
-        if (bCanDamageHitActor)
+        const float Damage = CalculateDamageForHit(Weapon, Hit, FVector::Distance(TraceStart, Hit.ImpactPoint));
+        if (HitCombat)
         {
-            URenegadeSoldierCombatComponent* HitCombat = HitActor->FindComponentByClass<URenegadeSoldierCombatComponent>();
-            if (!HitCombat || !HitCombat->bIsDead)
-            {
-                const float Damage = CalculateDamageForHit(Weapon, Hit, FVector::Distance(TraceStart, Hit.ImpactPoint));
-                if (HitCombat)
-                {
-                    HitCombat->PrepareIncomingCombatHit(Hit, ShotDirection);
-                }
+            HitCombat->PrepareIncomingCombatHit(Hit, ShotDirection);
+        }
 
-                UGameplayStatics::ApplyPointDamage(
-                    HitActor,
-                    Damage,
-                    ShotDirection,
-                    Hit,
-                    GetOwningController(),
-                    GetOwner(),
-                    Weapon.DamageTypeClass);
+        UGameplayStatics::ApplyPointDamage(
+            HitActor,
+            Damage,
+            ShotDirection,
+            Hit,
+            GetOwningController(),
+            GetOwner(),
+            Weapon.DamageTypeClass);
 
-                if (HitCombat)
-                {
-                    HitCombat->ClearIncomingCombatHit();
-                }
-            }
+        if (HitCombat)
+        {
+            HitCombat->ClearIncomingCombatHit();
         }
     }
 
@@ -1027,6 +1093,374 @@ void URenegadeSoldierCombatComponent::TryFireShot()
         BurstShotsRemaining = FMath::RandRange(MinBurst, MaxBurst);
         ScheduleNextShot(FMath::FRandRange(FMath::Max(0.0f, Weapon.MinimumBurstPause), FMath::Max(Weapon.MinimumBurstPause, Weapon.MaximumBurstPause)));
     }
+}
+
+bool URenegadeSoldierCombatComponent::ShouldRunCosmeticVisuals() const
+{
+    const UWorld* World = GetWorld();
+    return World && World->GetNetMode() != NM_DedicatedServer;
+}
+
+USceneComponent* URenegadeSoldierCombatComponent::ResolveBulletVisualSpawnComponent() const
+{
+    if (IsValid(RuntimeBulletVisualSpawnComponent) && RuntimeBulletVisualSpawnComponent->GetOwner() == GetOwner())
+    {
+        return RuntimeBulletVisualSpawnComponent;
+    }
+
+    if (GetOwner())
+    {
+        if (UActorComponent* ReferencedComponent = BulletVisualSpawnComponent.GetComponent(GetOwner()))
+        {
+            if (USceneComponent* ReferencedSceneComponent = Cast<USceneComponent>(ReferencedComponent))
+            {
+                return ReferencedSceneComponent;
+            }
+        }
+
+        if (!BulletVisualSpawnComponentTag.IsNone())
+        {
+            const TArray<UActorComponent*> TaggedComponents = GetOwner()->GetComponentsByTag(
+                USceneComponent::StaticClass(), BulletVisualSpawnComponentTag);
+
+            for (UActorComponent* TaggedComponent : TaggedComponents)
+            {
+                if (USceneComponent* TaggedSceneComponent = Cast<USceneComponent>(TaggedComponent))
+                {
+                    return TaggedSceneComponent;
+                }
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+FVector URenegadeSoldierCombatComponent::ResolveBulletVisualSpawnLocation(const FVector& FallbackTraceStart) const
+{
+    if (const USceneComponent* SpawnComponent = ResolveBulletVisualSpawnComponent())
+    {
+        return SpawnComponent->GetComponentTransform().TransformPosition(BulletVisualSpawnRelativeOffset);
+    }
+
+    return FallbackTraceStart;
+}
+
+UStaticMeshComponent* URenegadeSoldierCombatComponent::AcquireBulletVisualComponent(int32& OutVisualIndex)
+{
+    OutVisualIndex = INDEX_NONE;
+    if (!ShouldRunCosmeticVisuals() || !IsValid(CombatVisuals.BulletMesh) || !GetOwner() || !GetWorld())
+    {
+        return nullptr;
+    }
+
+    const int32 PoolLimit = FMath::Clamp(CombatVisuals.BulletVisualPoolSize, 1, 32);
+    for (int32 Index = 0; Index < BulletVisualStates.Num(); ++Index)
+    {
+        if (!BulletVisualStates[Index].bActive && BulletVisualComponents.IsValidIndex(Index) && IsValid(BulletVisualComponents[Index]))
+        {
+            OutVisualIndex = Index;
+            return BulletVisualComponents[Index];
+        }
+    }
+
+    if (BulletVisualComponents.Num() < PoolLimit)
+    {
+        UStaticMeshComponent* NewComponent = NewObject<UStaticMeshComponent>(GetOwner(), NAME_None, RF_Transient);
+        if (!IsValid(NewComponent))
+        {
+            return nullptr;
+        }
+
+        GetOwner()->AddInstanceComponent(NewComponent);
+        NewComponent->SetMobility(EComponentMobility::Movable);
+        NewComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        NewComponent->SetGenerateOverlapEvents(false);
+        NewComponent->SetCanEverAffectNavigation(false);
+        NewComponent->SetCastShadow(CombatVisuals.bBulletVisualCastsShadow);
+        NewComponent->SetVisibility(false, true);
+        NewComponent->SetHiddenInGame(true, true);
+        NewComponent->RegisterComponent();
+
+        OutVisualIndex = BulletVisualComponents.Add(NewComponent);
+        BulletVisualStates.SetNum(BulletVisualComponents.Num());
+        return NewComponent;
+    }
+
+    // At the cap, recycle the bullet nearest to arrival instead of allocating more components.
+    float BestProgress = -1.0f;
+    int32 BestIndex = INDEX_NONE;
+    for (int32 Index = 0; Index < BulletVisualStates.Num(); ++Index)
+    {
+        const FRenegadeBulletVisualRuntimeState& State = BulletVisualStates[Index];
+        const float Progress = State.DurationSeconds > KINDA_SMALL_NUMBER ? State.ElapsedSeconds / State.DurationSeconds : 1.0f;
+        if (Progress > BestProgress && BulletVisualComponents.IsValidIndex(Index) && IsValid(BulletVisualComponents[Index]))
+        {
+            BestProgress = Progress;
+            BestIndex = Index;
+        }
+    }
+
+    if (BestIndex != INDEX_NONE)
+    {
+        DeactivateBulletVisual(BestIndex, true);
+        OutVisualIndex = BestIndex;
+        return BulletVisualComponents[BestIndex];
+    }
+
+    return nullptr;
+}
+
+bool URenegadeSoldierCombatComponent::SpawnBulletMeshVisual(const FVector& TraceStart, const FVector& TraceEnd, const FHitResult* BloodHitToDelay)
+{
+    if (!CombatVisuals.bEnableBulletMeshVisual || !IsValid(CombatVisuals.BulletMesh) || !ShouldRunCosmeticVisuals())
+    {
+        return false;
+    }
+
+    const FVector ConfiguredVisualStart = ResolveBulletVisualSpawnLocation(TraceStart);
+    FVector Direction = TraceEnd - ConfiguredVisualStart;
+    const float RawDistance = Direction.Size();
+    if (RawDistance <= KINDA_SMALL_NUMBER)
+    {
+        return false;
+    }
+    Direction /= RawDistance;
+
+    FVector VisualStart = ConfiguredVisualStart + Direction * FMath::Max(0.0f, CombatVisuals.BulletVisualMuzzleForwardOffset);
+    FVector VisualEnd = TraceEnd - Direction * FMath::Min(FMath::Max(0.0f, CombatVisuals.BulletVisualImpactStopShortDistance), RawDistance * 0.25f);
+    if (FVector::DistSquared(VisualStart, VisualEnd) <= 1.0f)
+    {
+        VisualStart = ConfiguredVisualStart;
+        VisualEnd = TraceEnd;
+    }
+
+    int32 VisualIndex = INDEX_NONE;
+    UStaticMeshComponent* BulletComponent = AcquireBulletVisualComponent(VisualIndex);
+    if (!IsValid(BulletComponent) || !BulletVisualStates.IsValidIndex(VisualIndex))
+    {
+        return false;
+    }
+
+    BulletComponent->SetStaticMesh(CombatVisuals.BulletMesh);
+    BulletComponent->SetCastShadow(CombatVisuals.bBulletVisualCastsShadow);
+    if (IsValid(CombatVisuals.BulletMaterialOverride))
+    {
+        BulletComponent->SetMaterial(0, CombatVisuals.BulletMaterialOverride);
+    }
+    else
+    {
+        BulletComponent->SetMaterial(0, nullptr);
+    }
+
+    const FVector TravelDirection = (VisualEnd - VisualStart).GetSafeNormal();
+    const FRotator TravelRotation = TravelDirection.Rotation() + CombatVisuals.BulletMeshRotationOffset;
+    const float TravelDistance = FVector::Distance(VisualStart, VisualEnd);
+    const float UnclampedDuration = TravelDistance / FMath::Max(100.0f, CombatVisuals.BulletVisualSpeed);
+    const float MinDuration = FMath::Max(0.001f, CombatVisuals.MinimumBulletVisualSeconds);
+    const float MaxDuration = FMath::Max(MinDuration, CombatVisuals.MaximumBulletVisualSeconds);
+
+    FRenegadeBulletVisualRuntimeState& State = BulletVisualStates[VisualIndex];
+    State.StartLocation = VisualStart;
+    State.EndLocation = VisualEnd;
+    State.TravelRotation = TravelRotation;
+    State.ElapsedSeconds = 0.0f;
+    State.DurationSeconds = FMath::Clamp(UnclampedDuration, MinDuration, MaxDuration);
+    State.bActive = true;
+    State.bSpawnBloodOnArrival = BloodHitToDelay != nullptr;
+    State.PendingBloodHit = BloodHitToDelay ? *BloodHitToDelay : FHitResult();
+
+    BulletComponent->SetWorldLocationAndRotation(VisualStart, TravelRotation, false, nullptr, ETeleportType::TeleportPhysics);
+    BulletComponent->SetWorldScale3D(CombatVisuals.BulletMeshScale);
+    BulletComponent->SetHiddenInGame(false, true);
+    BulletComponent->SetVisibility(true, true);
+
+    SetComponentTickEnabled(true);
+    return true;
+}
+
+void URenegadeSoldierCombatComponent::UpdateBulletMeshVisuals(float DeltaTime)
+{
+    for (int32 Index = 0; Index < BulletVisualStates.Num(); ++Index)
+    {
+        FRenegadeBulletVisualRuntimeState& State = BulletVisualStates[Index];
+        if (!State.bActive)
+        {
+            continue;
+        }
+
+        if (!BulletVisualComponents.IsValidIndex(Index) || !IsValid(BulletVisualComponents[Index]))
+        {
+            State = FRenegadeBulletVisualRuntimeState();
+            continue;
+        }
+
+        State.ElapsedSeconds += FMath::Max(0.0f, DeltaTime);
+        const float Alpha = State.DurationSeconds > KINDA_SMALL_NUMBER
+            ? FMath::Clamp(State.ElapsedSeconds / State.DurationSeconds, 0.0f, 1.0f)
+            : 1.0f;
+
+        BulletVisualComponents[Index]->SetWorldLocationAndRotation(
+            FMath::Lerp(State.StartLocation, State.EndLocation, Alpha),
+            State.TravelRotation,
+            false,
+            nullptr,
+            ETeleportType::TeleportPhysics);
+
+        if (Alpha >= 1.0f)
+        {
+            DeactivateBulletVisual(Index, true);
+        }
+    }
+}
+
+bool URenegadeSoldierCombatComponent::HasActiveBulletMeshVisuals() const
+{
+    for (const FRenegadeBulletVisualRuntimeState& State : BulletVisualStates)
+    {
+        if (State.bActive)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void URenegadeSoldierCombatComponent::DeactivateBulletVisual(int32 VisualIndex, bool bProcessPendingBlood)
+{
+    if (!BulletVisualStates.IsValidIndex(VisualIndex))
+    {
+        return;
+    }
+
+    const FRenegadeBulletVisualRuntimeState PreviousState = BulletVisualStates[VisualIndex];
+    BulletVisualStates[VisualIndex] = FRenegadeBulletVisualRuntimeState();
+
+    if (BulletVisualComponents.IsValidIndex(VisualIndex) && IsValid(BulletVisualComponents[VisualIndex]))
+    {
+        BulletVisualComponents[VisualIndex]->SetVisibility(false, true);
+        BulletVisualComponents[VisualIndex]->SetHiddenInGame(true, true);
+    }
+
+    if (bProcessPendingBlood && PreviousState.bSpawnBloodOnArrival)
+    {
+        SpawnGroundBloodSplatter(PreviousState.PendingBloodHit);
+    }
+}
+
+void URenegadeSoldierCombatComponent::StopAllBulletMeshVisuals()
+{
+    for (int32 Index = 0; Index < BulletVisualStates.Num(); ++Index)
+    {
+        DeactivateBulletVisual(Index, false);
+    }
+}
+
+bool URenegadeSoldierCombatComponent::SpawnGroundBloodSplatter(const FHitResult& BulletHit)
+{
+    if (!CombatVisuals.bEnableGroundBloodSplatter || !ShouldRunCosmeticVisuals() || !GetWorld())
+    {
+        return false;
+    }
+
+    TArray<UMaterialInterface*> ValidMaterials;
+    for (const TObjectPtr<UMaterialInterface>& MaterialPtr : CombatVisuals.GroundBloodDecalMaterials)
+    {
+        UMaterialInterface* Material = MaterialPtr.Get();
+        if (IsValid(Material))
+        {
+            ValidMaterials.Add(Material);
+        }
+    }
+
+    const bool bHasDecalMaterial = !ValidMaterials.IsEmpty();
+    const bool bHasActorEffect = CombatVisuals.GroundBloodEffectActorClass != nullptr;
+    if (!bHasDecalMaterial && !bHasActorEffect)
+    {
+        return false;
+    }
+
+    if (FMath::FRand() > FMath::Clamp(CombatVisuals.GroundBloodSpawnChance, 0.0f, 1.0f))
+    {
+        return false;
+    }
+
+    const float Now = GetWorld()->GetTimeSeconds();
+    if (Now - LastGroundBloodTime < FMath::Max(0.0f, CombatVisuals.MinimumSecondsBetweenGroundBlood))
+    {
+        return false;
+    }
+
+    const FVector SourceLocation = !BulletHit.ImpactPoint.IsNearlyZero() ? BulletHit.ImpactPoint : BulletHit.Location;
+    const FVector TraceStart = SourceLocation + FVector::UpVector * FMath::Max(1.0f, CombatVisuals.GroundBloodTraceUpDistance);
+    const FVector TraceEnd = SourceLocation - FVector::UpVector * FMath::Max(1.0f, CombatVisuals.GroundBloodTraceDownDistance);
+
+    FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(RenegadeGroundBloodTrace), false, GetOwner());
+    QueryParams.AddIgnoredActor(GetOwner());
+    if (AActor* HitActor = BulletHit.GetActor())
+    {
+        QueryParams.AddIgnoredActor(HitActor);
+    }
+
+    FHitResult GroundHit;
+    if (!GetWorld()->LineTraceSingleByChannel(GroundHit, TraceStart, TraceEnd, CombatVisuals.GroundBloodTraceChannel, QueryParams))
+    {
+        return false;
+    }
+
+    const FVector SpawnLocation = GroundHit.ImpactPoint + GroundHit.ImpactNormal * FMath::Max(0.0f, CombatVisuals.GroundBloodSurfaceOffset);
+    FRotator SpawnRotation = GroundHit.ImpactNormal.Rotation();
+    SpawnRotation.Roll += FMath::FRandRange(0.0f, 360.0f);
+
+    UDecalComponent* SpawnedDecal = nullptr;
+    if (bHasDecalMaterial)
+    {
+        UMaterialInterface* SelectedMaterial = ValidMaterials[FMath::RandRange(0, ValidMaterials.Num() - 1)];
+        const float MinSize = FMath::Max(1.0f, FMath::Min(CombatVisuals.GroundBloodSizeRange.X, CombatVisuals.GroundBloodSizeRange.Y));
+        const float MaxSize = FMath::Max(MinSize, FMath::Max(CombatVisuals.GroundBloodSizeRange.X, CombatVisuals.GroundBloodSizeRange.Y));
+        const float DecalSize = FMath::FRandRange(MinSize, MaxSize);
+
+        SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(
+            this,
+            SelectedMaterial,
+            FVector(FMath::Max(1.0f, CombatVisuals.GroundBloodDecalDepth), DecalSize, DecalSize),
+            SpawnLocation,
+            SpawnRotation,
+            FMath::Max(0.0f, CombatVisuals.GroundBloodLifeSeconds));
+
+        if (IsValid(SpawnedDecal) && CombatVisuals.GroundBloodLifeSeconds > 0.0f && CombatVisuals.GroundBloodFadeSeconds > 0.0f)
+        {
+            const float FadeDuration = FMath::Min(CombatVisuals.GroundBloodFadeSeconds, CombatVisuals.GroundBloodLifeSeconds);
+            SpawnedDecal->SetFadeOut(FMath::Max(0.0f, CombatVisuals.GroundBloodLifeSeconds - FadeDuration), FadeDuration, true);
+        }
+    }
+
+    if (bHasActorEffect)
+    {
+        FActorSpawnParameters SpawnParameters;
+        SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        SpawnParameters.ObjectFlags |= RF_Transient;
+        AActor* EffectActor = GetWorld()->SpawnActor<AActor>(CombatVisuals.GroundBloodEffectActorClass, SpawnLocation, SpawnRotation, SpawnParameters);
+        if (IsValid(EffectActor))
+        {
+            // The shot multicast already creates one local cosmetic on every view; never replicate this helper actor.
+            EffectActor->SetReplicates(false);
+            if (CombatVisuals.GroundBloodLifeSeconds > 0.0f)
+            {
+                EffectActor->SetLifeSpan(CombatVisuals.GroundBloodLifeSeconds);
+            }
+        }
+    }
+
+    LastGroundBloodTime = Now;
+    OnGroundBloodSpawned.Broadcast(SpawnedDecal, BulletHit, GroundHit);
+    return true;
+}
+
+void URenegadeSoldierCombatComponent::UpdateComponentTickState()
+{
+    const bool bNeedsCombatFacing = HasAuthority() && !bIsDead && bLockCombatRotationToCurrentTarget && IsValid(CurrentTarget);
+    SetComponentTickEnabled(bNeedsCombatFacing || HasActiveBulletMeshVisuals());
 }
 
 void URenegadeSoldierCombatComponent::StartReload()
@@ -1156,7 +1590,6 @@ void URenegadeSoldierCombatComponent::ReleaseCombatMovementControl()
     }
 
     RestoreCombatFacingMode(true);
-    SetComponentTickEnabled(false);
 
     if (AAIController* AIController = GetOwningAIController())
     {
@@ -1165,6 +1598,7 @@ void URenegadeSoldierCombatComponent::ReleaseCombatMovementControl()
 
     if (!bMovementControlTaken)
     {
+        UpdateComponentTickState();
         return;
     }
 
@@ -1183,6 +1617,7 @@ void URenegadeSoldierCombatComponent::ReleaseCombatMovementControl()
     }
 
     bMovementControlTaken = false;
+    UpdateComponentTickState();
 }
 
 void URenegadeSoldierCombatComponent::ApplyCombatFacingMode()
@@ -1443,7 +1878,7 @@ void URenegadeSoldierCombatComponent::BeginRagdollVisuals(const FVector& Impulse
 
     ResolveOwnerComponents();
     RestoreCombatFacingMode(true);
-    SetComponentTickEnabled(false);
+    UpdateComponentTickState();
 
     if (AAIController* AIController = GetOwningAIController())
     {
@@ -1653,9 +2088,19 @@ AAIController* URenegadeSoldierCombatComponent::GetOwningAIController() const
     return Cast<AAIController>(GetOwningController());
 }
 
-void URenegadeSoldierCombatComponent::MulticastShotFired_Implementation(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult)
+void URenegadeSoldierCombatComponent::MulticastShotFired_Implementation(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult, bool bSpawnGroundBloodForHit)
 {
     OnShotFired.Broadcast(TraceStart, TraceEnd, bBlockingHit, HitResult);
+
+    const bool bDelayBlood = bSpawnGroundBloodForHit
+        && CombatVisuals.bEnableGroundBloodSplatter
+        && CombatVisuals.bDelayGroundBloodUntilBulletArrives;
+    const bool bBulletWasSpawned = SpawnBulletMeshVisual(TraceStart, TraceEnd, bDelayBlood ? &HitResult : nullptr);
+
+    if (bSpawnGroundBloodForHit && (!bDelayBlood || !bBulletWasSpawned))
+    {
+        SpawnGroundBloodSplatter(HitResult);
+    }
 }
 
 void URenegadeSoldierCombatComponent::MulticastReloadStarted_Implementation()

@@ -12,10 +12,16 @@ static_assert(!UE_WITH_CONSTINIT_UOBJECT, "This generated code can only be compi
 void EmptyLinkFunctionForGeneratedCodeRenegadeCombatTypes() {}
 
 // ********** Begin Cross Module References ********************************************************
+COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FRotator(ETypeConstructPhase);
 COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FTransform(ETypeConstructPhase);
+COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FVector(ETypeConstructPhase);
+COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FVector2D(ETypeConstructPhase);
 ENGINE_API UEnum* Z_Construct_UEnum_Engine_ECollisionChannel(ETypeConstructPhase);
 COREUOBJECT_API UClass* Z_Construct_UClass_UClass(ETypeConstructPhase);
+ENGINE_API UClass* Z_Construct_UClass_AActor(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_UDamageType(ETypeConstructPhase);
+ENGINE_API UClass* Z_Construct_UClass_UMaterialInterface(ETypeConstructPhase);
+ENGINE_API UClass* Z_Construct_UClass_UStaticMesh(ETypeConstructPhase);
 // ********** End Cross Module References **********************************************************
 
 // ********** Begin Same Module References *********************************************************
@@ -24,6 +30,7 @@ RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenega
 RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnTransformMode(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeWeaponClass(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeTargetingSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeWeaponSettings(ETypeConstructPhase);
@@ -768,6 +775,408 @@ UScriptStruct* Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings(ETypeCo
 #undef UHT_STATICS
 // ********** End ScriptStruct FRenegadeCombatMovementSettings *************************************
 
+// ********** Begin ScriptStruct FRenegadeCombatVisualSettings *************************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings_Statics
+struct UHT_STATICS
+{
+	static inline consteval int32 GetStructSize() { return DataSizeOf<FRenegadeCombatVisualSettings>(); }
+	static inline consteval int16 GetStructAlignment() { return alignof(FRenegadeCombatVisualSettings); }
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "BlueprintType", "true" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableBulletMeshVisual_MetaData[] = {
+		{ "Category", "Bullet Visual" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Enables the lightweight pooled static-mesh bullet visual. Damage remains instant hitscan. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Enables the lightweight pooled static-mesh bullet visual. Damage remains instant hitscan." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BulletMesh_MetaData[] = {
+		{ "Category", "Bullet Visual" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Static mesh used for the visible bullet/tracer. Leave empty to suppress automatic mesh spawning. */" },
+#endif
+		{ "EditCondition", "bEnableBulletMeshVisual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Static mesh used for the visible bullet/tracer. Leave empty to suppress automatic mesh spawning." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BulletMaterialOverride_MetaData[] = {
+		{ "Category", "Bullet Visual" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Optional material override for material slot zero of the bullet mesh. */" },
+#endif
+		{ "EditCondition", "bEnableBulletMeshVisual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Optional material override for material slot zero of the bullet mesh." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BulletMeshScale_MetaData[] = {
+		{ "Category", "Bullet Visual" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** World scale applied to the bullet mesh. */" },
+#endif
+		{ "EditCondition", "bEnableBulletMeshVisual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "World scale applied to the bullet mesh." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BulletMeshRotationOffset_MetaData[] = {
+		{ "Category", "Bullet Visual" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Added after orienting the mesh's local X axis toward travel direction. Useful when the mesh points along Y or Z. */" },
+#endif
+		{ "EditCondition", "bEnableBulletMeshVisual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Added after orienting the mesh's local X axis toward travel direction. Useful when the mesh points along Y or Z." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BulletVisualSpeed_MetaData[] = {
+		{ "Category", "Bullet Visual" },
+		{ "ClampMin", "100.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Cosmetic travel speed in centimetres per second. The authoritative weapon remains hitscan. */" },
+#endif
+		{ "EditCondition", "bEnableBulletMeshVisual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Cosmetic travel speed in centimetres per second. The authoritative weapon remains hitscan." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MinimumBulletVisualSeconds_MetaData[] = {
+		{ "Category", "Bullet Visual" },
+		{ "ClampMin", "0.001" },
+		{ "EditCondition", "bEnableBulletMeshVisual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MaximumBulletVisualSeconds_MetaData[] = {
+		{ "Category", "Bullet Visual" },
+		{ "ClampMin", "0.001" },
+		{ "EditCondition", "bEnableBulletMeshVisual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BulletVisualMuzzleForwardOffset_MetaData[] = {
+		{ "Category", "Bullet Visual|Spawn" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Moves the visual forward along its travel direction to prevent it appearing inside the gun mesh. */" },
+#endif
+		{ "EditCondition", "bEnableBulletMeshVisual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Moves the visual forward along its travel direction to prevent it appearing inside the gun mesh." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BulletVisualImpactStopShortDistance_MetaData[] = {
+		{ "Category", "Bullet Visual" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Stops the visual slightly before the impact surface to prevent mesh clipping. */" },
+#endif
+		{ "EditCondition", "bEnableBulletMeshVisual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Stops the visual slightly before the impact surface to prevent mesh clipping." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BulletVisualPoolSize_MetaData[] = {
+		{ "Category", "Bullet Visual|Performance" },
+		{ "ClampMax", "32" },
+		{ "ClampMin", "1" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum simultaneously allocated bullet mesh components per soldier. Components are reused instead of constantly spawned. */" },
+#endif
+		{ "EditCondition", "bEnableBulletMeshVisual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum simultaneously allocated bullet mesh components per soldier. Components are reused instead of constantly spawned." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bBulletVisualCastsShadow_MetaData[] = {
+		{ "Category", "Bullet Visual|Performance" },
+		{ "EditCondition", "bEnableBulletMeshVisual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableGroundBloodSplatter_MetaData[] = {
+		{ "Category", "Ground Blood" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Enables automatic blood placement beneath a successfully damaged hostile actor. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Enables automatic blood placement beneath a successfully damaged hostile actor." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GroundBloodDecalMaterials_MetaData[] = {
+		{ "Category", "Ground Blood" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** One material is selected randomly for each blood decal. These must use the Deferred Decal material domain. */" },
+#endif
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "One material is selected randomly for each blood decal. These must use the Deferred Decal material domain." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GroundBloodEffectActorClass_MetaData[] = {
+		{ "Category", "Ground Blood" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Optional local-only Blueprint actor for blood assets that are not decal materials, such as a Niagara/decal effect actor. */" },
+#endif
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Optional local-only Blueprint actor for blood assets that are not decal materials, such as a Niagara/decal effect actor." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GroundBloodSpawnChance_MetaData[] = {
+		{ "Category", "Ground Blood" },
+		{ "ClampMax", "1.0" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GroundBloodTraceUpDistance_MetaData[] = {
+		{ "Category", "Ground Blood" },
+		{ "ClampMin", "1.0" },
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GroundBloodTraceDownDistance_MetaData[] = {
+		{ "Category", "Ground Blood" },
+		{ "ClampMin", "1.0" },
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GroundBloodTraceChannel_MetaData[] = {
+		{ "Category", "Ground Blood" },
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GroundBloodSizeRange_MetaData[] = {
+		{ "Category", "Ground Blood" },
+		{ "ClampMin", "1.0" },
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GroundBloodDecalDepth_MetaData[] = {
+		{ "Category", "Ground Blood" },
+		{ "ClampMin", "1.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Decal projection depth (the X value of Decal Size). */" },
+#endif
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Decal projection depth (the X value of Decal Size)." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GroundBloodSurfaceOffset_MetaData[] = {
+		{ "Category", "Ground Blood" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GroundBloodLifeSeconds_MetaData[] = {
+		{ "Category", "Ground Blood|Lifetime" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Zero keeps decals alive indefinitely. A positive value automatically removes them. */" },
+#endif
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Zero keeps decals alive indefinitely. A positive value automatically removes them." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GroundBloodFadeSeconds_MetaData[] = {
+		{ "Category", "Ground Blood|Lifetime" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MinimumSecondsBetweenGroundBlood_MetaData[] = {
+		{ "Category", "Ground Blood|Performance" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Per-soldier throttle that protects large battles from producing excessive decals. */" },
+#endif
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Per-soldier throttle that protects large battles from producing excessive decals." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bDelayGroundBloodUntilBulletArrives_MetaData[] = {
+		{ "Category", "Ground Blood" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** When enabled, blood appears when the visible bullet reaches the trace end instead of immediately when the hitscan fires. */" },
+#endif
+		{ "EditCondition", "bEnableGroundBloodSplatter" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "When enabled, blood appears when the visible bullet reaches the trace end instead of immediately when the hitscan fires." },
+#endif
+	};
+#endif // WITH_METADATA
+
+// ********** Begin ScriptStruct FRenegadeCombatVisualSettings constinit property declarations *****
+	static void NewProp_bEnableBulletMeshVisual_SetBit(void* Obj)
+	{
+		((FRenegadeCombatVisualSettings*)Obj)->bEnableBulletMeshVisual = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnableBulletMeshVisual;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_BulletMesh;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_BulletMaterialOverride;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_BulletMeshScale;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_BulletMeshRotationOffset;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_BulletVisualSpeed;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MinimumBulletVisualSeconds;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MaximumBulletVisualSeconds;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_BulletVisualMuzzleForwardOffset;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_BulletVisualImpactStopShortDistance;
+	static const UECodeGen_Private::FIntPropertyParams NewProp_BulletVisualPoolSize;
+	static void NewProp_bBulletVisualCastsShadow_SetBit(void* Obj)
+	{
+		((FRenegadeCombatVisualSettings*)Obj)->bBulletVisualCastsShadow = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bBulletVisualCastsShadow;
+	static void NewProp_bEnableGroundBloodSplatter_SetBit(void* Obj)
+	{
+		((FRenegadeCombatVisualSettings*)Obj)->bEnableGroundBloodSplatter = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnableGroundBloodSplatter;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_GroundBloodDecalMaterials_Inner;
+	static const UECodeGen_Private::FArrayPropertyParams NewProp_GroundBloodDecalMaterials;
+	static const UECodeGen_Private::FClassPropertyParams NewProp_GroundBloodEffectActorClass;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GroundBloodSpawnChance;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GroundBloodTraceUpDistance;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GroundBloodTraceDownDistance;
+	static const UECodeGen_Private::FBytePropertyParams NewProp_GroundBloodTraceChannel;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GroundBloodSizeRange;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GroundBloodDecalDepth;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GroundBloodSurfaceOffset;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GroundBloodLifeSeconds;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GroundBloodFadeSeconds;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MinimumSecondsBetweenGroundBlood;
+	static void NewProp_bDelayGroundBloodUntilBulletArrives_SetBit(void* Obj)
+	{
+		((FRenegadeCombatVisualSettings*)Obj)->bDelayGroundBloodUntilBulletArrives = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bDelayGroundBloodUntilBulletArrives;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End ScriptStruct FRenegadeCombatVisualSettings constinit property declarations *******
+	static void* NewStructOps()
+	{
+		return (UScriptStruct::ICppStructOps*)new UScriptStruct::TCppStructOps<FRenegadeCombatVisualSettings>();
+	}
+	static const UECodeGen_Private::FStructParams StructParams;
+}; // struct UHT_STATICS
+
+// ********** Begin ScriptStruct FRenegadeCombatVisualSettings Property Definitions ****************
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableBulletMeshVisual = { "bEnableBulletMeshVisual", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeCombatVisualSettings), &UHT_STATICS::NewProp_bEnableBulletMeshVisual_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableBulletMeshVisual_MetaData), NewProp_bEnableBulletMeshVisual_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_BulletMesh = { "BulletMesh", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, BulletMesh), Z_Construct_UClass_UStaticMesh, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletMesh_MetaData), NewProp_BulletMesh_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_BulletMaterialOverride = { "BulletMaterialOverride", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, BulletMaterialOverride), Z_Construct_UClass_UMaterialInterface, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletMaterialOverride_MetaData), NewProp_BulletMaterialOverride_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_BulletMeshScale = { "BulletMeshScale", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, BulletMeshScale), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletMeshScale_MetaData), NewProp_BulletMeshScale_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_BulletMeshRotationOffset = { "BulletMeshRotationOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, BulletMeshRotationOffset), Z_Construct_UScriptStruct_FRotator, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletMeshRotationOffset_MetaData), NewProp_BulletMeshRotationOffset_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_BulletVisualSpeed = { "BulletVisualSpeed", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, BulletVisualSpeed), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletVisualSpeed_MetaData), NewProp_BulletVisualSpeed_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MinimumBulletVisualSeconds = { "MinimumBulletVisualSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, MinimumBulletVisualSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MinimumBulletVisualSeconds_MetaData), NewProp_MinimumBulletVisualSeconds_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumBulletVisualSeconds = { "MaximumBulletVisualSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, MaximumBulletVisualSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumBulletVisualSeconds_MetaData), NewProp_MaximumBulletVisualSeconds_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_BulletVisualMuzzleForwardOffset = { "BulletVisualMuzzleForwardOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, BulletVisualMuzzleForwardOffset), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletVisualMuzzleForwardOffset_MetaData), NewProp_BulletVisualMuzzleForwardOffset_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_BulletVisualImpactStopShortDistance = { "BulletVisualImpactStopShortDistance", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, BulletVisualImpactStopShortDistance), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletVisualImpactStopShortDistance_MetaData), NewProp_BulletVisualImpactStopShortDistance_MetaData) };
+const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_BulletVisualPoolSize = { "BulletVisualPoolSize", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, BulletVisualPoolSize), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletVisualPoolSize_MetaData), NewProp_BulletVisualPoolSize_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bBulletVisualCastsShadow = { "bBulletVisualCastsShadow", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeCombatVisualSettings), &UHT_STATICS::NewProp_bBulletVisualCastsShadow_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bBulletVisualCastsShadow_MetaData), NewProp_bBulletVisualCastsShadow_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableGroundBloodSplatter = { "bEnableGroundBloodSplatter", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeCombatVisualSettings), &UHT_STATICS::NewProp_bEnableGroundBloodSplatter_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableGroundBloodSplatter_MetaData), NewProp_bEnableGroundBloodSplatter_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_GroundBloodDecalMaterials_Inner = { "GroundBloodDecalMaterials", nullptr, (EPropertyFlags)0x0104000000000000, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, 0, Z_Construct_UClass_UMaterialInterface, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FArrayPropertyParams UHT_STATICS::NewProp_GroundBloodDecalMaterials = { "GroundBloodDecalMaterials", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Array, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodDecalMaterials), EArrayPropertyFlags::None, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodDecalMaterials_MetaData), NewProp_GroundBloodDecalMaterials_MetaData) };
+const UECodeGen_Private::FClassPropertyParams UHT_STATICS::NewProp_GroundBloodEffectActorClass = { "GroundBloodEffectActorClass", nullptr, (EPropertyFlags)0x0014000000000005, UECodeGen_Private::EPropertyGenFlags::Class, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodEffectActorClass), Z_Construct_UClass_UClass, Z_Construct_UClass_AActor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodEffectActorClass_MetaData), NewProp_GroundBloodEffectActorClass_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GroundBloodSpawnChance = { "GroundBloodSpawnChance", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodSpawnChance), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodSpawnChance_MetaData), NewProp_GroundBloodSpawnChance_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GroundBloodTraceUpDistance = { "GroundBloodTraceUpDistance", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodTraceUpDistance), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodTraceUpDistance_MetaData), NewProp_GroundBloodTraceUpDistance_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GroundBloodTraceDownDistance = { "GroundBloodTraceDownDistance", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodTraceDownDistance), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodTraceDownDistance_MetaData), NewProp_GroundBloodTraceDownDistance_MetaData) };
+const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_GroundBloodTraceChannel = { "GroundBloodTraceChannel", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodTraceChannel), Z_Construct_UEnum_Engine_ECollisionChannel, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodTraceChannel_MetaData), NewProp_GroundBloodTraceChannel_MetaData) }; // 3aff698625c18cc2ccaa87a587b2eac8c50cdec7
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GroundBloodSizeRange = { "GroundBloodSizeRange", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodSizeRange), Z_Construct_UScriptStruct_FVector2D, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodSizeRange_MetaData), NewProp_GroundBloodSizeRange_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GroundBloodDecalDepth = { "GroundBloodDecalDepth", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodDecalDepth), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodDecalDepth_MetaData), NewProp_GroundBloodDecalDepth_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GroundBloodSurfaceOffset = { "GroundBloodSurfaceOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodSurfaceOffset), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodSurfaceOffset_MetaData), NewProp_GroundBloodSurfaceOffset_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GroundBloodLifeSeconds = { "GroundBloodLifeSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodLifeSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodLifeSeconds_MetaData), NewProp_GroundBloodLifeSeconds_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GroundBloodFadeSeconds = { "GroundBloodFadeSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodFadeSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodFadeSeconds_MetaData), NewProp_GroundBloodFadeSeconds_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MinimumSecondsBetweenGroundBlood = { "MinimumSecondsBetweenGroundBlood", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, MinimumSecondsBetweenGroundBlood), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MinimumSecondsBetweenGroundBlood_MetaData), NewProp_MinimumSecondsBetweenGroundBlood_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bDelayGroundBloodUntilBulletArrives = { "bDelayGroundBloodUntilBulletArrives", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeCombatVisualSettings), &UHT_STATICS::NewProp_bDelayGroundBloodUntilBulletArrives_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bDelayGroundBloodUntilBulletArrives_MetaData), NewProp_bDelayGroundBloodUntilBulletArrives_MetaData) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableBulletMeshVisual,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletMesh,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletMaterialOverride,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletMeshScale,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletMeshRotationOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletVisualSpeed,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MinimumBulletVisualSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumBulletVisualSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletVisualMuzzleForwardOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletVisualImpactStopShortDistance,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletVisualPoolSize,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bBulletVisualCastsShadow,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableGroundBloodSplatter,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodDecalMaterials_Inner,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodDecalMaterials,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodEffectActorClass,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodSpawnChance,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodTraceUpDistance,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodTraceDownDistance,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodTraceChannel,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodSizeRange,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodDecalDepth,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodSurfaceOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodLifeSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodFadeSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MinimumSecondsBetweenGroundBlood,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bDelayGroundBloodUntilBulletArrives,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End ScriptStruct FRenegadeCombatVisualSettings Property Definitions ******************
+const UECodeGen_Private::FStructParams UHT_STATICS::StructParams = {
+	(FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat,
+	nullptr,
+	&NewStructOps,
+	"RenegadeCombatVisualSettings",
+	UHT_STATICS::PropPointers,
+	UE_ARRAY_COUNT(UHT_STATICS::PropPointers),
+	DataSizeOf<FRenegadeCombatVisualSettings>(),
+	alignof(FRenegadeCombatVisualSettings),
+	RF_Public|RF_Transient|RF_MarkAsNative,
+	EStructFlags(0x00000201),
+	METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)
+};
+static FStructRegistrationInfo Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings;
+UScriptStruct* Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings(ETypeConstructPhase Phase)
+{
+	if (Phase == ETypeConstructPhase::Outer)
+	{
+		if (!Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings.OuterSingleton)
+		{
+			Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings.OuterSingleton = GetStaticStruct(Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings, (UObject*)Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase::Outer), TEXT("RenegadeCombatVisualSettings"));
+		}
+		return Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings.OuterSingleton;
+	}
+	if (!Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings.InnerSingleton)
+	{
+		UECodeGen_Private::ConstructUScriptStruct(Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings.InnerSingleton, UHT_STATICS::StructParams);
+	}
+	return CastChecked<UScriptStruct>(Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings.InnerSingleton);
+}
+#undef UHT_STATICS
+// ********** End ScriptStruct FRenegadeCombatVisualSettings ***************************************
+
 // ********** Begin ScriptStruct FRenegadeHealthRespawnSettings ************************************
 #ifdef UHT_STATICS
 #error UHT_STATICS already defined
@@ -870,12 +1279,12 @@ struct UHT_STATICS
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RagdollRootBone_MetaData[] = {
 		{ "Category", "Ragdoll|Stability" },
 #if !UE_BUILD_SHIPPING
-		{ "Comment", "/** First bone whose body and descendants should enter ragdoll. Usually pelvis or hips. */" },
+		{ "Comment", "/** First bone whose body and descendants should enter ragdoll. Renegade NXT soldiers currently use spine. */" },
 #endif
 		{ "EditCondition", "bUseRagdollRootBone" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
 #if !UE_BUILD_SHIPPING
-		{ "ToolTip", "First bone whose body and descendants should enter ragdoll. Usually pelvis or hips." },
+		{ "ToolTip", "First bone whose body and descendants should enter ragdoll. Renegade NXT soldiers currently use spine." },
 #endif
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bIncludeRagdollRootBone_MetaData[] = {
@@ -1099,10 +1508,11 @@ struct UHT_STATICS
 		{ Z_Construct_UScriptStruct_FRenegadeWeaponSettings, Z_Construct_UScriptStruct_FRenegadeWeaponSettings_Statics::NewStructOps, TEXT("RenegadeWeaponSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeWeaponSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeWeaponSettings), 432380438U) },
 		{ Z_Construct_UScriptStruct_FRenegadeTargetingSettings, Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics::NewStructOps, TEXT("RenegadeTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeTargetingSettings), 2865162924U) },
 		{ Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings, Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings_Statics::NewStructOps, TEXT("RenegadeCombatMovementSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatMovementSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatMovementSettings), 3050183974U) },
-		{ Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings, Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics::NewStructOps, TEXT("RenegadeHealthRespawnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeHealthRespawnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeHealthRespawnSettings), 1744374931U) },
+		{ Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings, Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings_Statics::NewStructOps, TEXT("RenegadeCombatVisualSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatVisualSettings), 3833718575U) },
+		{ Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings, Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics::NewStructOps, TEXT("RenegadeHealthRespawnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeHealthRespawnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeHealthRespawnSettings), 2966336579U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_00efeaa6ae88567def2f8502e098ac9e782811b3{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_e7072cc425b62ec0fa555719ede73605123e0aca{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	nullptr, 0,
 	UHT_STATICS::ScriptStructInfo, UE_ARRAY_COUNT(UHT_STATICS::ScriptStructInfo),
