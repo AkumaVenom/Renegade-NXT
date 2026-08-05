@@ -107,3 +107,14 @@
 - [ ] Defence debug traces show expected hit/block/miss colours.
 - [ ] When power dependency is enabled, destroying the team's Power Plant disables AGT/Obelisk attacks.
 - [ ] Restoring the Power Plant automatically returns team defences to service.
+
+## v1.4.4 team EVA and low-health validation
+
+- Possess a GDI player and damage one GDI building: verify the GDI-friendly under-attack sound.
+- As the same GDI player, damage one Nod building: verify the GDI-enemy under-attack sound.
+- Repeat as Nod and verify the Nod-friendly and Nod-enemy variants.
+- Cross the low-health threshold without destroying the building: verify `On Building Low Health Changed`, replicated `Is Low Health`, and the imminent-destruction announcement.
+- Repair above threshold plus hysteresis: verify the low-health state clears and the event fires with `false`.
+- Destroy friendly and enemy buildings for both player teams and verify the correct destroyed voice variant.
+- Damage several buildings simultaneously and confirm only one ordinary under-attack line plays; confirm low-health and destroyed messages can supersede lower-priority lines.
+

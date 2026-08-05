@@ -1,9 +1,9 @@
 {
   "FileVersion": 3,
-  "Version": 143,
-  "VersionName": "1.4.3",
+  "Version": 144,
+  "VersionName": "1.4.4",
   "FriendlyName": "Renegade NXT Combat and Building Warfare",
-  "Description": "Blueprint-first infantry and building warfare for Unreal Engine 5.8: AI/player combat, targetable team buildings, AGT dual rockets, Obelisk charge-and-laser defence with automatic Niagara/Cascade trace alignment, deterministic laser lifetime cleanup, and exposed visual scaling, bullet visuals, blood, aiming, ragdoll death, and same-actor respawning.",
+  "Description": "Blueprint-first infantry and building warfare for Unreal Engine 5.8: AI/player combat, targetable team buildings, team-perspective GDI/Nod EVA announcements, replicated low-health building state, AGT dual rockets, Obelisk Niagara/Cascade laser defence, bullet visuals, blood, aiming, ragdoll death, and same-actor respawning.",
   "Category": "AI",
   "CreatedBy": "Renegade NXT",
   "CreatedByURL": "",

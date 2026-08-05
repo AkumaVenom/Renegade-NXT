@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.4.4 - Team-Aware EVA Building Announcements and Low-Health State
+
+- Added per-listener team-aware EVA/CABAL sound routing for all building announcements.
+- Added separate GDI-friendly, GDI-enemy, Nod-friendly, and Nod-enemy sound slots for building under-attack events.
+- Added the same four team-perspective sound slots for building low-health/imminent-destruction warnings and destroyed announcements.
+- Every listening client selects the correct voice and friendly/enemy wording from its locally controlled player combat component and the damaged building's team.
+- Kept the existing generic `Under Attack Sound` and `Destroyed Sound` values as backward-compatible fallbacks, and added a generic low-health warning fallback.
+- Added replicated `Is Low Health` building state with exposed threshold and repair hysteresis settings.
+- Added `On Building Low Health Changed` Blueprint event with low-health state, health percentage, and damage causer.
+- Added `Is Building Low Health` Blueprint query.
+- Low-health warnings fire only when crossing into the configured low-health range and reset after sufficient repair.
+- Upgraded the world audio lock into one prioritized building EVA channel: ordinary under-attack lines do not overlap, low-health warnings may interrupt them, and destroyed announcements have highest priority.
+- Added optional always-relevant building networking so friendly and enemy base announcements can reach players across the map.
+- Preserved AGT rockets, Obelisk charge/damage/Niagara/Cascade visuals and cleanup, team power, building targeting, player combat, NPC combat, bullet visuals, blood, ragdoll, and respawning.
+
 ## 1.4.3 - Deterministic Obelisk Laser Activation and Cleanup
 
 - Fixed looping Cascade Obelisk beams remaining permanently visible after firing.

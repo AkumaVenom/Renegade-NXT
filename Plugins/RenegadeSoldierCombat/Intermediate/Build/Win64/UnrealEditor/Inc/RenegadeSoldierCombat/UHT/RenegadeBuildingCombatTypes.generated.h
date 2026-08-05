@@ -34,7 +34,7 @@ struct FRenegadeBuildingHealthSettings;
 struct Z_Construct_UScriptStruct_FRenegadeBuildingTargetSettings_Statics;
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingTargetSettings(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h_104_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h_116_GENERATED_BODY \
 	friend struct ::Z_Construct_UScriptStruct_FRenegadeBuildingTargetSettings_Statics; \
 	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadeBuildingTargetSettings(ETypeConstructPhase::Inner); }
 
@@ -42,11 +42,23 @@ RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuil
 struct FRenegadeBuildingTargetSettings;
 // ********** End ScriptStruct FRenegadeBuildingTargetSettings *************************************
 
+// ********** Begin ScriptStruct FRenegadeBuildingEvaSoundSet **************************************
+struct Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet_Statics;
+RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet(ETypeConstructPhase);
+
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h_137_GENERATED_BODY \
+	friend struct ::Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet_Statics; \
+	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet(ETypeConstructPhase::Inner); }
+
+
+struct FRenegadeBuildingEvaSoundSet;
+// ********** End ScriptStruct FRenegadeBuildingEvaSoundSet ****************************************
+
 // ********** Begin ScriptStruct FRenegadeBuildingAudioSettings ************************************
 struct Z_Construct_UScriptStruct_FRenegadeBuildingAudioSettings_Statics;
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingAudioSettings(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h_121_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h_155_GENERATED_BODY \
 	friend struct ::Z_Construct_UScriptStruct_FRenegadeBuildingAudioSettings_Statics; \
 	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadeBuildingAudioSettings(ETypeConstructPhase::Inner); }
 
@@ -58,7 +70,7 @@ struct FRenegadeBuildingAudioSettings;
 struct Z_Construct_UScriptStruct_FRenegadeBuildingDefenseTargetingSettings_Statics;
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingDefenseTargetingSettings(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h_156_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h_226_GENERATED_BODY \
 	friend struct ::Z_Construct_UScriptStruct_FRenegadeBuildingDefenseTargetingSettings_Statics; \
 	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadeBuildingDefenseTargetingSettings(ETypeConstructPhase::Inner); }
 
@@ -70,7 +82,7 @@ struct FRenegadeBuildingDefenseTargetingSettings;
 struct Z_Construct_UScriptStruct_FRenegadeAdvancedGuardTowerSettings_Statics;
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeAdvancedGuardTowerSettings(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h_207_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h_277_GENERATED_BODY \
 	friend struct ::Z_Construct_UScriptStruct_FRenegadeAdvancedGuardTowerSettings_Statics; \
 	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadeAdvancedGuardTowerSettings(ETypeConstructPhase::Inner); }
 
@@ -82,7 +94,7 @@ struct FRenegadeAdvancedGuardTowerSettings;
 struct Z_Construct_UScriptStruct_FRenegadeObeliskSettings_Statics;
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeObeliskSettings(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h_260_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h_330_GENERATED_BODY \
 	friend struct ::Z_Construct_UScriptStruct_FRenegadeObeliskSettings_Statics; \
 	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadeObeliskSettings(ETypeConstructPhase::Inner); }
 

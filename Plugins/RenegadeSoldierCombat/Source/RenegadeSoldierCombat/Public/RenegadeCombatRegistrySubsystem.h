@@ -30,9 +30,22 @@ public:
     bool IsTeamPowerOnline(FName TeamId, bool bTreatMissingPowerPlantAsPowered) const;
 
     /**
-     * Plays a world-wide building under-attack sound only when no other building alert is currently playing.
-     * Each world/client owns one lock, preventing simultaneous building announcements from overlapping.
+     * Plays one serialized building EVA/CABAL announcement per listening world/client.
+     * Higher-priority announcements (low health and destruction) may interrupt lower-priority warnings.
      */
+    bool TryPlayGlobalBuildingEvaSound(
+        USoundBase* Sound,
+        const FVector& Location,
+        float VolumeMultiplier,
+        float PitchMultiplier,
+        float QuietTimeAfterSound,
+        USoundAttenuation* Attenuation,
+        USoundConcurrency* Concurrency,
+        AActor* OwningActor,
+        int32 Priority,
+        bool bInterruptLowerPriority = true);
+
+    /** Backward-compatible under-attack wrapper. */
     bool TryPlayGlobalBuildingUnderAttackSound(
         USoundBase* Sound,
         const FVector& Location,
@@ -51,7 +64,8 @@ private:
     TArray<TWeakObjectPtr<URenegadeBuildingCombatComponent>> RegisteredBuildings;
 
     UPROPERTY(Transient)
-    TObjectPtr<UAudioComponent> ActiveBuildingUnderAttackAudio;
+    TObjectPtr<UAudioComponent> ActiveBuildingEvaAudio;
 
-    double NextBuildingUnderAttackAudioTime = -BIG_NUMBER;
+    double NextBuildingEvaAudioTime = -BIG_NUMBER;
+    int32 ActiveBuildingEvaPriority = INDEX_NONE;
 };

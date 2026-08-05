@@ -86,6 +86,10 @@ void URenegadeBuildingCombatComponent::BeginPlay()
         if (HasAuthority() && bEnsureOwnerReplicates)
         {
             Owner->SetReplicates(true);
+            if (bEnsureOwnerAlwaysRelevant)
+            {
+                Owner->bAlwaysRelevant = true;
+            }
         }
 
         if (HealthSettings.bCanBeDamaged)
@@ -99,6 +103,7 @@ void URenegadeBuildingCombatComponent::BeginPlay()
     if (HasAuthority())
     {
         CurrentHealth = FMath::Max(1.0f, HealthSettings.MaximumHealth);
+        bIsLowHealth = false;
         bIsDestroyed = false;
         bTeamPowerOnline = IsDefensePowerAvailable();
     }
@@ -156,6 +161,7 @@ void URenegadeBuildingCombatComponent::GetLifetimeReplicatedProps(TArray<FLifeti
 
     DOREPLIFETIME(URenegadeBuildingCombatComponent, TeamId);
     DOREPLIFETIME(URenegadeBuildingCombatComponent, CurrentHealth);
+    DOREPLIFETIME(URenegadeBuildingCombatComponent, bIsLowHealth);
     DOREPLIFETIME(URenegadeBuildingCombatComponent, bIsDestroyed);
     DOREPLIFETIME(URenegadeBuildingCombatComponent, CurrentDefenseTarget);
     DOREPLIFETIME(URenegadeBuildingCombatComponent, bObeliskCharging);
@@ -433,6 +439,7 @@ void URenegadeBuildingCombatComponent::SetBuildingHealth(const float NewHealth)
     const float PreviousHealth = CurrentHealth;
     CurrentHealth = FMath::Clamp(NewHealth, 0.0f, FMath::Max(1.0f, HealthSettings.MaximumHealth));
     OnBuildingHealthChanged.Broadcast(PreviousHealth, CurrentHealth, nullptr, nullptr);
+    RefreshLowHealthState(nullptr, CurrentHealth < PreviousHealth);
 
     if (AActor* Owner = GetOwner())
     {
@@ -450,6 +457,11 @@ void URenegadeBuildingCombatComponent::ForceDestroyBuilding(AActor* Destroyer)
     const float PreviousHealth = CurrentHealth;
     CurrentHealth = 0.0f;
     OnBuildingHealthChanged.Broadcast(PreviousHealth, CurrentHealth, Destroyer, Destroyer ? Destroyer->GetInstigatorController() : nullptr);
+    if (bIsLowHealth)
+    {
+        bIsLowHealth = false;
+        OnBuildingLowHealthChanged.Broadcast(false, 0.0f, Destroyer);
+    }
     BeginBuildingDestroyed(Destroyer ? Destroyer->GetInstigatorController() : nullptr, Destroyer);
 }
 
@@ -464,10 +476,12 @@ void URenegadeBuildingCombatComponent::RestoreBuilding(const float RestoredHealt
     const float PreviousHealth = CurrentHealth;
 
     bIsDestroyed = false;
+    bIsLowHealth = false;
     CurrentHealth = FMath::Clamp(DesiredHealth, 1.0f, FMath::Max(1.0f, HealthSettings.MaximumHealth));
     RestoreOperationalPresentation();
     RegisterWithCombatWorld();
     OnBuildingHealthChanged.Broadcast(PreviousHealth, CurrentHealth, nullptr, nullptr);
+    RefreshLowHealthState(nullptr, false);
     OnBuildingRestored.Broadcast();
 
     if (bAutoStartDefenseOnBeginPlay && DefenseType != ERenegadeBuildingDefenseType::None)
@@ -518,6 +532,10 @@ void URenegadeBuildingCombatComponent::ApplyHealthDelta(const float Delta, ACont
     {
         BeginBuildingDestroyed(InstigatedBy, DamageCauser);
     }
+    else
+    {
+        RefreshLowHealthState(DamageCauser, Delta < 0.0f);
+    }
 
     if (AActor* Owner = GetOwner())
     {
@@ -532,8 +550,18 @@ void URenegadeBuildingCombatComponent::BeginBuildingDestroyed(AController* Insti
         return;
     }
 
+    if (AActor* Owner = GetOwner())
+    {
+        Owner->FlushNetDormancy();
+    }
+
     bIsDestroyed = true;
     CurrentHealth = 0.0f;
+    if (bIsLowHealth)
+    {
+        bIsLowHealth = false;
+        OnBuildingLowHealthChanged.Broadcast(false, 0.0f, Destroyer);
+    }
     StopBuildingDefense();
     ApplyDestroyedPresentation();
 
@@ -598,14 +626,123 @@ void URenegadeBuildingCombatComponent::RequestUnderAttackAnnouncement(AActor* At
     }
 
     LastUnderAttackRequestTime = Now;
+    if (AActor* Owner = GetOwner())
+    {
+        Owner->FlushNetDormancy();
+    }
     MulticastBuildingUnderAttack(Attacker, Damage, GetTargetAimLocation());
 }
 
-void URenegadeBuildingCombatComponent::MulticastBuildingUnderAttack_Implementation(AActor* Attacker, const float Damage, const FVector_NetQuantize SoundLocation)
+void URenegadeBuildingCombatComponent::RefreshLowHealthState(AActor* DamageCauser, const bool bAllowWarningSound)
 {
-    OnBuildingUnderAttack.Broadcast(Attacker, Damage);
+    if (!HasAuthority())
+    {
+        return;
+    }
 
-    if (!IsValid(AudioSettings.UnderAttackSound))
+    const bool bPreviousLowHealth = bIsLowHealth;
+    bool bNewLowHealth = false;
+
+    if (HealthSettings.bEnableLowHealthState && !bIsDestroyed && CurrentHealth > 0.0f)
+    {
+        const float HealthPercent = GetHealthPercent();
+        const float EnterThreshold = FMath::Clamp(HealthSettings.LowHealthThresholdPercent, 0.01f, 0.99f);
+        const float ExitThreshold = FMath::Clamp(
+            EnterThreshold + FMath::Max(0.0f, HealthSettings.LowHealthRecoveryHysteresisPercent),
+            EnterThreshold,
+            1.0f);
+
+        bNewLowHealth = bPreviousLowHealth
+            ? HealthPercent <= ExitThreshold
+            : HealthPercent <= EnterThreshold;
+    }
+
+    if (bNewLowHealth == bPreviousLowHealth)
+    {
+        return;
+    }
+
+    if (AActor* Owner = GetOwner())
+    {
+        Owner->FlushNetDormancy();
+    }
+
+    bIsLowHealth = bNewLowHealth;
+    OnBuildingLowHealthChanged.Broadcast(bIsLowHealth, GetHealthPercent(), DamageCauser);
+
+    if (bIsLowHealth && bAllowWarningSound)
+    {
+        MulticastBuildingLowHealthWarning(GetTargetAimLocation());
+    }
+
+    if (AActor* Owner = GetOwner())
+    {
+        Owner->ForceNetUpdate();
+    }
+}
+
+FName URenegadeBuildingCombatComponent::ResolveLocalEvaListenerTeam() const
+{
+    if (!IsValid(GetWorld()) || GetWorld()->GetNetMode() == NM_DedicatedServer)
+    {
+        return NAME_None;
+    }
+
+    if (APawn* LocalPawn = UGameplayStatics::GetPlayerPawn(this, 0))
+    {
+        if (const URenegadeSoldierCombatComponent* LocalCombat = LocalPawn->FindComponentByClass<URenegadeSoldierCombatComponent>())
+        {
+            return LocalCombat->TeamId;
+        }
+    }
+
+    return NAME_None;
+}
+
+USoundBase* URenegadeBuildingCombatComponent::ResolveEvaSoundForLocalListener(
+    const FRenegadeBuildingEvaSoundSet& TeamSounds,
+    USoundBase* FallbackSound) const
+{
+    if (!AudioSettings.bUseTeamAwareEvaSounds)
+    {
+        return FallbackSound;
+    }
+
+    const FName ListenerTeam = ResolveLocalEvaListenerTeam();
+    if (RenegadeBuildingPrivate::IsNeutralTeamName(ListenerTeam)
+        || RenegadeBuildingPrivate::IsNeutralTeamName(TeamId))
+    {
+        return FallbackSound;
+    }
+
+    const bool bFriendlyBuilding = ListenerTeam.IsEqual(TeamId, ENameCase::IgnoreCase);
+    USoundBase* SelectedSound = nullptr;
+
+    if (ListenerTeam.IsEqual(FName(TEXT("GDI")), ENameCase::IgnoreCase))
+    {
+        SelectedSound = bFriendlyBuilding
+            ? TeamSounds.GDIFriendlyBuildingSound.Get()
+            : TeamSounds.GDIEnemyBuildingSound.Get();
+    }
+    else if (ListenerTeam.IsEqual(FName(TEXT("Nod")), ENameCase::IgnoreCase))
+    {
+        SelectedSound = bFriendlyBuilding
+            ? TeamSounds.NodFriendlyBuildingSound.Get()
+            : TeamSounds.NodEnemyBuildingSound.Get();
+    }
+
+    return IsValid(SelectedSound) ? SelectedSound : FallbackSound;
+}
+
+void URenegadeBuildingCombatComponent::TryPlayEvaAnnouncement(
+    USoundBase* Sound,
+    const FVector& Location,
+    const float Volume,
+    const float Pitch,
+    const float QuietTime,
+    const int32 Priority) const
+{
+    if (!IsValid(Sound))
     {
         return;
     }
@@ -614,17 +751,45 @@ void URenegadeBuildingCombatComponent::MulticastBuildingUnderAttack_Implementati
     {
         if (URenegadeCombatRegistrySubsystem* Registry = World->GetSubsystem<URenegadeCombatRegistrySubsystem>())
         {
-            Registry->TryPlayGlobalBuildingUnderAttackSound(
-                AudioSettings.UnderAttackSound,
-                SoundLocation,
-                AudioSettings.UnderAttackVolumeMultiplier,
-                AudioSettings.UnderAttackPitchMultiplier,
-                AudioSettings.GlobalUnderAttackQuietTimeSeconds,
+            Registry->TryPlayGlobalBuildingEvaSound(
+                Sound,
+                Location,
+                Volume,
+                Pitch,
+                QuietTime,
                 AudioSettings.UnderAttackAttenuation,
                 AudioSettings.UnderAttackConcurrency,
-                GetOwner());
+                GetOwner(),
+                Priority,
+                true);
         }
     }
+}
+
+void URenegadeBuildingCombatComponent::MulticastBuildingUnderAttack_Implementation(AActor* Attacker, const float Damage, const FVector_NetQuantize SoundLocation)
+{
+    OnBuildingUnderAttack.Broadcast(Attacker, Damage);
+
+    USoundBase* Sound = ResolveEvaSoundForLocalListener(AudioSettings.UnderAttackEvaSounds, AudioSettings.UnderAttackSound);
+    TryPlayEvaAnnouncement(
+        Sound,
+        SoundLocation,
+        AudioSettings.UnderAttackVolumeMultiplier,
+        AudioSettings.UnderAttackPitchMultiplier,
+        AudioSettings.GlobalUnderAttackQuietTimeSeconds,
+        0);
+}
+
+void URenegadeBuildingCombatComponent::MulticastBuildingLowHealthWarning_Implementation(const FVector_NetQuantize SoundLocation)
+{
+    USoundBase* Sound = ResolveEvaSoundForLocalListener(AudioSettings.LowHealthEvaSounds, AudioSettings.LowHealthWarningSound);
+    TryPlayEvaAnnouncement(
+        Sound,
+        SoundLocation,
+        AudioSettings.LowHealthWarningVolumeMultiplier,
+        AudioSettings.LowHealthWarningPitchMultiplier,
+        AudioSettings.GlobalLowHealthQuietTimeSeconds,
+        1);
 }
 
 void URenegadeBuildingCombatComponent::MulticastBuildingDestroyed_Implementation(AActor* Destroyer, const FVector_NetQuantize EffectLocation)
@@ -633,14 +798,14 @@ void URenegadeBuildingCombatComponent::MulticastBuildingDestroyed_Implementation
     ApplyDestroyedPresentation();
     OnBuildingDestroyed.Broadcast(Destroyer);
 
-    if (IsValid(AudioSettings.DestroyedSound))
-    {
-        UGameplayStatics::PlaySoundAtLocation(
-            this,
-            AudioSettings.DestroyedSound,
-            EffectLocation,
-            FMath::Max(0.0f, AudioSettings.DestroyedSoundVolumeMultiplier));
-    }
+    USoundBase* Sound = ResolveEvaSoundForLocalListener(AudioSettings.DestroyedEvaSounds, AudioSettings.DestroyedSound);
+    TryPlayEvaAnnouncement(
+        Sound,
+        EffectLocation,
+        AudioSettings.DestroyedSoundVolumeMultiplier,
+        AudioSettings.DestroyedSoundPitchMultiplier,
+        AudioSettings.GlobalDestroyedQuietTimeSeconds,
+        2);
 }
 
 void URenegadeBuildingCombatComponent::StartBuildingDefense()
@@ -1896,6 +2061,11 @@ void URenegadeBuildingCombatComponent::OnRep_TeamId()
 void URenegadeBuildingCombatComponent::OnRep_CurrentHealth(const float PreviousHealth)
 {
     OnBuildingHealthChanged.Broadcast(PreviousHealth, CurrentHealth, nullptr, nullptr);
+}
+
+void URenegadeBuildingCombatComponent::OnRep_LowHealth()
+{
+    OnBuildingLowHealthChanged.Broadcast(bIsLowHealth, GetHealthPercent(), nullptr);
 }
 
 void URenegadeBuildingCombatComponent::OnRep_Destroyed()

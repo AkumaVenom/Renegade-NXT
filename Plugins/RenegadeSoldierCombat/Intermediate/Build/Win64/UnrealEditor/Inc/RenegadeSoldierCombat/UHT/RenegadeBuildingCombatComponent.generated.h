@@ -24,21 +24,24 @@ enum class ERenegadeBuildingDefenseType : uint8;
 struct FVector_NetQuantize;
 
 // ********** Begin Class URenegadeBuildingCombatComponent *****************************************
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_47_RPC_WRAPPERS_NO_PURE_DECLS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_48_RPC_WRAPPERS_NO_PURE_DECLS \
 	virtual void MulticastObeliskFired_Implementation(FVector_NetQuantize LaserStart, FVector_NetQuantize LaserEnd); \
 	virtual void MulticastObeliskChargeStarted_Implementation(FVector_NetQuantize ChargeLocation); \
 	virtual void MulticastAGTRocketsFired_Implementation(bool bUseLeft, FVector_NetQuantize LeftStart, FVector_NetQuantize LeftEnd, bool bUseRight, FVector_NetQuantize RightStart, FVector_NetQuantize RightEnd, FVector_NetQuantize SoundLocation); \
 	virtual void MulticastBuildingDestroyed_Implementation(AActor* Destroyer, FVector_NetQuantize EffectLocation); \
+	virtual void MulticastBuildingLowHealthWarning_Implementation(FVector_NetQuantize SoundLocation); \
 	virtual void MulticastBuildingUnderAttack_Implementation(AActor* Attacker, float Damage, FVector_NetQuantize SoundLocation); \
 	DECLARE_FUNCTION(execMulticastObeliskFired); \
 	DECLARE_FUNCTION(execMulticastObeliskChargeStarted); \
 	DECLARE_FUNCTION(execMulticastAGTRocketsFired); \
 	DECLARE_FUNCTION(execMulticastBuildingDestroyed); \
+	DECLARE_FUNCTION(execMulticastBuildingLowHealthWarning); \
 	DECLARE_FUNCTION(execMulticastBuildingUnderAttack); \
 	DECLARE_FUNCTION(execOnRep_TeamPowerOnline); \
 	DECLARE_FUNCTION(execOnRep_ObeliskCharging); \
 	DECLARE_FUNCTION(execOnRep_DefenseTarget); \
 	DECLARE_FUNCTION(execOnRep_Destroyed); \
+	DECLARE_FUNCTION(execOnRep_LowHealth); \
 	DECLARE_FUNCTION(execOnRep_CurrentHealth); \
 	DECLARE_FUNCTION(execOnRep_TeamId); \
 	DECLARE_FUNCTION(execHandleOwnerAnyDamage); \
@@ -60,15 +63,16 @@ struct FVector_NetQuantize;
 	DECLARE_FUNCTION(execGetTargetAimLocation); \
 	DECLARE_FUNCTION(execIsHostileToActor); \
 	DECLARE_FUNCTION(execIsBuildingOperational); \
+	DECLARE_FUNCTION(execIsBuildingLowHealth); \
 	DECLARE_FUNCTION(execGetHealthPercent); \
 	DECLARE_FUNCTION(execSetTeamId);
 
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_47_CALLBACK_WRAPPERS
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_48_CALLBACK_WRAPPERS
 struct Z_Construct_UClass_URenegadeBuildingCombatComponent_Statics;
 RENEGADESOLDIERCOMBAT_API UClass* Z_Construct_UClass_URenegadeBuildingCombatComponent(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_47_INCLASS_NO_PURE_DECLS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_48_INCLASS_NO_PURE_DECLS \
 private: \
 	friend struct ::Z_Construct_UClass_URenegadeBuildingCombatComponent_Statics; \
 	friend RENEGADESOLDIERCOMBAT_API UClass* ::Z_Construct_UClass_URenegadeBuildingCombatComponent(ETypeConstructPhase); \
@@ -80,6 +84,7 @@ public: \
 		NETFIELD_REP_START=(uint16)((int32)Super::ENetFields_Private::NETFIELD_REP_END + (int32)1), \
 		TeamId=NETFIELD_REP_START, \
 		CurrentHealth, \
+		bIsLowHealth, \
 		bIsDestroyed, \
 		CurrentDefenseTarget, \
 		bObeliskCharging, \
@@ -88,7 +93,7 @@ public: \
 	DECLARE_VALIDATE_GENERATED_REP_ENUMS(NO_API)
 
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_47_ENHANCED_CONSTRUCTORS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_48_ENHANCED_CONSTRUCTORS \
 	/** Deleted move- and copy-constructors, should never be used */ \
 	URenegadeBuildingCombatComponent(URenegadeBuildingCombatComponent&&) = delete; \
 	URenegadeBuildingCombatComponent(const URenegadeBuildingCombatComponent&) = delete; \
@@ -98,14 +103,14 @@ public: \
 	NO_API virtual ~URenegadeBuildingCombatComponent();
 
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_44_PROLOG
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_47_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_45_PROLOG
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_48_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_47_RPC_WRAPPERS_NO_PURE_DECLS \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_47_CALLBACK_WRAPPERS \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_47_INCLASS_NO_PURE_DECLS \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_47_ENHANCED_CONSTRUCTORS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_48_RPC_WRAPPERS_NO_PURE_DECLS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_48_CALLBACK_WRAPPERS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_48_INCLASS_NO_PURE_DECLS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h_48_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 

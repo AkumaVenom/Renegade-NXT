@@ -1,4 +1,4 @@
-# Building Warfare Setup — v1.4.0
+# Building Warfare Setup — v1.4.4
 
 `Renegade Building Combat Component` turns an existing Blueprint building actor into a replicated GDI/Nod combat objective. The same component is used by the Refinery, Barracks, Tiberium Silo, Hand of Nod, Weapons Factory, Power Plant, Helipad, Repair Pad, Airstrip, Obelisk, Advanced Guard Tower, and custom structures.
 
@@ -11,7 +11,7 @@
 5. Set **Maximum Health** and any damage multiplier.
 6. Keep **Register As Combat Target** enabled when infantry should attack the building.
 7. Add a Scene Component near the centre of the visible structure and select it as **Target Point Component**. This is the point soldiers aim at and use for line-of-sight checks.
-8. Assign the building's **Under Attack Sound**.
+8. Open **Building EVA** and assign the GDI-friendly, GDI-enemy, Nod-friendly, and Nod-enemy variants for **Under Attack**, **Low Health**, and **Destroyed**. Generic sounds remain optional fallbacks.
 9. Ensure the visible collision blocks the infantry weapon's configured trace channel, normally `Visibility`.
 
 The component enables owner replication by default. Damage, health, destruction state, defence target, Obelisk charging state, and team-power state are server authoritative.
@@ -41,6 +41,7 @@ Available Blueprint events:
 
 - `On Building Health Changed`
 - `On Building Under Attack`
+- `On Building Low Health Changed`
 - `On Building Destroyed`
 - `On Building Restored`
 - `On Defense Target Changed`
@@ -63,11 +64,39 @@ Blueprint authority functions include:
 - `Force Destroy Building`
 - `Restore Building`
 
-## Global under-attack announcements
+## Team-aware EVA/CABAL announcements
 
-Every building exposes its own under-attack sound, volume, pitch, attenuation, concurrency, and per-building cooldown.
+Every building exposes four listener-perspective sound slots for each announcement type:
 
-The world combat registry owns one global building-alert audio slot on every listening client. A second building alert is rejected while the first alert is playing, so simultaneous damage to several structures cannot overlap several announcer lines. `Global Under Attack Quiet Time Seconds` adds a small pause before another building may announce.
+- **GDI Friendly Building Sound** — played to a GDI player when a GDI building triggers the event.
+- **GDI Enemy Building Sound** — played to a GDI player when a Nod building triggers the event.
+- **Nod Friendly Building Sound** — played to a Nod player when a Nod building triggers the event.
+- **Nod Enemy Building Sound** — played to a Nod player when a GDI building triggers the event.
+
+These four variants are available independently for **Under Attack**, **Low Health**, and **Destroyed**. Each client resolves its own local player team through the `Renegade Soldier Combat Component`, so both factions hear friendly and enemy building events using the correct GDI EVA or Nod EVA/CABAL voice. The older generic sound fields are retained as fallbacks when a matching team-specific asset is not assigned.
+
+The world combat registry owns one prioritized building-EVA slot on every listening client:
+
+1. Under-attack announcements have normal priority and cannot overlap each other.
+2. A low-health/imminent-destruction warning can interrupt an ordinary under-attack line.
+3. A destroyed announcement has highest priority and can interrupt either lower-priority warning.
+
+The optional **Ensure Owner Always Relevant** setting is enabled by default so announcements and strategic building state can reach players at the opposite base.
+
+## Low-health building state
+
+Enable **Low Health State** in the building health settings and configure:
+
+- `Low Health Threshold Percent` — defaults to `0.25`.
+- `Low Health Recovery Hysteresis Percent` — defaults to `0.05` and requires repair above 30% before a 25%-threshold building exits low health.
+
+Runtime values and Blueprint access:
+
+- `Is Low Health` — replicated Boolean.
+- `Is Building Low Health` — Blueprint query.
+- `On Building Low Health Changed` — fires on entry and recovery with the new state, current health percentage, and damage causer.
+
+The imminent-destruction EVA sound is played only when the building crosses from healthy into low health. Repairing above the recovery threshold clears the state, allowing a later drop to trigger a new warning.
 
 ## Advanced Guard Tower
 

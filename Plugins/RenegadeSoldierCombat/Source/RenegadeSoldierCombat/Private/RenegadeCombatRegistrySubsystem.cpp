@@ -102,7 +102,7 @@ bool URenegadeCombatRegistrySubsystem::IsTeamPowerOnline(const FName TeamId, con
     return !bFoundTeamPowerPlant && bTreatMissingPowerPlantAsPowered;
 }
 
-bool URenegadeCombatRegistrySubsystem::TryPlayGlobalBuildingUnderAttackSound(
+bool URenegadeCombatRegistrySubsystem::TryPlayGlobalBuildingEvaSound(
     USoundBase* Sound,
     const FVector& Location,
     const float VolumeMultiplier,
@@ -110,7 +110,9 @@ bool URenegadeCombatRegistrySubsystem::TryPlayGlobalBuildingUnderAttackSound(
     const float QuietTimeAfterSound,
     USoundAttenuation* Attenuation,
     USoundConcurrency* Concurrency,
-    AActor* OwningActor)
+    AActor* OwningActor,
+    const int32 Priority,
+    const bool bInterruptLowerPriority)
 {
     if (!IsValid(Sound) || !IsValid(GetWorld()) || GetWorld()->GetNetMode() == NM_DedicatedServer)
     {
@@ -118,17 +120,26 @@ bool URenegadeCombatRegistrySubsystem::TryPlayGlobalBuildingUnderAttackSound(
     }
 
     const double Now = GetWorld()->GetTimeSeconds();
-    if (IsValid(ActiveBuildingUnderAttackAudio) && ActiveBuildingUnderAttackAudio->IsPlaying())
+    if (IsValid(ActiveBuildingEvaAudio) && ActiveBuildingEvaAudio->IsPlaying())
     {
-        return false;
+        if (!bInterruptLowerPriority || Priority <= ActiveBuildingEvaPriority)
+        {
+            return false;
+        }
+
+        ActiveBuildingEvaAudio->Stop();
+        ActiveBuildingEvaAudio = nullptr;
+    }
+    else if (Now < NextBuildingEvaAudioTime)
+    {
+        // A higher-priority imminent-destruction or destroyed message may bypass the quiet tail.
+        if (!bInterruptLowerPriority || Priority <= ActiveBuildingEvaPriority)
+        {
+            return false;
+        }
     }
 
-    if (Now < NextBuildingUnderAttackAudioTime)
-    {
-        return false;
-    }
-
-    ActiveBuildingUnderAttackAudio = UGameplayStatics::SpawnSoundAtLocation(
+    ActiveBuildingEvaAudio = UGameplayStatics::SpawnSoundAtLocation(
         this,
         Sound,
         Location,
@@ -140,15 +151,40 @@ bool URenegadeCombatRegistrySubsystem::TryPlayGlobalBuildingUnderAttackSound(
         Concurrency,
         true);
 
-    if (!IsValid(ActiveBuildingUnderAttackAudio))
+    if (!IsValid(ActiveBuildingEvaAudio))
     {
         return false;
     }
 
-    // OwningActor is supplied for future per-building audio routing; the global sound itself remains world-positioned.
+    // OwningActor is retained for future UI/audio routing while playback remains world/client local.
     (void)OwningActor;
 
+    ActiveBuildingEvaPriority = Priority;
     const float EstimatedDuration = FMath::Max(0.0f, Sound->GetDuration()) / FMath::Max(0.01f, PitchMultiplier);
-    NextBuildingUnderAttackAudioTime = Now + EstimatedDuration + FMath::Max(0.0f, QuietTimeAfterSound);
+    NextBuildingEvaAudioTime = Now + EstimatedDuration + FMath::Max(0.0f, QuietTimeAfterSound);
     return true;
 }
+
+bool URenegadeCombatRegistrySubsystem::TryPlayGlobalBuildingUnderAttackSound(
+    USoundBase* Sound,
+    const FVector& Location,
+    const float VolumeMultiplier,
+    const float PitchMultiplier,
+    const float QuietTimeAfterSound,
+    USoundAttenuation* Attenuation,
+    USoundConcurrency* Concurrency,
+    AActor* OwningActor)
+{
+    return TryPlayGlobalBuildingEvaSound(
+        Sound,
+        Location,
+        VolumeMultiplier,
+        PitchMultiplier,
+        QuietTimeAfterSound,
+        Attenuation,
+        Concurrency,
+        OwningActor,
+        0,
+        false);
+}
+

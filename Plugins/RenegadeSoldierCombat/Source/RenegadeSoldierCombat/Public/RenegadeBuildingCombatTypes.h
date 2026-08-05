@@ -78,6 +78,18 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadeBuildingHealthSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Health", meta=(ClampMin="1.0"))
     float MaximumHealth = 1000.0f;
 
+    /** Enables a replicated low-health state and Blueprint event for damaged-building presentation. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Health|Low Health")
+    bool bEnableLowHealthState = true;
+
+    /** Health percentage at or below which the building enters low health. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Health|Low Health", meta=(ClampMin="0.01", ClampMax="0.99", EditCondition="bEnableLowHealthState"))
+    float LowHealthThresholdPercent = 0.25f;
+
+    /** Extra health percentage required before repair clears low health, preventing rapid state flicker near the threshold. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Health|Low Health", meta=(ClampMin="0.0", ClampMax="0.50", EditCondition="bEnableLowHealthState"))
+    float LowHealthRecoveryHysteresisPercent = 0.05f;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Health", meta=(ClampMin="0.0"))
     float IncomingDamageMultiplier = 1.0f;
 
@@ -115,39 +127,97 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadeBuildingTargetSettings
     FVector FallbackAimOffset = FVector::ZeroVector;
 };
 
+/**
+ * Team-perspective EVA/CABAL variants for one building announcement.
+ * The listening client selects its own team and whether this building is friendly or hostile.
+ */
+USTRUCT(BlueprintType)
+struct RENEGADESOLDIERCOMBAT_API FRenegadeBuildingEvaSoundSet
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GDI EVA")
+    TObjectPtr<USoundBase> GDIFriendlyBuildingSound;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GDI EVA")
+    TObjectPtr<USoundBase> GDIEnemyBuildingSound;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nod EVA")
+    TObjectPtr<USoundBase> NodFriendlyBuildingSound;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nod EVA")
+    TObjectPtr<USoundBase> NodEnemyBuildingSound;
+};
+
 USTRUCT(BlueprintType)
 struct RENEGADESOLDIERCOMBAT_API FRenegadeBuildingAudioSettings
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Audio|Under Attack")
+    /** Selects GDI EVA or Nod EVA and friendly/enemy wording independently on every listening client. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA")
+    bool bUseTeamAwareEvaSounds = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Under Attack", meta=(EditCondition="bUseTeamAwareEvaSounds"))
+    FRenegadeBuildingEvaSoundSet UnderAttackEvaSounds;
+
+    /** Backward-compatible fallback when no matching team-aware under-attack sound is assigned. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Under Attack")
     TObjectPtr<USoundBase> UnderAttackSound;
 
     /** Per-building cooldown before this building asks to play another alert. A world-wide lock still prevents overlap between buildings. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Audio|Under Attack", meta=(ClampMin="0.0"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Under Attack", meta=(ClampMin="0.0"))
     float UnderAttackCooldownSeconds = 8.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Audio|Under Attack", meta=(ClampMin="0.0"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Under Attack", meta=(ClampMin="0.0"))
     float UnderAttackVolumeMultiplier = 1.0f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Audio|Under Attack", meta=(ClampMin="0.01"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Under Attack", meta=(ClampMin="0.01"))
     float UnderAttackPitchMultiplier = 1.0f;
 
-    /** Additional quiet time after the global under-attack audio finishes before another building may announce. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Audio|Under Attack", meta=(ClampMin="0.0"))
+    /** Additional quiet time after an under-attack announcement finishes. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Under Attack", meta=(ClampMin="0.0"))
     float GlobalUnderAttackQuietTimeSeconds = 0.20f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Audio|Under Attack")
-    TObjectPtr<USoundAttenuation> UnderAttackAttenuation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Low Health", meta=(EditCondition="bUseTeamAwareEvaSounds"))
+    FRenegadeBuildingEvaSoundSet LowHealthEvaSounds;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Audio|Under Attack")
-    TObjectPtr<USoundConcurrency> UnderAttackConcurrency;
+    /** Backward-compatible fallback for the imminent-destruction warning. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Low Health")
+    TObjectPtr<USoundBase> LowHealthWarningSound;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Audio|Destruction")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Low Health", meta=(ClampMin="0.0"))
+    float LowHealthWarningVolumeMultiplier = 1.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Low Health", meta=(ClampMin="0.01"))
+    float LowHealthWarningPitchMultiplier = 1.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Low Health", meta=(ClampMin="0.0"))
+    float GlobalLowHealthQuietTimeSeconds = 0.25f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Destroyed", meta=(EditCondition="bUseTeamAwareEvaSounds"))
+    FRenegadeBuildingEvaSoundSet DestroyedEvaSounds;
+
+    /** Backward-compatible fallback when no matching team-aware destroyed sound is assigned. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Destroyed")
     TObjectPtr<USoundBase> DestroyedSound;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building Audio|Destruction", meta=(ClampMin="0.0"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Destroyed", meta=(ClampMin="0.0"))
     float DestroyedSoundVolumeMultiplier = 1.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Destroyed", meta=(ClampMin="0.01"))
+    float DestroyedSoundPitchMultiplier = 1.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Destroyed", meta=(ClampMin="0.0"))
+    float GlobalDestroyedQuietTimeSeconds = 0.35f;
+
+    /** Optional positional attenuation shared by all building EVA announcements. Leave empty for normal announcer-style playback. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Playback")
+    TObjectPtr<USoundAttenuation> UnderAttackAttenuation;
+
+    /** Optional concurrency shared by all building EVA announcements. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Building EVA|Playback")
+    TObjectPtr<USoundConcurrency> UnderAttackConcurrency;
 };
 
 USTRUCT(BlueprintType)

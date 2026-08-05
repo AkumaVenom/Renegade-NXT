@@ -1,6 +1,6 @@
 # Renegade NXT Combat and Building Warfare
 
-**Current version: 1.4.3** — UE 5.8
+**Current version: 1.4.4** — UE 5.8
 
 A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manual player rifle/pistol combat, damageable team buildings, and automated base defences.
 
@@ -9,7 +9,8 @@ A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manua
 - Reusable `Renegade Building Combat Component` for the Refinery, Barracks, Silo, Hand of Nod, Weapons Factory, Power Plant, Helipad, Repair Pad, Airstrip, Obelisk, Advanced Guard Tower, and custom structures.
 - Server-authoritative building health, damage, destruction, repair, team ownership, target registration, and replicated Blueprint events.
 - Infantry building-target policies: never, only when no soldier is available, closest valid target, or prefer buildings.
-- World-wide non-overlapping building under-attack announcements.
+- Team-perspective GDI EVA/Nod EVA building announcements for friendly and enemy under-attack, low-health, and destroyed events, serialized through one prioritized non-overlapping audio channel.
+- Replicated building low-health state with threshold, repair hysteresis, Blueprint event, and imminent-destruction warning.
 - Advanced Guard Tower dual traced rockets with selectable launch Scene Components, pooled rocket meshes, damage, sounds, range, cadence, spread, impact effects, and debug lines.
 - Obelisk charge-and-fire sequence with selectable start component, separate charge/shoot sounds, server damage trace, Fab Niagara or classic Cascade beam support, automatic fallback order, automatic trace endpoint alignment, exposed XYZ/length/thickness scaling, rotation correction, deterministic visual lifetime cleanup, and debug lines.
 - Optional Power Plant dependency that disables and restores team defensive buildings.
@@ -33,11 +34,11 @@ A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manua
 - Replicated health, target, team, ammo, death state, ragdoll/respawn RPCs, and shot cosmetic RPCs.
 
 
-## Building warfare (v1.4.3)
+## Building warfare (v1.4.4)
 
-Add `Renegade Building Combat Component` to each building Blueprint, set its GDI/Nod team, choose the matching building type, assign health and a target Scene Component, then provide the shared under-attack sound. Player and AI point damage now resolve attached building meshes back to the owning building component.
+Add `Renegade Building Combat Component` to each building Blueprint, set its GDI/Nod team, choose the matching building type, assign health and a target Scene Component, then assign the GDI/Nod friendly and enemy EVA variants for under attack, low health, and destroyed events. Legacy generic sounds remain available as fallbacks. Player and AI point damage now resolve attached building meshes back to the owning building component.
 
-AGT and Obelisk types automatically select their matching defence when `Defense Type` remains None. Both use server-authoritative traces against registered hostile player/AI combatants while rocket meshes, Niagara/Cascade lasers, and sounds are multicast as cosmetic presentation. A world registry audio lock ensures only one building under-attack announcement plays at once.
+AGT and Obelisk types automatically select their matching defence when `Defense Type` remains None. Both use server-authoritative traces against registered hostile player/AI combatants while rocket meshes, Niagara/Cascade lasers, and sounds are multicast as cosmetic presentation. A prioritized world registry EVA channel prevents announcement overlap: low-health warnings can supersede ordinary under-attack lines, and destroyed announcements have highest priority. Each client chooses its local GDI or Nod friendly/enemy voice independently.
 
 Set `Laser Visual Lifetime Seconds` on the Obelisk settings to control how long Niagara, Cascade, and optional Blueprint laser visuals remain visible. Looping Cascade beams are forcibly deactivated and destroyed after this duration, and a new shot clears any previous beam first.
 

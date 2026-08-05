@@ -43,7 +43,7 @@ struct UHT_STATICS
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RegisteredBuildings_MetaData[] = {
 		{ "ModuleRelativePath", "Public/RenegadeCombatRegistrySubsystem.h" },
 	};
-	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ActiveBuildingUnderAttackAudio_MetaData[] = {
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ActiveBuildingEvaAudio_MetaData[] = {
 		{ "EditInline", "true" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatRegistrySubsystem.h" },
 	};
@@ -54,7 +54,7 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FArrayPropertyParams NewProp_RegisteredCombatants;
 	static const UECodeGen_Private::FWeakObjectPropertyParams NewProp_RegisteredBuildings_Inner;
 	static const UECodeGen_Private::FArrayPropertyParams NewProp_RegisteredBuildings;
-	static const UECodeGen_Private::FObjectPropertyParams NewProp_ActiveBuildingUnderAttackAudio;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_ActiveBuildingEvaAudio;
 	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
 // ********** End Class URenegadeCombatRegistrySubsystem constinit property declarations ***********
 	static FTypeConstructFunc* DependentSingletons[];
@@ -69,13 +69,13 @@ const UECodeGen_Private::FWeakObjectPropertyParams UHT_STATICS::NewProp_Register
 const UECodeGen_Private::FArrayPropertyParams UHT_STATICS::NewProp_RegisteredCombatants = { "RegisteredCombatants", nullptr, (EPropertyFlags)0x0044008000002008, UECodeGen_Private::EPropertyGenFlags::Array, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeCombatRegistrySubsystem, RegisteredCombatants), EArrayPropertyFlags::None, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RegisteredCombatants_MetaData), NewProp_RegisteredCombatants_MetaData) };
 const UECodeGen_Private::FWeakObjectPropertyParams UHT_STATICS::NewProp_RegisteredBuildings_Inner = { "RegisteredBuildings", nullptr, (EPropertyFlags)0x0004000000080008, UECodeGen_Private::EPropertyGenFlags::WeakObject, nullptr, nullptr, 1, 0, Z_Construct_UClass_URenegadeBuildingCombatComponent, METADATA_PARAMS(0, nullptr) };
 const UECodeGen_Private::FArrayPropertyParams UHT_STATICS::NewProp_RegisteredBuildings = { "RegisteredBuildings", nullptr, (EPropertyFlags)0x0044008000002008, UECodeGen_Private::EPropertyGenFlags::Array, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeCombatRegistrySubsystem, RegisteredBuildings), EArrayPropertyFlags::None, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RegisteredBuildings_MetaData), NewProp_RegisteredBuildings_MetaData) };
-const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_ActiveBuildingUnderAttackAudio = { "ActiveBuildingUnderAttackAudio", nullptr, (EPropertyFlags)0x0144000000082008, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeCombatRegistrySubsystem, ActiveBuildingUnderAttackAudio), Z_Construct_UClass_UAudioComponent, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ActiveBuildingUnderAttackAudio_MetaData), NewProp_ActiveBuildingUnderAttackAudio_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_ActiveBuildingEvaAudio = { "ActiveBuildingEvaAudio", nullptr, (EPropertyFlags)0x0144000000082008, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeCombatRegistrySubsystem, ActiveBuildingEvaAudio), Z_Construct_UClass_UAudioComponent, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ActiveBuildingEvaAudio_MetaData), NewProp_ActiveBuildingEvaAudio_MetaData) };
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RegisteredCombatants_Inner,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RegisteredCombatants,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RegisteredBuildings_Inner,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RegisteredBuildings,
-	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ActiveBuildingUnderAttackAudio,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ActiveBuildingEvaAudio,
 };
 static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
 // ********** End Class URenegadeCombatRegistrySubsystem Property Definitions **********************
@@ -146,10 +146,10 @@ URenegadeCombatRegistrySubsystem::~URenegadeCombatRegistrySubsystem() {}
 struct UHT_STATICS
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
-		{ Z_Construct_UClass_URenegadeCombatRegistrySubsystem, TEXT("URenegadeCombatRegistrySubsystem"), &Z_Registration_Info_UClass_URenegadeCombatRegistrySubsystem, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeCombatRegistrySubsystem), 4025982111U) },
+		{ Z_Construct_UClass_URenegadeCombatRegistrySubsystem, TEXT("URenegadeCombatRegistrySubsystem"), &Z_Registration_Info_UClass_URenegadeCombatRegistrySubsystem, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeCombatRegistrySubsystem), 3075725657U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatRegistrySubsystem_h__Script_RenegadeSoldierCombat_6503aa07ceccae080b150be0f80c4b39372e5bed{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatRegistrySubsystem_h__Script_RenegadeSoldierCombat_98fc2b0b1cd7aa407cfc20fbd6b64e0de8db1952{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	UHT_STATICS::ClassInfo, UE_ARRAY_COUNT(UHT_STATICS::ClassInfo),
 	nullptr, 0,

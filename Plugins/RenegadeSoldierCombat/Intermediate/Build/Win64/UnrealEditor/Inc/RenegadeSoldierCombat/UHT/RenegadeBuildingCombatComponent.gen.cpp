@@ -41,6 +41,7 @@ RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuil
 RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingDestroyedSignature__DelegateSignature(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingHealthChangedSignature__DelegateSignature(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingHealthSettings(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingLowHealthChangedSignature__DelegateSignature(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingPowerChangedSignature__DelegateSignature(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingRestoredSignature__DelegateSignature(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingTargetSettings(ETypeConstructPhase);
@@ -155,6 +156,63 @@ UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingU
 }
 #undef UHT_STATICS
 // ********** End Delegate FRenegadeBuildingUnderAttackSignature ***********************************
+
+// ********** Begin Delegate FRenegadeBuildingLowHealthChangedSignature ****************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingLowHealthChangedSignature__DelegateSignature_Statics
+struct UHT_STATICS
+{
+	struct _Script_RenegadeSoldierCombat_eventRenegadeBuildingLowHealthChangedSignature_Parms
+	{
+		bool bLowHealth;
+		float HealthPercent;
+		AActor* DamageCauser;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatComponent.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Delegate FRenegadeBuildingLowHealthChangedSignature constinit property declarations 
+	static void NewProp_bLowHealth_SetBit(void* Obj)
+	{
+		((_Script_RenegadeSoldierCombat_eventRenegadeBuildingLowHealthChangedSignature_Parms*)Obj)->bLowHealth = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bLowHealth;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_HealthPercent;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_DamageCauser;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Delegate FRenegadeBuildingLowHealthChangedSignature constinit property declarations 
+	static const UECodeGen_Private::FDelegateFunctionParams FuncParams;
+};
+
+// ********** Begin Delegate FRenegadeBuildingLowHealthChangedSignature Property Definitions *******
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bLowHealth = { "bLowHealth", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(_Script_RenegadeSoldierCombat_eventRenegadeBuildingLowHealthChangedSignature_Parms), &UHT_STATICS::NewProp_bLowHealth_SetBit, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_HealthPercent = { "HealthPercent", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadeBuildingLowHealthChangedSignature_Parms, HealthPercent), METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_DamageCauser = { "DamageCauser", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Object, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadeBuildingLowHealthChangedSignature_Parms, DamageCauser), Z_Construct_UClass_AActor, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bLowHealth,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_HealthPercent,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DamageCauser,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Delegate FRenegadeBuildingLowHealthChangedSignature Property Definitions *********
+const UECodeGen_Private::FDelegateFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat, nullptr, "RenegadeBuildingLowHealthChangedSignature__DelegateSignature", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::_Script_RenegadeSoldierCombat_eventRenegadeBuildingLowHealthChangedSignature_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00130000, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::_Script_RenegadeSoldierCombat_eventRenegadeBuildingLowHealthChangedSignature_Parms) < MAX_uint16);
+UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingLowHealthChangedSignature__DelegateSignature(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUDelegateFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+// ********** End Delegate FRenegadeBuildingLowHealthChangedSignature ******************************
 
 // ********** Begin Delegate FRenegadeBuildingDestroyedSignature ***********************************
 #ifdef UHT_STATICS
@@ -697,6 +755,63 @@ DEFINE_FUNCTION(URenegadeBuildingCombatComponent::execHandleOwnerAnyDamage)
 }
 // ********** End Class URenegadeBuildingCombatComponent Function HandleOwnerAnyDamage *************
 
+// ********** Begin Class URenegadeBuildingCombatComponent Function IsBuildingLowHealth ************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeBuildingCombatComponent_IsBuildingLowHealth_Statics
+struct UHT_STATICS
+{
+	struct RenegadeBuildingCombatComponent_eventIsBuildingLowHealth_Parms
+	{
+		bool ReturnValue;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Building|Health" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatComponent.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function IsBuildingLowHealth constinit property declarations *******************
+	static void NewProp_ReturnValue_SetBit(void* Obj)
+	{
+		((RenegadeBuildingCombatComponent_eventIsBuildingLowHealth_Parms*)Obj)->ReturnValue = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_ReturnValue;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function IsBuildingLowHealth constinit property declarations *********************
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function IsBuildingLowHealth Property Definitions ******************************
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(RenegadeBuildingCombatComponent_eventIsBuildingLowHealth_Parms), &UHT_STATICS::NewProp_ReturnValue_SetBit, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ReturnValue,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function IsBuildingLowHealth Property Definitions ********************************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeBuildingCombatComponent, nullptr, "IsBuildingLowHealth", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::RenegadeBuildingCombatComponent_eventIsBuildingLowHealth_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x54020401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::RenegadeBuildingCombatComponent_eventIsBuildingLowHealth_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeBuildingCombatComponent_IsBuildingLowHealth(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeBuildingCombatComponent::execIsBuildingLowHealth)
+{
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	*(bool*)Z_Param__Result=P_THIS->IsBuildingLowHealth();
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeBuildingCombatComponent Function IsBuildingLowHealth **************
+
 // ********** Begin Class URenegadeBuildingCombatComponent Function IsBuildingOperational **********
 #ifdef UHT_STATICS
 #error UHT_STATICS already defined
@@ -1056,6 +1171,67 @@ DEFINE_FUNCTION(URenegadeBuildingCombatComponent::execMulticastBuildingDestroyed
 }
 // ********** End Class URenegadeBuildingCombatComponent Function MulticastBuildingDestroyed *******
 
+// ********** Begin Class URenegadeBuildingCombatComponent Function MulticastBuildingLowHealthWarning 
+struct RenegadeBuildingCombatComponent_eventMulticastBuildingLowHealthWarning_Parms
+{
+	FVector_NetQuantize SoundLocation;
+};
+static FName NAME_URenegadeBuildingCombatComponent_MulticastBuildingLowHealthWarning = FName(TEXT("MulticastBuildingLowHealthWarning"));
+void URenegadeBuildingCombatComponent::MulticastBuildingLowHealthWarning(FVector_NetQuantize SoundLocation)
+{
+	RenegadeBuildingCombatComponent_eventMulticastBuildingLowHealthWarning_Parms Parms;
+	Parms.SoundLocation=SoundLocation;
+	UFunction* Func = FindFunctionChecked(NAME_URenegadeBuildingCombatComponent_MulticastBuildingLowHealthWarning);
+	ProcessEvent(Func,&Parms);
+}
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeBuildingCombatComponent_MulticastBuildingLowHealthWarning_Statics
+struct UHT_STATICS
+{
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatComponent.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function MulticastBuildingLowHealthWarning constinit property declarations *****
+	static const UECodeGen_Private::FStructPropertyParams NewProp_SoundLocation;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function MulticastBuildingLowHealthWarning constinit property declarations *******
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function MulticastBuildingLowHealthWarning Property Definitions ****************
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_SoundLocation = { "SoundLocation", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeBuildingCombatComponent_eventMulticastBuildingLowHealthWarning_Parms, SoundLocation), Z_Construct_UScriptStruct_FVector_NetQuantize, METADATA_PARAMS(0, nullptr) }; // 360b775a5cdccbf04648aaedc65b3c6a0a2c5ffc
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_SoundLocation,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function MulticastBuildingLowHealthWarning Property Definitions ******************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeBuildingCombatComponent, nullptr, "MulticastBuildingLowHealthWarning", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<RenegadeBuildingCombatComponent_eventMulticastBuildingLowHealthWarning_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00084CC0, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(RenegadeBuildingCombatComponent_eventMulticastBuildingLowHealthWarning_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeBuildingCombatComponent_MulticastBuildingLowHealthWarning(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeBuildingCombatComponent::execMulticastBuildingLowHealthWarning)
+{
+	P_GET_STRUCT(FVector_NetQuantize,Z_Param_SoundLocation);
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->MulticastBuildingLowHealthWarning_Implementation(Z_Param_SoundLocation);
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeBuildingCombatComponent Function MulticastBuildingLowHealthWarning 
+
 // ********** Begin Class URenegadeBuildingCombatComponent Function MulticastBuildingUnderAttack ***
 struct RenegadeBuildingCombatComponent_eventMulticastBuildingUnderAttack_Parms
 {
@@ -1399,6 +1575,43 @@ DEFINE_FUNCTION(URenegadeBuildingCombatComponent::execOnRep_Destroyed)
 	P_NATIVE_END;
 }
 // ********** End Class URenegadeBuildingCombatComponent Function OnRep_Destroyed ******************
+
+// ********** Begin Class URenegadeBuildingCombatComponent Function OnRep_LowHealth ****************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeBuildingCombatComponent_OnRep_LowHealth_Statics
+struct UHT_STATICS
+{
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatComponent.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function OnRep_LowHealth constinit property declarations ***********************
+// ********** End Function OnRep_LowHealth constinit property declarations *************************
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeBuildingCombatComponent, nullptr, "OnRep_LowHealth", nullptr, 0, 0, RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00080401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+UFunction* Z_Construct_UFunction_URenegadeBuildingCombatComponent_OnRep_LowHealth(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeBuildingCombatComponent::execOnRep_LowHealth)
+{
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->OnRep_LowHealth();
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeBuildingCombatComponent Function OnRep_LowHealth ******************
 
 // ********** Begin Class URenegadeBuildingCombatComponent Function OnRep_ObeliskCharging **********
 #ifdef UHT_STATICS
@@ -2185,6 +2398,17 @@ struct UHT_STATICS
 		{ "ToolTip", "Ensures this Blueprint actor replicates so building health, destruction, defence and sounds work in multiplayer." },
 #endif
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnsureOwnerAlwaysRelevant_MetaData[] = {
+		{ "Category", "Renegade NXT|Building|Networking" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Keeps strategic building state and EVA multicasts relevant to every player, including the enemy base across the map. */" },
+#endif
+		{ "EditCondition", "bEnsureOwnerReplicates" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Keeps strategic building state and EVA multicasts relevant to every player, including the enemy base across the map." },
+#endif
+	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BuildingType_MetaData[] = {
 		{ "Category", "Renegade NXT|Building" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatComponent.h" },
@@ -2299,6 +2523,10 @@ struct UHT_STATICS
 		{ "Category", "Renegade NXT|Building|Runtime" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatComponent.h" },
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bIsLowHealth_MetaData[] = {
+		{ "Category", "Renegade NXT|Building|Runtime" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatComponent.h" },
+	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bIsDestroyed_MetaData[] = {
 		{ "Category", "Renegade NXT|Building|Runtime" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatComponent.h" },
@@ -2322,6 +2550,16 @@ struct UHT_STATICS
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_OnBuildingUnderAttack_MetaData[] = {
 		{ "Category", "Renegade NXT|Building|Events" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatComponent.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_OnBuildingLowHealthChanged_MetaData[] = {
+		{ "Category", "Renegade NXT|Building|Events" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Fires whenever the building enters or exits its configured low-health state. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Fires whenever the building enters or exits its configured low-health state." },
+#endif
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_OnBuildingDestroyed_MetaData[] = {
 		{ "Category", "Renegade NXT|Building|Events" },
@@ -2385,6 +2623,11 @@ struct UHT_STATICS
 		((URenegadeBuildingCombatComponent*)Obj)->bEnsureOwnerReplicates = 1;
 	}
 	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnsureOwnerReplicates;
+	static void NewProp_bEnsureOwnerAlwaysRelevant_SetBit(void* Obj)
+	{
+		((URenegadeBuildingCombatComponent*)Obj)->bEnsureOwnerAlwaysRelevant = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnsureOwnerAlwaysRelevant;
 	static const UECodeGen_Private::FBytePropertyParams NewProp_BuildingType_Underlying;
 	static const UECodeGen_Private::FEnumPropertyParams NewProp_BuildingType;
 	static const UECodeGen_Private::FBytePropertyParams NewProp_DefenseType_Underlying;
@@ -2413,6 +2656,11 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FNamePropertyParams NewProp_ObeliskLaserStartComponentTag;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_ObeliskLaserStartRelativeOffset;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_CurrentHealth;
+	static void NewProp_bIsLowHealth_SetBit(void* Obj)
+	{
+		((URenegadeBuildingCombatComponent*)Obj)->bIsLowHealth = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bIsLowHealth;
 	static void NewProp_bIsDestroyed_SetBit(void* Obj)
 	{
 		((URenegadeBuildingCombatComponent*)Obj)->bIsDestroyed = 1;
@@ -2431,6 +2679,7 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FBoolPropertyParams NewProp_bTeamPowerOnline;
 	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnBuildingHealthChanged;
 	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnBuildingUnderAttack;
+	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnBuildingLowHealthChanged;
 	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnBuildingDestroyed;
 	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnBuildingRestored;
 	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnDefenseTargetChanged;
@@ -2455,17 +2704,20 @@ struct UHT_STATICS
 		{ .NameUTF8 = UTF8TEXT("GetHealthPercent"), .Pointer = &URenegadeBuildingCombatComponent::execGetHealthPercent },
 		{ .NameUTF8 = UTF8TEXT("GetTargetAimLocation"), .Pointer = &URenegadeBuildingCombatComponent::execGetTargetAimLocation },
 		{ .NameUTF8 = UTF8TEXT("HandleOwnerAnyDamage"), .Pointer = &URenegadeBuildingCombatComponent::execHandleOwnerAnyDamage },
+		{ .NameUTF8 = UTF8TEXT("IsBuildingLowHealth"), .Pointer = &URenegadeBuildingCombatComponent::execIsBuildingLowHealth },
 		{ .NameUTF8 = UTF8TEXT("IsBuildingOperational"), .Pointer = &URenegadeBuildingCombatComponent::execIsBuildingOperational },
 		{ .NameUTF8 = UTF8TEXT("IsHostileToActor"), .Pointer = &URenegadeBuildingCombatComponent::execIsHostileToActor },
 		{ .NameUTF8 = UTF8TEXT("IsValidDefenseTarget"), .Pointer = &URenegadeBuildingCombatComponent::execIsValidDefenseTarget },
 		{ .NameUTF8 = UTF8TEXT("MulticastAGTRocketsFired"), .Pointer = &URenegadeBuildingCombatComponent::execMulticastAGTRocketsFired },
 		{ .NameUTF8 = UTF8TEXT("MulticastBuildingDestroyed"), .Pointer = &URenegadeBuildingCombatComponent::execMulticastBuildingDestroyed },
+		{ .NameUTF8 = UTF8TEXT("MulticastBuildingLowHealthWarning"), .Pointer = &URenegadeBuildingCombatComponent::execMulticastBuildingLowHealthWarning },
 		{ .NameUTF8 = UTF8TEXT("MulticastBuildingUnderAttack"), .Pointer = &URenegadeBuildingCombatComponent::execMulticastBuildingUnderAttack },
 		{ .NameUTF8 = UTF8TEXT("MulticastObeliskChargeStarted"), .Pointer = &URenegadeBuildingCombatComponent::execMulticastObeliskChargeStarted },
 		{ .NameUTF8 = UTF8TEXT("MulticastObeliskFired"), .Pointer = &URenegadeBuildingCombatComponent::execMulticastObeliskFired },
 		{ .NameUTF8 = UTF8TEXT("OnRep_CurrentHealth"), .Pointer = &URenegadeBuildingCombatComponent::execOnRep_CurrentHealth },
 		{ .NameUTF8 = UTF8TEXT("OnRep_DefenseTarget"), .Pointer = &URenegadeBuildingCombatComponent::execOnRep_DefenseTarget },
 		{ .NameUTF8 = UTF8TEXT("OnRep_Destroyed"), .Pointer = &URenegadeBuildingCombatComponent::execOnRep_Destroyed },
+		{ .NameUTF8 = UTF8TEXT("OnRep_LowHealth"), .Pointer = &URenegadeBuildingCombatComponent::execOnRep_LowHealth },
 		{ .NameUTF8 = UTF8TEXT("OnRep_ObeliskCharging"), .Pointer = &URenegadeBuildingCombatComponent::execOnRep_ObeliskCharging },
 		{ .NameUTF8 = UTF8TEXT("OnRep_TeamId"), .Pointer = &URenegadeBuildingCombatComponent::execOnRep_TeamId },
 		{ .NameUTF8 = UTF8TEXT("OnRep_TeamPowerOnline"), .Pointer = &URenegadeBuildingCombatComponent::execOnRep_TeamPowerOnline },
@@ -2490,17 +2742,20 @@ struct UHT_STATICS
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_GetHealthPercent, "GetHealthPercent" }, // 9bf628ec5fede7474c2c695d36a50e99e173a9b2
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_GetTargetAimLocation, "GetTargetAimLocation" }, // 81a52d47ceb751d49b60f0cf5a6a248238659e9a
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_HandleOwnerAnyDamage, "HandleOwnerAnyDamage" }, // a12de2e8650bd154f37bca8006691837ffc5fe74
+		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_IsBuildingLowHealth, "IsBuildingLowHealth" }, // 0c1c0f35bc3d001dfb2fbc398d8223a1d4ddb03f
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_IsBuildingOperational, "IsBuildingOperational" }, // 68ba0202a867e15f8f42205eaa85ee63b07c4229
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_IsHostileToActor, "IsHostileToActor" }, // 1f0a1b6311ddaa0a39bfbf6bd9856df3f432fd70
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_IsValidDefenseTarget, "IsValidDefenseTarget" }, // a0f34fd3526c2a6bdc0adab84bb6cb75ae2b2fea
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_MulticastAGTRocketsFired, "MulticastAGTRocketsFired" }, // 9ad3a8681ceab9d6b4dd65a8401e895e7ce08069
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_MulticastBuildingDestroyed, "MulticastBuildingDestroyed" }, // 7867464a77d5e52b8f4bab75ccdcbbfec3bd3c68
+		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_MulticastBuildingLowHealthWarning, "MulticastBuildingLowHealthWarning" }, // 5e6deb9f25ec09258cceff23d8ba1fd4fc169199
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_MulticastBuildingUnderAttack, "MulticastBuildingUnderAttack" }, // 6fd542487932aeb4c27f30b4919c41aced333a72
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_MulticastObeliskChargeStarted, "MulticastObeliskChargeStarted" }, // 2b96232fec3f685b20210ff2f53f6075dd884a00
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_MulticastObeliskFired, "MulticastObeliskFired" }, // 9d694df421ba841a748e450a2594ceecb6d1ed83
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_OnRep_CurrentHealth, "OnRep_CurrentHealth" }, // 1a2e8081ee8853b2da52d8abf96834f1fc14f59b
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_OnRep_DefenseTarget, "OnRep_DefenseTarget" }, // e7a3037f41e9ea05f4eadf83bcdb280996b6b1bb
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_OnRep_Destroyed, "OnRep_Destroyed" }, // a174ce4e3dbde334f26c1b9f3e9cb31a8f20fc20
+		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_OnRep_LowHealth, "OnRep_LowHealth" }, // 168f4a93f8625178d52fa1aa16becc79d4075420
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_OnRep_ObeliskCharging, "OnRep_ObeliskCharging" }, // a61d70b615295f640d2b9bbb6a964de5533c891d
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_OnRep_TeamId, "OnRep_TeamId" }, // b75a688b731b90c71b449095a52d8bc96aedd74c
 		{ &Z_Construct_UFunction_URenegadeBuildingCombatComponent_OnRep_TeamPowerOnline, "OnRep_TeamPowerOnline" }, // 6614c31bcdbcf3636080a9dbac1f6fa4fd6466c7
@@ -2528,16 +2783,17 @@ struct UHT_STATICS
 const UECodeGen_Private::FNamePropertyParams UHT_STATICS::NewProp_TeamId = { "TeamId", "OnRep_TeamId", (EPropertyFlags)0x0010000100000025, UECodeGen_Private::EPropertyGenFlags::Name, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, TeamId), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TeamId_MetaData), NewProp_TeamId_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bDifferentNonNeutralTeamsAreEnemies = { "bDifferentNonNeutralTeamsAreEnemies", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeBuildingCombatComponent), &UHT_STATICS::NewProp_bDifferentNonNeutralTeamsAreEnemies_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bDifferentNonNeutralTeamsAreEnemies_MetaData), NewProp_bDifferentNonNeutralTeamsAreEnemies_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnsureOwnerReplicates = { "bEnsureOwnerReplicates", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeBuildingCombatComponent), &UHT_STATICS::NewProp_bEnsureOwnerReplicates_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnsureOwnerReplicates_MetaData), NewProp_bEnsureOwnerReplicates_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnsureOwnerAlwaysRelevant = { "bEnsureOwnerAlwaysRelevant", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeBuildingCombatComponent), &UHT_STATICS::NewProp_bEnsureOwnerAlwaysRelevant_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnsureOwnerAlwaysRelevant_MetaData), NewProp_bEnsureOwnerAlwaysRelevant_MetaData) };
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_BuildingType_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
 const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_BuildingType = { "BuildingType", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, BuildingType), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeBuildingType, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BuildingType_MetaData), NewProp_BuildingType_MetaData) }; // b84f5c948e08221560ea15f81b29ddecce809ab9
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_DefenseType_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
 const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_DefenseType = { "DefenseType", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, DefenseType), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeBuildingDefenseType, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DefenseType_MetaData), NewProp_DefenseType_MetaData) }; // 7022157ce3d5c0f0641ba871f746fcd0fa193716
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_HealthSettings = { "HealthSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, HealthSettings), Z_Construct_UScriptStruct_FRenegadeBuildingHealthSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_HealthSettings_MetaData), NewProp_HealthSettings_MetaData) }; // 5049f3141a2d50955031156dc9e5f055979a3546
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_HealthSettings = { "HealthSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, HealthSettings), Z_Construct_UScriptStruct_FRenegadeBuildingHealthSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_HealthSettings_MetaData), NewProp_HealthSettings_MetaData) }; // 7aa9cba6f4bad174e4bbcafd4adc5e41d3cb1c86
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_TargetSettings = { "TargetSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, TargetSettings), Z_Construct_UScriptStruct_FRenegadeBuildingTargetSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TargetSettings_MetaData), NewProp_TargetSettings_MetaData) }; // 60bb88de300d61f6bf222275cf9098ba96f14b26
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_TargetPointComponent = { "TargetPointComponent", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, TargetPointComponent), Z_Construct_UScriptStruct_FComponentReference, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TargetPointComponent_MetaData), NewProp_TargetPointComponent_MetaData) }; // 9b9ae5abd01cfb2cb2ece10137db004a3044215c
 const UECodeGen_Private::FNamePropertyParams UHT_STATICS::NewProp_TargetPointComponentTag = { "TargetPointComponentTag", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Name, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, TargetPointComponentTag), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TargetPointComponentTag_MetaData), NewProp_TargetPointComponentTag_MetaData) };
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_TargetPointRelativeOffset = { "TargetPointRelativeOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, TargetPointRelativeOffset), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TargetPointRelativeOffset_MetaData), NewProp_TargetPointRelativeOffset_MetaData) };
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_AudioSettings = { "AudioSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, AudioSettings), Z_Construct_UScriptStruct_FRenegadeBuildingAudioSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AudioSettings_MetaData), NewProp_AudioSettings_MetaData) }; // f71c0d37cd2db7b4c1a72512c2d1797aeb5e03a0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_AudioSettings = { "AudioSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, AudioSettings), Z_Construct_UScriptStruct_FRenegadeBuildingAudioSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AudioSettings_MetaData), NewProp_AudioSettings_MetaData) }; // 270548434677779880bba92ee61b85c3d7da5b1e
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAutoStartDefenseOnBeginPlay = { "bAutoStartDefenseOnBeginPlay", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeBuildingCombatComponent), &UHT_STATICS::NewProp_bAutoStartDefenseOnBeginPlay_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAutoStartDefenseOnBeginPlay_MetaData), NewProp_bAutoStartDefenseOnBeginPlay_MetaData) };
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_DefenseTargeting = { "DefenseTargeting", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, DefenseTargeting), Z_Construct_UScriptStruct_FRenegadeBuildingDefenseTargetingSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DefenseTargeting_MetaData), NewProp_DefenseTargeting_MetaData) }; // d5152314679f1443025e13df9bdcdbdc306d21e4
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_AdvancedGuardTower = { "AdvancedGuardTower", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, AdvancedGuardTower), Z_Construct_UScriptStruct_FRenegadeAdvancedGuardTowerSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AdvancedGuardTower_MetaData), NewProp_AdvancedGuardTower_MetaData) }; // 5f7b5f5a8288b93e1659510aceb66b3f9ada0698
@@ -2552,12 +2808,14 @@ const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ObeliskLaser
 const UECodeGen_Private::FNamePropertyParams UHT_STATICS::NewProp_ObeliskLaserStartComponentTag = { "ObeliskLaserStartComponentTag", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Name, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, ObeliskLaserStartComponentTag), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ObeliskLaserStartComponentTag_MetaData), NewProp_ObeliskLaserStartComponentTag_MetaData) };
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ObeliskLaserStartRelativeOffset = { "ObeliskLaserStartRelativeOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, ObeliskLaserStartRelativeOffset), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ObeliskLaserStartRelativeOffset_MetaData), NewProp_ObeliskLaserStartRelativeOffset_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_CurrentHealth = { "CurrentHealth", "OnRep_CurrentHealth", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, CurrentHealth), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CurrentHealth_MetaData), NewProp_CurrentHealth_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bIsLowHealth = { "bIsLowHealth", "OnRep_LowHealth", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeBuildingCombatComponent), &UHT_STATICS::NewProp_bIsLowHealth_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bIsLowHealth_MetaData), NewProp_bIsLowHealth_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bIsDestroyed = { "bIsDestroyed", "OnRep_Destroyed", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeBuildingCombatComponent), &UHT_STATICS::NewProp_bIsDestroyed_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bIsDestroyed_MetaData), NewProp_bIsDestroyed_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_CurrentDefenseTarget = { "CurrentDefenseTarget", "OnRep_DefenseTarget", (EPropertyFlags)0x0114000100000034, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, CurrentDefenseTarget), Z_Construct_UClass_AActor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CurrentDefenseTarget_MetaData), NewProp_CurrentDefenseTarget_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bObeliskCharging = { "bObeliskCharging", "OnRep_ObeliskCharging", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeBuildingCombatComponent), &UHT_STATICS::NewProp_bObeliskCharging_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bObeliskCharging_MetaData), NewProp_bObeliskCharging_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bTeamPowerOnline = { "bTeamPowerOnline", "OnRep_TeamPowerOnline", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeBuildingCombatComponent), &UHT_STATICS::NewProp_bTeamPowerOnline_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bTeamPowerOnline_MetaData), NewProp_bTeamPowerOnline_MetaData) };
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnBuildingHealthChanged = { "OnBuildingHealthChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, OnBuildingHealthChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingHealthChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnBuildingHealthChanged_MetaData), NewProp_OnBuildingHealthChanged_MetaData) }; // a8d176e1f7621f629b25a6f4d3961f65f5cac4d5
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnBuildingUnderAttack = { "OnBuildingUnderAttack", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, OnBuildingUnderAttack), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingUnderAttackSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnBuildingUnderAttack_MetaData), NewProp_OnBuildingUnderAttack_MetaData) }; // 385e8da11fbe866494f138ae52df3041b94b86f8
+const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnBuildingLowHealthChanged = { "OnBuildingLowHealthChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, OnBuildingLowHealthChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingLowHealthChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnBuildingLowHealthChanged_MetaData), NewProp_OnBuildingLowHealthChanged_MetaData) }; // cd6e662cb7cf7364d80561400040cb2b8e2e46b8
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnBuildingDestroyed = { "OnBuildingDestroyed", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, OnBuildingDestroyed), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingDestroyedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnBuildingDestroyed_MetaData), NewProp_OnBuildingDestroyed_MetaData) }; // 2efac71bb874aacedce33394ae7b8629f225bc72
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnBuildingRestored = { "OnBuildingRestored", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, OnBuildingRestored), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingRestoredSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnBuildingRestored_MetaData), NewProp_OnBuildingRestored_MetaData) }; // 92f93f5181511da592ed72652a61e0b5d7ef4815
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnDefenseTargetChanged = { "OnDefenseTargetChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeBuildingCombatComponent, OnDefenseTargetChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeBuildingDefenseTargetChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnDefenseTargetChanged_MetaData), NewProp_OnDefenseTargetChanged_MetaData) }; // 1b9fe640645f161e4aaeb6f25083b07f624034a5
@@ -2577,6 +2835,7 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TeamId,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bDifferentNonNeutralTeamsAreEnemies,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnsureOwnerReplicates,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnsureOwnerAlwaysRelevant,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BuildingType_Underlying,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BuildingType,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DefenseType_Underlying,
@@ -2601,12 +2860,14 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ObeliskLaserStartComponentTag,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ObeliskLaserStartRelativeOffset,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CurrentHealth,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bIsLowHealth,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bIsDestroyed,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CurrentDefenseTarget,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bObeliskCharging,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bTeamPowerOnline,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnBuildingHealthChanged,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnBuildingUnderAttack,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnBuildingLowHealthChanged,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnBuildingDestroyed,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnBuildingRestored,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnDefenseTargetChanged,
@@ -2688,6 +2949,7 @@ void URenegadeBuildingCombatComponent::ValidateGeneratedRepEnums(const TArray<st
 {
 	static FName Name_TeamId(TEXT("TeamId"));
 	static FName Name_CurrentHealth(TEXT("CurrentHealth"));
+	static FName Name_bIsLowHealth(TEXT("bIsLowHealth"));
 	static FName Name_bIsDestroyed(TEXT("bIsDestroyed"));
 	static FName Name_CurrentDefenseTarget(TEXT("CurrentDefenseTarget"));
 	static FName Name_bObeliskCharging(TEXT("bObeliskCharging"));
@@ -2695,6 +2957,7 @@ void URenegadeBuildingCombatComponent::ValidateGeneratedRepEnums(const TArray<st
 	const bool bIsValid = true
 		&& Name_TeamId == ClassReps[(int32)ENetFields_Private::TeamId].Property->GetFName()
 		&& Name_CurrentHealth == ClassReps[(int32)ENetFields_Private::CurrentHealth].Property->GetFName()
+		&& Name_bIsLowHealth == ClassReps[(int32)ENetFields_Private::bIsLowHealth].Property->GetFName()
 		&& Name_bIsDestroyed == ClassReps[(int32)ENetFields_Private::bIsDestroyed].Property->GetFName()
 		&& Name_CurrentDefenseTarget == ClassReps[(int32)ENetFields_Private::CurrentDefenseTarget].Property->GetFName()
 		&& Name_bObeliskCharging == ClassReps[(int32)ENetFields_Private::bObeliskCharging].Property->GetFName()
@@ -2715,10 +2978,10 @@ URenegadeBuildingCombatComponent::~URenegadeBuildingCombatComponent() {}
 struct UHT_STATICS
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
-		{ Z_Construct_UClass_URenegadeBuildingCombatComponent, TEXT("URenegadeBuildingCombatComponent"), &Z_Registration_Info_UClass_URenegadeBuildingCombatComponent, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeBuildingCombatComponent), 3073434719U) },
+		{ Z_Construct_UClass_URenegadeBuildingCombatComponent, TEXT("URenegadeBuildingCombatComponent"), &Z_Registration_Info_UClass_URenegadeBuildingCombatComponent, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeBuildingCombatComponent), 884619964U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h__Script_RenegadeSoldierCombat_23681608116b629cf06c06d725682789d82ecd06{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatComponent_h__Script_RenegadeSoldierCombat_26355e40eb2f89d5e3300befad894477915c0ea8{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	UHT_STATICS::ClassInfo, UE_ARRAY_COUNT(UHT_STATICS::ClassInfo),
 	nullptr, 0,

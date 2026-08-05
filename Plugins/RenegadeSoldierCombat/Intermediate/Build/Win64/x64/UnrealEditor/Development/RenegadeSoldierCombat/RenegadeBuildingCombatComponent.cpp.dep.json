@@ -3,7 +3,7 @@
     "Data": {
         "Source": "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesoldiercombat\\source\\renegadesoldiercombat\\private\\renegadebuildingcombatcomponent.cpp",
         "ProvidedModule": "",
-        "PCH": "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\intermediate\\build\\win64\\x64\\renegadenxteditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.valexpapi.cpp20.h.pch",
+        "PCH": "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.valexpapi.cpp20.h.pch",
         "Includes": [
             "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesoldiercombat\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\renegadesoldiercombat\\definitions.renegadesoldiercombat.h",
             "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesoldiercombat\\source\\renegadesoldiercombat\\public\\renegadebuildingcombatcomponent.h",

@@ -19,6 +19,7 @@ class URenegadeSoldierCombatComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FRenegadeBuildingHealthChangedSignature, float, PreviousHealth, float, NewHealth, AActor*, DamageCauser, AController*, InstigatedBy);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadeBuildingUnderAttackSignature, AActor*, Attacker, float, Damage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FRenegadeBuildingLowHealthChangedSignature, bool, bLowHealth, float, HealthPercent, AActor*, DamageCauser);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeBuildingDestroyedSignature, AActor*, Destroyer);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRenegadeBuildingRestoredSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadeBuildingDefenseTargetChangedSignature, AActor*, PreviousTarget, AActor*, NewTarget);
@@ -63,6 +64,10 @@ public:
     /** Ensures this Blueprint actor replicates so building health, destruction, defence and sounds work in multiplayer. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Networking")
     bool bEnsureOwnerReplicates = true;
+
+    /** Keeps strategic building state and EVA multicasts relevant to every player, including the enemy base across the map. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Networking", meta=(EditCondition="bEnsureOwnerReplicates"))
+    bool bEnsureOwnerAlwaysRelevant = true;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building")
     ERenegadeBuildingType BuildingType = ERenegadeBuildingType::Generic;
@@ -133,6 +138,9 @@ public:
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CurrentHealth, Category="Renegade NXT|Building|Runtime")
     float CurrentHealth = 1000.0f;
 
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_LowHealth, Category="Renegade NXT|Building|Runtime")
+    bool bIsLowHealth = false;
+
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Destroyed, Category="Renegade NXT|Building|Runtime")
     bool bIsDestroyed = false;
 
@@ -150,6 +158,10 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Building|Events")
     FRenegadeBuildingUnderAttackSignature OnBuildingUnderAttack;
+
+    /** Fires whenever the building enters or exits its configured low-health state. */
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Building|Events")
+    FRenegadeBuildingLowHealthChangedSignature OnBuildingLowHealthChanged;
 
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Building|Events")
     FRenegadeBuildingDestroyedSignature OnBuildingDestroyed;
@@ -171,6 +183,9 @@ public:
 
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Building")
     float GetHealthPercent() const;
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Building|Health")
+    bool IsBuildingLowHealth() const { return bIsLowHealth; }
 
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Building")
     bool IsBuildingOperational() const { return !bIsDestroyed && CurrentHealth > 0.0f; }
@@ -237,6 +252,9 @@ protected:
     void OnRep_CurrentHealth(float PreviousHealth);
 
     UFUNCTION()
+    void OnRep_LowHealth();
+
+    UFUNCTION()
     void OnRep_Destroyed();
 
     UFUNCTION()
@@ -250,6 +268,9 @@ protected:
 
     UFUNCTION(NetMulticast, Unreliable)
     void MulticastBuildingUnderAttack(AActor* Attacker, float Damage, FVector_NetQuantize SoundLocation);
+
+    UFUNCTION(NetMulticast, Reliable)
+    void MulticastBuildingLowHealthWarning(FVector_NetQuantize SoundLocation);
 
     UFUNCTION(NetMulticast, Reliable)
     void MulticastBuildingDestroyed(AActor* Destroyer, FVector_NetQuantize EffectLocation);
@@ -285,6 +306,10 @@ private:
     void ApplyDestroyedPresentation();
     void RestoreOperationalPresentation();
     void RequestUnderAttackAnnouncement(AActor* Attacker, float Damage);
+    void RefreshLowHealthState(AActor* DamageCauser, bool bAllowWarningSound);
+    FName ResolveLocalEvaListenerTeam() const;
+    USoundBase* ResolveEvaSoundForLocalListener(const FRenegadeBuildingEvaSoundSet& TeamSounds, USoundBase* FallbackSound) const;
+    void TryPlayEvaAnnouncement(USoundBase* Sound, const FVector& Location, float Volume, float Pitch, float QuietTime, int32 Priority) const;
 
     void RefreshDefenseTargeting();
     AActor* FindBestDefenseTarget() const;

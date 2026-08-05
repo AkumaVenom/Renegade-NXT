@@ -38,6 +38,7 @@ RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenega
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeAdvancedGuardTowerSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingAudioSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingDefenseTargetingSettings(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingHealthSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingTargetSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeObeliskSettings(ETypeConstructPhase);
@@ -465,6 +466,42 @@ struct UHT_STATICS
 		{ "ClampMin", "1.0" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableLowHealthState_MetaData[] = {
+		{ "Category", "Building Health|Low Health" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Enables a replicated low-health state and Blueprint event for damaged-building presentation. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Enables a replicated low-health state and Blueprint event for damaged-building presentation." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_LowHealthThresholdPercent_MetaData[] = {
+		{ "Category", "Building Health|Low Health" },
+		{ "ClampMax", "0.99" },
+		{ "ClampMin", "0.01" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Health percentage at or below which the building enters low health. */" },
+#endif
+		{ "EditCondition", "bEnableLowHealthState" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Health percentage at or below which the building enters low health." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_LowHealthRecoveryHysteresisPercent_MetaData[] = {
+		{ "Category", "Building Health|Low Health" },
+		{ "ClampMax", "0.50" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Extra health percentage required before repair clears low health, preventing rapid state flicker near the threshold. */" },
+#endif
+		{ "EditCondition", "bEnableLowHealthState" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Extra health percentage required before repair clears low health, preventing rapid state flicker near the threshold." },
+#endif
+	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_IncomingDamageMultiplier_MetaData[] = {
 		{ "Category", "Building Health" },
 		{ "ClampMin", "0.0" },
@@ -503,6 +540,13 @@ struct UHT_STATICS
 
 // ********** Begin ScriptStruct FRenegadeBuildingHealthSettings constinit property declarations ***
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_MaximumHealth;
+	static void NewProp_bEnableLowHealthState_SetBit(void* Obj)
+	{
+		((FRenegadeBuildingHealthSettings*)Obj)->bEnableLowHealthState = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnableLowHealthState;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_LowHealthThresholdPercent;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_LowHealthRecoveryHysteresisPercent;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_IncomingDamageMultiplier;
 	static void NewProp_bCanBeDamaged_SetBit(void* Obj)
 	{
@@ -540,6 +584,9 @@ struct UHT_STATICS
 
 // ********** Begin ScriptStruct FRenegadeBuildingHealthSettings Property Definitions **************
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumHealth = { "MaximumHealth", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingHealthSettings, MaximumHealth), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumHealth_MetaData), NewProp_MaximumHealth_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableLowHealthState = { "bEnableLowHealthState", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeBuildingHealthSettings), &UHT_STATICS::NewProp_bEnableLowHealthState_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableLowHealthState_MetaData), NewProp_bEnableLowHealthState_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_LowHealthThresholdPercent = { "LowHealthThresholdPercent", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingHealthSettings, LowHealthThresholdPercent), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LowHealthThresholdPercent_MetaData), NewProp_LowHealthThresholdPercent_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_LowHealthRecoveryHysteresisPercent = { "LowHealthRecoveryHysteresisPercent", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingHealthSettings, LowHealthRecoveryHysteresisPercent), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LowHealthRecoveryHysteresisPercent_MetaData), NewProp_LowHealthRecoveryHysteresisPercent_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_IncomingDamageMultiplier = { "IncomingDamageMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingHealthSettings, IncomingDamageMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_IncomingDamageMultiplier_MetaData), NewProp_IncomingDamageMultiplier_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bCanBeDamaged = { "bCanBeDamaged", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeBuildingHealthSettings), &UHT_STATICS::NewProp_bCanBeDamaged_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bCanBeDamaged_MetaData), NewProp_bCanBeDamaged_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bDestroyOwnerActorOnZeroHealth = { "bDestroyOwnerActorOnZeroHealth", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeBuildingHealthSettings), &UHT_STATICS::NewProp_bDestroyOwnerActorOnZeroHealth_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bDestroyOwnerActorOnZeroHealth_MetaData), NewProp_bDestroyOwnerActorOnZeroHealth_MetaData) };
@@ -548,6 +595,9 @@ const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bHideOwnerOnDe
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAllowRepairAfterDestroyed = { "bAllowRepairAfterDestroyed", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeBuildingHealthSettings), &UHT_STATICS::NewProp_bAllowRepairAfterDestroyed_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAllowRepairAfterDestroyed_MetaData), NewProp_bAllowRepairAfterDestroyed_MetaData) };
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumHealth,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableLowHealthState,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LowHealthThresholdPercent,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LowHealthRecoveryHysteresisPercent,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_IncomingDamageMultiplier,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bCanBeDamaged,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bDestroyOwnerActorOnZeroHealth,
@@ -692,6 +742,104 @@ UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingTargetSettings(ETypeCo
 #undef UHT_STATICS
 // ********** End ScriptStruct FRenegadeBuildingTargetSettings *************************************
 
+// ********** Begin ScriptStruct FRenegadeBuildingEvaSoundSet **************************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet_Statics
+struct UHT_STATICS
+{
+	static inline consteval int32 GetStructSize() { return DataSizeOf<FRenegadeBuildingEvaSoundSet>(); }
+	static inline consteval int16 GetStructAlignment() { return alignof(FRenegadeBuildingEvaSoundSet); }
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "BlueprintType", "true" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/**\n * Team-perspective EVA/CABAL variants for one building announcement.\n * The listening client selects its own team and whether this building is friendly or hostile.\n */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Team-perspective EVA/CABAL variants for one building announcement.\nThe listening client selects its own team and whether this building is friendly or hostile." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GDIFriendlyBuildingSound_MetaData[] = {
+		{ "Category", "GDI EVA" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GDIEnemyBuildingSound_MetaData[] = {
+		{ "Category", "GDI EVA" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_NodFriendlyBuildingSound_MetaData[] = {
+		{ "Category", "Nod EVA" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_NodEnemyBuildingSound_MetaData[] = {
+		{ "Category", "Nod EVA" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin ScriptStruct FRenegadeBuildingEvaSoundSet constinit property declarations ******
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_GDIFriendlyBuildingSound;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_GDIEnemyBuildingSound;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_NodFriendlyBuildingSound;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_NodEnemyBuildingSound;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End ScriptStruct FRenegadeBuildingEvaSoundSet constinit property declarations ********
+	static void* NewStructOps()
+	{
+		return (UScriptStruct::ICppStructOps*)new UScriptStruct::TCppStructOps<FRenegadeBuildingEvaSoundSet>();
+	}
+	static const UECodeGen_Private::FStructParams StructParams;
+}; // struct UHT_STATICS
+
+// ********** Begin ScriptStruct FRenegadeBuildingEvaSoundSet Property Definitions *****************
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_GDIFriendlyBuildingSound = { "GDIFriendlyBuildingSound", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingEvaSoundSet, GDIFriendlyBuildingSound), Z_Construct_UClass_USoundBase, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GDIFriendlyBuildingSound_MetaData), NewProp_GDIFriendlyBuildingSound_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_GDIEnemyBuildingSound = { "GDIEnemyBuildingSound", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingEvaSoundSet, GDIEnemyBuildingSound), Z_Construct_UClass_USoundBase, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GDIEnemyBuildingSound_MetaData), NewProp_GDIEnemyBuildingSound_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_NodFriendlyBuildingSound = { "NodFriendlyBuildingSound", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingEvaSoundSet, NodFriendlyBuildingSound), Z_Construct_UClass_USoundBase, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_NodFriendlyBuildingSound_MetaData), NewProp_NodFriendlyBuildingSound_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_NodEnemyBuildingSound = { "NodEnemyBuildingSound", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingEvaSoundSet, NodEnemyBuildingSound), Z_Construct_UClass_USoundBase, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_NodEnemyBuildingSound_MetaData), NewProp_NodEnemyBuildingSound_MetaData) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GDIFriendlyBuildingSound,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GDIEnemyBuildingSound,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_NodFriendlyBuildingSound,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_NodEnemyBuildingSound,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End ScriptStruct FRenegadeBuildingEvaSoundSet Property Definitions *******************
+const UECodeGen_Private::FStructParams UHT_STATICS::StructParams = {
+	(FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat,
+	nullptr,
+	&NewStructOps,
+	"RenegadeBuildingEvaSoundSet",
+	UHT_STATICS::PropPointers,
+	UE_ARRAY_COUNT(UHT_STATICS::PropPointers),
+	DataSizeOf<FRenegadeBuildingEvaSoundSet>(),
+	alignof(FRenegadeBuildingEvaSoundSet),
+	RF_Public|RF_Transient|RF_MarkAsNative,
+	EStructFlags(0x00000201),
+	METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)
+};
+static FStructRegistrationInfo Z_Registration_Info_UScriptStruct_FRenegadeBuildingEvaSoundSet;
+UScriptStruct* Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet(ETypeConstructPhase Phase)
+{
+	if (Phase == ETypeConstructPhase::Outer)
+	{
+		if (!Z_Registration_Info_UScriptStruct_FRenegadeBuildingEvaSoundSet.OuterSingleton)
+		{
+			Z_Registration_Info_UScriptStruct_FRenegadeBuildingEvaSoundSet.OuterSingleton = GetStaticStruct(Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet, (UObject*)Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase::Outer), TEXT("RenegadeBuildingEvaSoundSet"));
+		}
+		return Z_Registration_Info_UScriptStruct_FRenegadeBuildingEvaSoundSet.OuterSingleton;
+	}
+	if (!Z_Registration_Info_UScriptStruct_FRenegadeBuildingEvaSoundSet.InnerSingleton)
+	{
+		UECodeGen_Private::ConstructUScriptStruct(Z_Registration_Info_UScriptStruct_FRenegadeBuildingEvaSoundSet.InnerSingleton, UHT_STATICS::StructParams);
+	}
+	return CastChecked<UScriptStruct>(Z_Registration_Info_UScriptStruct_FRenegadeBuildingEvaSoundSet.InnerSingleton);
+}
+#undef UHT_STATICS
+// ********** End ScriptStruct FRenegadeBuildingEvaSoundSet ****************************************
+
 // ********** Begin ScriptStruct FRenegadeBuildingAudioSettings ************************************
 #ifdef UHT_STATICS
 #error UHT_STATICS already defined
@@ -706,12 +854,33 @@ struct UHT_STATICS
 		{ "BlueprintType", "true" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
 	};
-	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_UnderAttackSound_MetaData[] = {
-		{ "Category", "Building Audio|Under Attack" },
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bUseTeamAwareEvaSounds_MetaData[] = {
+		{ "Category", "Building EVA" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Selects GDI EVA or Nod EVA and friendly/enemy wording independently on every listening client. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Selects GDI EVA or Nod EVA and friendly/enemy wording independently on every listening client." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_UnderAttackEvaSounds_MetaData[] = {
+		{ "Category", "Building EVA|Under Attack" },
+		{ "EditCondition", "bUseTeamAwareEvaSounds" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_UnderAttackSound_MetaData[] = {
+		{ "Category", "Building EVA|Under Attack" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Backward-compatible fallback when no matching team-aware under-attack sound is assigned. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Backward-compatible fallback when no matching team-aware under-attack sound is assigned." },
+#endif
+	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_UnderAttackCooldownSeconds_MetaData[] = {
-		{ "Category", "Building Audio|Under Attack" },
+		{ "Category", "Building EVA|Under Attack" },
 		{ "ClampMin", "0.0" },
 #if !UE_BUILD_SHIPPING
 		{ "Comment", "/** Per-building cooldown before this building asks to play another alert. A world-wide lock still prevents overlap between buildings. */" },
@@ -722,55 +891,132 @@ struct UHT_STATICS
 #endif
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_UnderAttackVolumeMultiplier_MetaData[] = {
-		{ "Category", "Building Audio|Under Attack" },
+		{ "Category", "Building EVA|Under Attack" },
 		{ "ClampMin", "0.0" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_UnderAttackPitchMultiplier_MetaData[] = {
-		{ "Category", "Building Audio|Under Attack" },
+		{ "Category", "Building EVA|Under Attack" },
 		{ "ClampMin", "0.01" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GlobalUnderAttackQuietTimeSeconds_MetaData[] = {
-		{ "Category", "Building Audio|Under Attack" },
+		{ "Category", "Building EVA|Under Attack" },
 		{ "ClampMin", "0.0" },
 #if !UE_BUILD_SHIPPING
-		{ "Comment", "/** Additional quiet time after the global under-attack audio finishes before another building may announce. */" },
+		{ "Comment", "/** Additional quiet time after an under-attack announcement finishes. */" },
 #endif
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
 #if !UE_BUILD_SHIPPING
-		{ "ToolTip", "Additional quiet time after the global under-attack audio finishes before another building may announce." },
+		{ "ToolTip", "Additional quiet time after an under-attack announcement finishes." },
 #endif
 	};
-	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_UnderAttackAttenuation_MetaData[] = {
-		{ "Category", "Building Audio|Under Attack" },
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_LowHealthEvaSounds_MetaData[] = {
+		{ "Category", "Building EVA|Low Health" },
+		{ "EditCondition", "bUseTeamAwareEvaSounds" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
 	};
-	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_UnderAttackConcurrency_MetaData[] = {
-		{ "Category", "Building Audio|Under Attack" },
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_LowHealthWarningSound_MetaData[] = {
+		{ "Category", "Building EVA|Low Health" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Backward-compatible fallback for the imminent-destruction warning. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Backward-compatible fallback for the imminent-destruction warning." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_LowHealthWarningVolumeMultiplier_MetaData[] = {
+		{ "Category", "Building EVA|Low Health" },
+		{ "ClampMin", "0.0" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_LowHealthWarningPitchMultiplier_MetaData[] = {
+		{ "Category", "Building EVA|Low Health" },
+		{ "ClampMin", "0.01" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GlobalLowHealthQuietTimeSeconds_MetaData[] = {
+		{ "Category", "Building EVA|Low Health" },
+		{ "ClampMin", "0.0" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_DestroyedEvaSounds_MetaData[] = {
+		{ "Category", "Building EVA|Destroyed" },
+		{ "EditCondition", "bUseTeamAwareEvaSounds" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_DestroyedSound_MetaData[] = {
-		{ "Category", "Building Audio|Destruction" },
+		{ "Category", "Building EVA|Destroyed" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Backward-compatible fallback when no matching team-aware destroyed sound is assigned. */" },
+#endif
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Backward-compatible fallback when no matching team-aware destroyed sound is assigned." },
+#endif
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_DestroyedSoundVolumeMultiplier_MetaData[] = {
-		{ "Category", "Building Audio|Destruction" },
+		{ "Category", "Building EVA|Destroyed" },
 		{ "ClampMin", "0.0" },
 		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_DestroyedSoundPitchMultiplier_MetaData[] = {
+		{ "Category", "Building EVA|Destroyed" },
+		{ "ClampMin", "0.01" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GlobalDestroyedQuietTimeSeconds_MetaData[] = {
+		{ "Category", "Building EVA|Destroyed" },
+		{ "ClampMin", "0.0" },
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_UnderAttackAttenuation_MetaData[] = {
+		{ "Category", "Building EVA|Playback" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Optional positional attenuation shared by all building EVA announcements. Leave empty for normal announcer-style playback. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Optional positional attenuation shared by all building EVA announcements. Leave empty for normal announcer-style playback." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_UnderAttackConcurrency_MetaData[] = {
+		{ "Category", "Building EVA|Playback" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Optional concurrency shared by all building EVA announcements. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeBuildingCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Optional concurrency shared by all building EVA announcements." },
+#endif
 	};
 #endif // WITH_METADATA
 
 // ********** Begin ScriptStruct FRenegadeBuildingAudioSettings constinit property declarations ****
+	static void NewProp_bUseTeamAwareEvaSounds_SetBit(void* Obj)
+	{
+		((FRenegadeBuildingAudioSettings*)Obj)->bUseTeamAwareEvaSounds = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bUseTeamAwareEvaSounds;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_UnderAttackEvaSounds;
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_UnderAttackSound;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_UnderAttackCooldownSeconds;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_UnderAttackVolumeMultiplier;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_UnderAttackPitchMultiplier;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_GlobalUnderAttackQuietTimeSeconds;
-	static const UECodeGen_Private::FObjectPropertyParams NewProp_UnderAttackAttenuation;
-	static const UECodeGen_Private::FObjectPropertyParams NewProp_UnderAttackConcurrency;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_LowHealthEvaSounds;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_LowHealthWarningSound;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_LowHealthWarningVolumeMultiplier;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_LowHealthWarningPitchMultiplier;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GlobalLowHealthQuietTimeSeconds;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_DestroyedEvaSounds;
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_DestroyedSound;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_DestroyedSoundVolumeMultiplier;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_DestroyedSoundPitchMultiplier;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GlobalDestroyedQuietTimeSeconds;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_UnderAttackAttenuation;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_UnderAttackConcurrency;
 	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
 // ********** End ScriptStruct FRenegadeBuildingAudioSettings constinit property declarations ******
 	static void* NewStructOps()
@@ -781,25 +1027,45 @@ struct UHT_STATICS
 }; // struct UHT_STATICS
 
 // ********** Begin ScriptStruct FRenegadeBuildingAudioSettings Property Definitions ***************
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUseTeamAwareEvaSounds = { "bUseTeamAwareEvaSounds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeBuildingAudioSettings), &UHT_STATICS::NewProp_bUseTeamAwareEvaSounds_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUseTeamAwareEvaSounds_MetaData), NewProp_bUseTeamAwareEvaSounds_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_UnderAttackEvaSounds = { "UnderAttackEvaSounds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, UnderAttackEvaSounds), Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_UnderAttackEvaSounds_MetaData), NewProp_UnderAttackEvaSounds_MetaData) }; // 00ddd99bb5f14f4ec232fd8e3fe82aff626103c0
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_UnderAttackSound = { "UnderAttackSound", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, UnderAttackSound), Z_Construct_UClass_USoundBase, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_UnderAttackSound_MetaData), NewProp_UnderAttackSound_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_UnderAttackCooldownSeconds = { "UnderAttackCooldownSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, UnderAttackCooldownSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_UnderAttackCooldownSeconds_MetaData), NewProp_UnderAttackCooldownSeconds_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_UnderAttackVolumeMultiplier = { "UnderAttackVolumeMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, UnderAttackVolumeMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_UnderAttackVolumeMultiplier_MetaData), NewProp_UnderAttackVolumeMultiplier_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_UnderAttackPitchMultiplier = { "UnderAttackPitchMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, UnderAttackPitchMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_UnderAttackPitchMultiplier_MetaData), NewProp_UnderAttackPitchMultiplier_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GlobalUnderAttackQuietTimeSeconds = { "GlobalUnderAttackQuietTimeSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, GlobalUnderAttackQuietTimeSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GlobalUnderAttackQuietTimeSeconds_MetaData), NewProp_GlobalUnderAttackQuietTimeSeconds_MetaData) };
-const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_UnderAttackAttenuation = { "UnderAttackAttenuation", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, UnderAttackAttenuation), Z_Construct_UClass_USoundAttenuation, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_UnderAttackAttenuation_MetaData), NewProp_UnderAttackAttenuation_MetaData) };
-const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_UnderAttackConcurrency = { "UnderAttackConcurrency", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, UnderAttackConcurrency), Z_Construct_UClass_USoundConcurrency, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_UnderAttackConcurrency_MetaData), NewProp_UnderAttackConcurrency_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_LowHealthEvaSounds = { "LowHealthEvaSounds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, LowHealthEvaSounds), Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LowHealthEvaSounds_MetaData), NewProp_LowHealthEvaSounds_MetaData) }; // 00ddd99bb5f14f4ec232fd8e3fe82aff626103c0
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_LowHealthWarningSound = { "LowHealthWarningSound", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, LowHealthWarningSound), Z_Construct_UClass_USoundBase, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LowHealthWarningSound_MetaData), NewProp_LowHealthWarningSound_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_LowHealthWarningVolumeMultiplier = { "LowHealthWarningVolumeMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, LowHealthWarningVolumeMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LowHealthWarningVolumeMultiplier_MetaData), NewProp_LowHealthWarningVolumeMultiplier_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_LowHealthWarningPitchMultiplier = { "LowHealthWarningPitchMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, LowHealthWarningPitchMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LowHealthWarningPitchMultiplier_MetaData), NewProp_LowHealthWarningPitchMultiplier_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GlobalLowHealthQuietTimeSeconds = { "GlobalLowHealthQuietTimeSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, GlobalLowHealthQuietTimeSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GlobalLowHealthQuietTimeSeconds_MetaData), NewProp_GlobalLowHealthQuietTimeSeconds_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_DestroyedEvaSounds = { "DestroyedEvaSounds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, DestroyedEvaSounds), Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DestroyedEvaSounds_MetaData), NewProp_DestroyedEvaSounds_MetaData) }; // 00ddd99bb5f14f4ec232fd8e3fe82aff626103c0
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_DestroyedSound = { "DestroyedSound", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, DestroyedSound), Z_Construct_UClass_USoundBase, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DestroyedSound_MetaData), NewProp_DestroyedSound_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_DestroyedSoundVolumeMultiplier = { "DestroyedSoundVolumeMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, DestroyedSoundVolumeMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DestroyedSoundVolumeMultiplier_MetaData), NewProp_DestroyedSoundVolumeMultiplier_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_DestroyedSoundPitchMultiplier = { "DestroyedSoundPitchMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, DestroyedSoundPitchMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DestroyedSoundPitchMultiplier_MetaData), NewProp_DestroyedSoundPitchMultiplier_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GlobalDestroyedQuietTimeSeconds = { "GlobalDestroyedQuietTimeSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, GlobalDestroyedQuietTimeSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GlobalDestroyedQuietTimeSeconds_MetaData), NewProp_GlobalDestroyedQuietTimeSeconds_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_UnderAttackAttenuation = { "UnderAttackAttenuation", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, UnderAttackAttenuation), Z_Construct_UClass_USoundAttenuation, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_UnderAttackAttenuation_MetaData), NewProp_UnderAttackAttenuation_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_UnderAttackConcurrency = { "UnderAttackConcurrency", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeBuildingAudioSettings, UnderAttackConcurrency), Z_Construct_UClass_USoundConcurrency, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_UnderAttackConcurrency_MetaData), NewProp_UnderAttackConcurrency_MetaData) };
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bUseTeamAwareEvaSounds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_UnderAttackEvaSounds,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_UnderAttackSound,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_UnderAttackCooldownSeconds,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_UnderAttackVolumeMultiplier,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_UnderAttackPitchMultiplier,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GlobalUnderAttackQuietTimeSeconds,
-	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_UnderAttackAttenuation,
-	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_UnderAttackConcurrency,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LowHealthEvaSounds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LowHealthWarningSound,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LowHealthWarningVolumeMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LowHealthWarningPitchMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GlobalLowHealthQuietTimeSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DestroyedEvaSounds,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DestroyedSound,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DestroyedSoundVolumeMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DestroyedSoundPitchMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GlobalDestroyedQuietTimeSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_UnderAttackAttenuation,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_UnderAttackConcurrency,
 };
 static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
 // ********** End ScriptStruct FRenegadeBuildingAudioSettings Property Definitions *****************
@@ -1686,15 +1952,16 @@ struct UHT_STATICS
 		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeObeliskParticlePreference, TEXT("ERenegadeObeliskParticlePreference"), &ZRIE_ERenegadeObeliskParticlePreference, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 3765564790U) },
 	};
 	static constexpr FStructRegisterCompiledInInfo ScriptStructInfo[] = {
-		{ Z_Construct_UScriptStruct_FRenegadeBuildingHealthSettings, Z_Construct_UScriptStruct_FRenegadeBuildingHealthSettings_Statics::NewStructOps, TEXT("RenegadeBuildingHealthSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeBuildingHealthSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeBuildingHealthSettings), 1347023636U) },
+		{ Z_Construct_UScriptStruct_FRenegadeBuildingHealthSettings, Z_Construct_UScriptStruct_FRenegadeBuildingHealthSettings_Statics::NewStructOps, TEXT("RenegadeBuildingHealthSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeBuildingHealthSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeBuildingHealthSettings), 2057948070U) },
 		{ Z_Construct_UScriptStruct_FRenegadeBuildingTargetSettings, Z_Construct_UScriptStruct_FRenegadeBuildingTargetSettings_Statics::NewStructOps, TEXT("RenegadeBuildingTargetSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeBuildingTargetSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeBuildingTargetSettings), 1622903006U) },
-		{ Z_Construct_UScriptStruct_FRenegadeBuildingAudioSettings, Z_Construct_UScriptStruct_FRenegadeBuildingAudioSettings_Statics::NewStructOps, TEXT("RenegadeBuildingAudioSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeBuildingAudioSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeBuildingAudioSettings), 4145810743U) },
+		{ Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet, Z_Construct_UScriptStruct_FRenegadeBuildingEvaSoundSet_Statics::NewStructOps, TEXT("RenegadeBuildingEvaSoundSet"),&Z_Registration_Info_UScriptStruct_FRenegadeBuildingEvaSoundSet, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeBuildingEvaSoundSet), 14539163U) },
+		{ Z_Construct_UScriptStruct_FRenegadeBuildingAudioSettings, Z_Construct_UScriptStruct_FRenegadeBuildingAudioSettings_Statics::NewStructOps, TEXT("RenegadeBuildingAudioSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeBuildingAudioSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeBuildingAudioSettings), 654657603U) },
 		{ Z_Construct_UScriptStruct_FRenegadeBuildingDefenseTargetingSettings, Z_Construct_UScriptStruct_FRenegadeBuildingDefenseTargetingSettings_Statics::NewStructOps, TEXT("RenegadeBuildingDefenseTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeBuildingDefenseTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeBuildingDefenseTargetingSettings), 3574932244U) },
 		{ Z_Construct_UScriptStruct_FRenegadeAdvancedGuardTowerSettings, Z_Construct_UScriptStruct_FRenegadeAdvancedGuardTowerSettings_Statics::NewStructOps, TEXT("RenegadeAdvancedGuardTowerSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeAdvancedGuardTowerSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeAdvancedGuardTowerSettings), 1601920858U) },
 		{ Z_Construct_UScriptStruct_FRenegadeObeliskSettings, Z_Construct_UScriptStruct_FRenegadeObeliskSettings_Statics::NewStructOps, TEXT("RenegadeObeliskSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeObeliskSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeObeliskSettings), 3580121220U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h__Script_RenegadeSoldierCombat_0de0ba64cf701edb564f6cc9a221e132bf17cd5c{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeBuildingCombatTypes_h__Script_RenegadeSoldierCombat_47fb9ab8d039408352601413d0509bc72154296f{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	nullptr, 0,
 	UHT_STATICS::ScriptStructInfo, UE_ARRAY_COUNT(UHT_STATICS::ScriptStructInfo),
