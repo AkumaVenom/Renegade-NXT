@@ -128,13 +128,32 @@ The actor is not destroyed.
 
 Inside `Health And Respawn`, choose:
 
-- `Original Actor Transform`: return to where the soldier was originally placed/spawned.
+- `Original Actor Transform`: return to where the actor was originally placed/spawned.
 - `Random Matching Team Spawn Point`: place `Renegade Soldier Spawn Point` actors in the map and assign matching `GDI` or `Nod` Team Id values.
-- `Custom Transform`: use the transform stored directly in the component settings.
+- `Custom Transform`: use one transform stored directly in the component settings.
+- `Custom Transform List`: choose First, Random, or Sequential from `Custom Respawn Transforms`.
+- `Actor With Respawn Tag`: respawn at a level actor carrying `Respawn Actor Tag` (default `PlayerRespawn`).
+- `Runtime Transform Override`: use a transform supplied by the server through `Set Runtime Respawn Transform`.
 
-Higher-priority matching spawn points are selected before lower-priority points. Equal-priority points are selected randomly.
+Higher-priority matching team spawn points are selected before lower-priority points. `Respawn Vertical Offset` lifts the capsule after location selection, and `Apply Respawn Rotation To Controller` aligns a player's view with the spawn rotation.
 
-## 9. Multiplayer
+## 9. Player-controlled combat
+
+For the player Character Blueprint:
+
+1. Enable `Player Controlled Combat`.
+2. Keep `Register As Combat Target` enabled so enemy AI can attack the player.
+3. Configure `Inline Player Automatic Rifle Settings` and `Inline Player Pistol Settings`, or assign two Player Weapon Profiles.
+4. Connect Enhanced Input:
+   - Rifle Started -> `Player Start Automatic Rifle Fire`
+   - Rifle Completed/Canceled -> `Player Stop Automatic Rifle Fire`
+   - Pistol Started -> `Player Fire Pistol`
+   - Reload Started -> `Player Reload`
+5. Assign the same muzzle Scene Component used by the bullet visual. Player mode uses it for the close-cover obstruction trace and bullet visual origin.
+
+See `Player_Combat.md` for networking, HUD events, weapon switching, and all respawn modes.
+
+## 10. Multiplayer
 
 Place and possess soldiers on the server as normal. Target selection, movement decisions, firing, damage, death, and respawn are server authoritative. Shot/reload/ragdoll/respawn cosmetic events are multicast so Blueprint effects can run on clients.
 

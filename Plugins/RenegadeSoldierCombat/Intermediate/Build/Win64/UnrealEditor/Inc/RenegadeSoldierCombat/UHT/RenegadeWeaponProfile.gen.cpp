@@ -61,7 +61,7 @@ struct UHT_STATICS
 
 // ********** Begin Class URenegadeWeaponProfile Property Definitions ******************************
 const UECodeGen_Private::FTextPropertyParams UHT_STATICS::NewProp_DisplayName = { "DisplayName", nullptr, (EPropertyFlags)0x0010000000000015, UECodeGen_Private::EPropertyGenFlags::Text, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeWeaponProfile, DisplayName), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DisplayName_MetaData), NewProp_DisplayName_MetaData) };
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_Settings = { "Settings", nullptr, (EPropertyFlags)0x0010000000000015, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeWeaponProfile, Settings), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_Settings_MetaData), NewProp_Settings_MetaData) }; // 19c59a16e3906ca9d4dd253b4d50fb218db2f74a
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_Settings = { "Settings", nullptr, (EPropertyFlags)0x0010000000000015, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeWeaponProfile, Settings), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_Settings_MetaData), NewProp_Settings_MetaData) }; // b91f7b15a362e3bc7250f20a0a118b3219e06b08
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DisplayName,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_Settings,
@@ -135,10 +135,10 @@ URenegadeWeaponProfile::~URenegadeWeaponProfile() {}
 struct UHT_STATICS
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
-		{ Z_Construct_UClass_URenegadeWeaponProfile, TEXT("URenegadeWeaponProfile"), &Z_Registration_Info_UClass_URenegadeWeaponProfile, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeWeaponProfile), 2938691085U) },
+		{ Z_Construct_UClass_URenegadeWeaponProfile, TEXT("URenegadeWeaponProfile"), &Z_Registration_Info_UClass_URenegadeWeaponProfile, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeWeaponProfile), 3644520849U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeWeaponProfile_h__Script_RenegadeSoldierCombat_8906e59fc479b52e8dd1b5e7cc9586b915b96d20{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeWeaponProfile_h__Script_RenegadeSoldierCombat_83830f656ca93abba39ba7b43f80413b1bebc87f{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	UHT_STATICS::ClassInfo, UE_ARRAY_COUNT(UHT_STATICS::ClassInfo),
 	nullptr, 0,

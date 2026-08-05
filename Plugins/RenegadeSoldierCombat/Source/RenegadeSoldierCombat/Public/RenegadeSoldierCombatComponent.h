@@ -11,9 +11,12 @@ class AActor;
 class AAIController;
 class ACharacter;
 class AController;
+class APlayerController;
+class APlayerCameraManager;
 class ARenegadeSoldierSpawnPoint;
 class UCapsuleComponent;
 class UCharacterMovementComponent;
+class UCameraComponent;
 class URenegadeWeaponProfile;
 class USceneComponent;
 class USkeletalMeshComponent;
@@ -34,6 +37,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadeCombatMoveSignature, FVect
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeSplinePauseSignature, AActor*, CombatTarget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeSplineResumeSignature, FVector, ResumeFromLocation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FRenegadeGroundBloodSpawnedSignature, UDecalComponent*, DecalComponent, const FHitResult&, BulletHit, const FHitResult&, GroundHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadePlayerWeaponChangedSignature, ERenegadePlayerWeaponSlot, PreviousWeapon, ERenegadePlayerWeaponSlot, NewWeapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FRenegadePlayerAmmoChangedSignature, ERenegadePlayerWeaponSlot, WeaponSlot, int32, PreviousAmmo, int32, NewAmmo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadePlayerAimChangedSignature, bool, bIsAiming);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeRespawnTransformSelectedSignature, FTransform, RespawnTransform);
 
 struct FRenegadeBulletVisualRuntimeState
 {
@@ -68,6 +75,46 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Combat")
     bool bAutoCombatEnabled = true;
+
+
+    /** Enables player/manual combat. Automatic target acquisition, AI firing and AI combat movement are disabled for this component. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category="Renegade NXT|Player Combat")
+    bool bPlayerControlledCombat = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat")
+    FRenegadePlayerCombatSettings PlayerCombat;
+
+    /** Optional built-in keyboard/mouse and gamepad bindings. No Input Action assets are required when enabled. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Built-In Input")
+    FRenegadePlayerInputSettings PlayerInput;
+
+    /** Camera-facing body rotation and camera zoom applied while Player Aiming is active. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Aiming")
+    FRenegadePlayerAimPresentationSettings PlayerAimPresentation;
+
+    /** Optional exact Camera Component to zoom. The plugin auto-finds an active player camera when this is unassigned. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Aiming|Camera", meta=(UseComponentPicker, AllowedClasses="/Script/Engine.CameraComponent"))
+    FComponentReference PlayerAimCameraComponent;
+
+    /** Optional tag fallback for finding the Camera Component used by aim zoom. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Aiming|Camera")
+    FName PlayerAimCameraComponentTag = NAME_None;
+
+    /** Use separate rifle and pistol weapon profiles for player combat. When disabled, the inline settings below are used. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Weapons")
+    bool bUsePlayerWeaponProfiles = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Weapons", meta=(EditCondition="bUsePlayerWeaponProfiles"))
+    TObjectPtr<URenegadeWeaponProfile> PlayerAutomaticRifleProfile;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Weapons", meta=(EditCondition="bUsePlayerWeaponProfiles"))
+    TObjectPtr<URenegadeWeaponProfile> PlayerPistolProfile;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Weapons", meta=(EditCondition="!bUsePlayerWeaponProfiles"))
+    FRenegadeWeaponSettings InlinePlayerAutomaticRifleSettings;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Weapons", meta=(EditCondition="!bUsePlayerWeaponProfiles"))
+    FRenegadeWeaponSettings InlinePlayerPistolSettings;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Combat")
     bool bRegisterAsCombatTarget = true;
@@ -132,6 +179,19 @@ public:
     UPROPERTY(BlueprintReadOnly, Replicated, Category="Renegade NXT|Runtime")
     int32 CurrentMagazineAmmo = 0;
 
+
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_ActivePlayerWeapon, Category="Renegade NXT|Player Combat|Runtime")
+    ERenegadePlayerWeaponSlot ActivePlayerWeapon = ERenegadePlayerWeaponSlot::AutomaticRifle;
+
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_AutomaticRifleAmmo, Category="Renegade NXT|Player Combat|Runtime")
+    int32 CurrentAutomaticRifleAmmo = 0;
+
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_PistolAmmo, Category="Renegade NXT|Player Combat|Runtime")
+    int32 CurrentPistolAmmo = 0;
+
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_PlayerAiming, Category="Renegade NXT|Player Combat|Runtime")
+    bool bIsPlayerAiming = false;
+
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Events")
     FRenegadeTargetChangedSignature OnTargetChanged;
 
@@ -165,6 +225,19 @@ public:
     /** Fired after an automatic ground-blood effect is placed. DecalComponent can be null when only an effect actor is configured. */
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Events")
     FRenegadeGroundBloodSpawnedSignature OnGroundBloodSpawned;
+
+
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Player Combat|Events")
+    FRenegadePlayerWeaponChangedSignature OnPlayerWeaponChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Player Combat|Events")
+    FRenegadePlayerAmmoChangedSignature OnPlayerAmmoChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Player Combat|Events")
+    FRenegadePlayerAimChangedSignature OnPlayerAimChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Respawn|Events")
+    FRenegadeRespawnTransformSelectedSignature OnRespawnTransformSelected;
 
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Events")
     FRenegadeCombatMoveSignature OnCombatMoveRequested;
@@ -209,6 +282,100 @@ public:
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Combat")
     bool IsInCombat() const { return IsValid(CurrentTarget) && !bIsDead; }
 
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat")
+    bool IsPlayerControlledCombatant() const { return bPlayerControlledCombat; }
+
+    /** Connect the Enhanced Input Started event for automatic-rifle fire to this node. Do not connect Triggered, because this node owns the RPM timer. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
+    void PlayerStartFire();
+
+    /** Connect Enhanced Input Completed and Canceled for automatic-rifle fire to this node. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
+    void PlayerStopFire();
+
+    /** Fires exactly one shot using the currently selected weapon. Ideal for a pistol Started input. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
+    void PlayerFireOnce();
+
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
+    void PlayerReload();
+
+    /** Convenience input node: selects the automatic rifle and begins held fire. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
+    void PlayerStartAutomaticRifleFire();
+
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
+    void PlayerStopAutomaticRifleFire();
+
+    /** Convenience input node: selects the pistol and fires exactly one round. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
+    void PlayerFirePistol();
+
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Weapons")
+    void SelectPlayerWeapon(ERenegadePlayerWeaponSlot NewWeapon);
+
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Weapons")
+    void SelectPlayerAutomaticRifle();
+
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Weapons")
+    void SelectPlayerPistol();
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Weapons")
+    FRenegadeWeaponSettings GetPlayerWeaponSettings(ERenegadePlayerWeaponSlot WeaponSlot) const;
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Weapons")
+    int32 GetPlayerWeaponAmmo(ERenegadePlayerWeaponSlot WeaponSlot) const;
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Input")
+    bool IsPlayerFireHeld() const { return bLocalPlayerFireHeld; }
+
+    /** Starts or stops the replicated player aim state. Built-in input calls this automatically. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
+    void PlayerSetAiming(bool bNewAiming);
+
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
+    void PlayerStartAiming() { PlayerSetAiming(true); }
+
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
+    void PlayerStopAiming() { PlayerSetAiming(false); }
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Input")
+    bool IsPlayerAiming() const { return bIsPlayerAiming; }
+
+    /** Returns the current local aim transition amount: 0 is hip-fire and 1 is fully aimed. */
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Aiming")
+    float GetPlayerAimAlpha() const { return PlayerAimAlpha; }
+
+    /** Runtime override for the Camera Component used by aim zoom. It must belong to the same owning actor. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Aiming|Camera")
+    void SetPlayerAimCameraComponent(UCameraComponent* NewCameraComponent);
+
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Aiming|Camera")
+    void ClearPlayerAimCameraComponent();
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Aiming|Camera")
+    UCameraComponent* GetPlayerAimCameraComponent() const;
+
+    /** Immediately aligns the Character yaw to the current local camera/controller forward direction. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Aiming")
+    void SnapPlayerCharacterToAimForward();
+
+    /** Immediately restores pre-aim movement flags and camera FOV. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Aiming")
+    void RestorePlayerAimPresentation();
+
+    /** Enables or disables the self-contained FKey input polling at runtime. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Built-In Input")
+    void SetBuiltInPlayerInputEnabled(bool bEnabled);
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Built-In Input")
+    bool IsBuiltInPlayerInputEnabled() const { return PlayerInput.bEnableBuiltInInput; }
+
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Weapon")
+    bool IsReloading() const { return bReloading; }
+
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Health")
     float GetHealthPercent() const;
 
@@ -220,6 +387,26 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Respawn")
     void RespawnNow();
+
+
+    /** Highest-priority runtime respawn transform. Use Respawn Transform Mode = Runtime Transform Override. */
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Respawn")
+    void SetRuntimeRespawnTransform(FTransform NewRespawnTransform);
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Respawn")
+    void ClearRuntimeRespawnTransform();
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Respawn")
+    bool HasRuntimeRespawnTransform() const { return bHasRuntimeRespawnTransform; }
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Respawn")
+    void SetCustomRespawnTransforms(const TArray<FTransform>& NewRespawnTransforms);
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Respawn")
+    void AddCustomRespawnTransform(FTransform NewRespawnTransform);
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Respawn")
+    void ClearCustomRespawnTransforms();
 
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Health")
     void SetInvulnerable(bool bNewInvulnerable);
@@ -288,8 +475,32 @@ protected:
     UFUNCTION()
     void OnRep_CurrentTarget();
 
+    UFUNCTION()
+    void OnRep_ActivePlayerWeapon(ERenegadePlayerWeaponSlot PreviousWeapon);
+
+    UFUNCTION()
+    void OnRep_AutomaticRifleAmmo(int32 PreviousAmmo);
+
+    UFUNCTION()
+    void OnRep_PistolAmmo(int32 PreviousAmmo);
+
+    UFUNCTION()
+    void OnRep_PlayerAiming(bool bPreviousAiming);
+
+    UFUNCTION(Server, Unreliable)
+    void ServerRequestPlayerShot(FVector_NetQuantize ClientViewLocation, FVector_NetQuantizeNormal ClientViewDirection, ERenegadePlayerWeaponSlot RequestedWeapon, bool bClientAiming);
+
+    UFUNCTION(Server, Reliable)
+    void ServerSetPlayerAiming(bool bNewAiming);
+
+    UFUNCTION(Server, Reliable)
+    void ServerRequestPlayerReload(ERenegadePlayerWeaponSlot RequestedWeapon);
+
+    UFUNCTION(Server, Reliable)
+    void ServerSelectPlayerWeapon(ERenegadePlayerWeaponSlot NewWeapon);
+
     UFUNCTION(NetMulticast, Unreliable)
-    void MulticastShotFired(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult, bool bSpawnGroundBloodForHit);
+    void MulticastShotFired(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult, bool bSpawnGroundBloodForHit, bool bDamagedCombatTarget);
 
     UFUNCTION(NetMulticast, Reliable)
     void MulticastReloadStarted();
@@ -323,6 +534,35 @@ private:
 
     void ScheduleNextShot(float DelaySeconds);
     void TryFireShot();
+    void SubmitLocalPlayerShot();
+    bool ResolveLocalPlayerView(FVector& OutViewLocation, FVector& OutViewDirection) const;
+    void PerformPlayerShotServer(const FVector& ClientViewLocation, const FVector& ClientViewDirection, ERenegadePlayerWeaponSlot RequestedWeapon, bool bClientAiming);
+    void SetPlayerAimingInternal(bool bNewAiming);
+    void HandlePlayerAimStateChanged(bool bPreviousAiming);
+    void UpdatePlayerAimPresentation(float DeltaTime);
+    void ApplyPlayerAimRotationMode();
+    void RestorePlayerAimRotationMode();
+    void RotatePlayerCharacterToAimForward(float DeltaTime, bool bInstant);
+    void UpdatePlayerAimCameraZoom(float DeltaTime, bool bInstant);
+    void RestorePlayerAimCameraZoom(bool bInstant);
+    UCameraComponent* ResolvePlayerAimCameraComponent() const;
+    APlayerCameraManager* ResolveLocalPlayerCameraManager() const;
+    bool HasPlayerAimPresentationWork() const;
+    void ResetPlayerAimCameraCapture();
+    void UpdateBuiltInPlayerInput(float DeltaTime);
+    void ResetBuiltInPlayerInputState(bool bClearAimState);
+    bool IsBuiltInInputKeyDown(APlayerController* PlayerController, const FKey& Key) const;
+    float GetBuiltInInputAxis(APlayerController* PlayerController, const FKey& Key) const;
+    float ApplyGamepadDeadZone(float Value) const;
+    bool ExecuteWeaponShot(const FRenegadeWeaponSettings& Weapon, const FVector& TraceStart, const FVector& BaseShotDirection, bool bUseMuzzleObstructionTrace);
+    void SetPlayerWeaponInternal(ERenegadePlayerWeaponSlot NewWeapon);
+    void PauseLocalPlayerFireTimer();
+    void StopLocalPlayerFireTimer();
+    bool IsLocallyControlledPlayer() const;
+    int32& GetMutablePlayerAmmo(ERenegadePlayerWeaponSlot WeaponSlot);
+    void SetPlayerAmmo(ERenegadePlayerWeaponSlot WeaponSlot, int32 NewAmmo);
+    void SyncCurrentMagazineFromPlayerWeapon();
+    void InitializePlayerWeaponAmmo(bool bForceRefill);
     void StartReload();
     void FinishReload();
     float CalculateDamageForHit(const FRenegadeWeaponSettings& Weapon, const FHitResult& Hit, float Distance) const;
@@ -352,7 +592,9 @@ private:
     void BeginDeath(AController* InstigatedBy, AActor* DamageCauser);
     void BeginRagdollVisuals(const FVector& Impulse, FName HitBone);
     void EndRagdollVisuals(const FTransform& RespawnTransform);
-    FTransform ResolveRespawnTransform() const;
+    FTransform ResolveRespawnTransform();
+    FTransform SelectTransformFromList(const TArray<FTransform>& Transforms, ERenegadeRespawnLocationSelection SelectionMode, int32& InOutSequentialIndex) const;
+    AActor* SelectTaggedRespawnActor() const;
     ARenegadeSoldierSpawnPoint* SelectTeamSpawnPoint() const;
     void EndRespawnInvulnerability();
 
@@ -375,6 +617,18 @@ private:
     UPROPERTY(Transient)
     TObjectPtr<USceneComponent> RuntimeBulletVisualSpawnComponent;
 
+    /** Optional runtime Blueprint override for the local aim-zoom camera. */
+    UPROPERTY(Transient)
+    TObjectPtr<UCameraComponent> RuntimePlayerAimCameraComponent;
+
+    TWeakObjectPtr<UCameraComponent> CapturedPlayerAimCameraComponent;
+    TWeakObjectPtr<APlayerCameraManager> CapturedPlayerAimCameraManager;
+
+    FTransform RuntimeRespawnTransform;
+    bool bHasRuntimeRespawnTransform = false;
+    int32 CustomRespawnSequentialIndex = 0;
+    mutable int32 TaggedRespawnSequentialIndex = 0;
+
     /** Per-soldier component pool; normally only one or two entries are active at a time. */
     UPROPERTY(Transient)
     TArray<TObjectPtr<UStaticMeshComponent>> BulletVisualComponents;
@@ -384,6 +638,7 @@ private:
     FTimerHandle TargetRefreshTimer;
     FTimerHandle CombatMovementTimer;
     FTimerHandle FireTimer;
+    FTimerHandle LocalPlayerFireTimer;
     FTimerHandle ReloadTimer;
     FTimerHandle RespawnTimer;
     FTimerHandle InvulnerabilityTimer;
@@ -403,6 +658,13 @@ private:
     bool bOriginalOrientRotationToMovement = true;
     bool bOriginalUseControllerDesiredRotation = false;
     bool bOriginalUseControllerRotationYaw = false;
+    float OriginalPlayerAimCameraFOV = 90.0f;
+    float OriginalPlayerCameraManagerFOV = 90.0f;
+    float PlayerAimAlpha = 0.0f;
+    bool bPlayerAimRotationModeApplied = false;
+    bool bOriginalPlayerAimCameraFOVCaptured = false;
+    bool bOriginalPlayerCameraManagerFOVCaptured = false;
+    bool bPlayerCameraManagerFOVLockedByPlugin = false;
 
     FHitResult PendingIncomingHit;
     FVector PendingIncomingShotDirection = FVector::ZeroVector;
@@ -410,6 +672,7 @@ private:
 
     float LastTargetSeenTime = -BIG_NUMBER;
     float LastGroundBloodTime = -BIG_NUMBER;
+    double NextAllowedPlayerShotServerTime = -BIG_NUMBER;
     FVector LastKnownTargetLocation = FVector::ZeroVector;
     int32 BurstShotsRemaining = 0;
     int32 StrafeDirection = 1;
@@ -419,5 +682,11 @@ private:
     bool bCombatFacingModeApplied = false;
     bool bVisualRagdollActive = false;
     bool bLocalAutoCombatStarted = false;
+    bool bLocalPlayerFireHeld = false;
+    bool bBuiltInFireCommandActive = false;
+    bool bPreviousBuiltInAimDown = false;
+    bool bPreviousBuiltInReloadDown = false;
+    bool bPreviousBuiltInSelectRifleDown = false;
+    bool bPreviousBuiltInSelectPistolDown = false;
     TWeakObjectPtr<AActor> LastLocallyNotifiedTarget;
 };

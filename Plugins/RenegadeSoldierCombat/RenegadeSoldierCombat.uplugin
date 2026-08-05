@@ -1,9 +1,9 @@
 {
   "FileVersion": 3,
-  "Version": 121,
-  "VersionName": "1.2.1",
+  "Version": 134,
+  "VersionName": "1.3.4",
   "FriendlyName": "Renegade NXT Soldier Combat",
-  "Description": "Blueprint-first automatic NPC soldier combat, team targeting, target-facing combat movement, pooled bullet-mesh visuals with selectable Scene Component origins, ground blood effects, ragdoll death and same-actor respawning for Unreal Engine 5.8.",
+  "Description": "Blueprint-first AI and player infantry combat with always-editable player input and aiming configuration, repaired hit resolution, authoritative shot debug lines, keyboard/mouse/gamepad controls, polished aiming and FOV zoom, bullet visuals, ground blood, ragdoll death, and custom same-actor respawning for Unreal Engine 5.8.",
   "Category": "AI",
   "CreatedBy": "Renegade NXT",
   "CreatedByURL": "",

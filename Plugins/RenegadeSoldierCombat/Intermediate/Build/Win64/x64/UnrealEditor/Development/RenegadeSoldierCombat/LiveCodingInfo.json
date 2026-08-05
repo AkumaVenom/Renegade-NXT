@@ -13,9 +13,9 @@
 			"PerModuleInline.gen.cpp.obj",
 			"RenegadeCombatBlueprintLibrary.cpp.obj",
 			"RenegadeCombatRegistrySubsystem.cpp.obj",
-			"RenegadeSoldierCombatComponent.cpp.obj",
 			"RenegadeSoldierCombatModule.cpp.obj",
-			"RenegadeSoldierSpawnPoint.cpp.obj"
+			"RenegadeSoldierSpawnPoint.cpp.obj",
+			"RenegadeSoldierCombatComponent.cpp.obj"
 		]
 	}
 }

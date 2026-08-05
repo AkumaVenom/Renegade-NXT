@@ -1,12 +1,18 @@
-# Renegade NXT Soldier Combat — UE 5.8
+# Renegade NXT Soldier Combat
 
-**Plugin version: 1.2.1**
+**Current version: 1.3.4** — UE 5.8
 
-A Blueprint-first runtime plugin for automatic GDI/Nod NPC infantry combat.
+**Plugin version: 1.3.2**
+
+A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat and manual player rifle/pistol combat.
 
 ## Main features
 
 - One reusable Actor Component works on multiple Character Blueprint classes.
+- Exposed `Player Controlled Combat` mode disables automatic AI decisions while preserving teams, health, damage, visuals, ragdoll, and respawn.
+- Blueprint input nodes for held automatic-rifle fire, single-shot pistol fire, reload, and weapon selection.
+- Separate player rifle/pistol profiles, magazines, replicated active weapon, ammo values, and UI events.
+- Polished player aiming with camera-facing Character yaw, smooth FOV zoom, aim-state events/alpha, and server-validated muzzle-obstruction tracing.
 - Team-aware automatic target acquisition using a world combatant registry.
 - Automatic rifle, pistol, or custom weapon profiles.
 - Server-authoritative hitscan fire, point damage, range falloff, critical bones, bursts, magazines, and reloads.
@@ -18,8 +24,26 @@ A Blueprint-first runtime plugin for automatic GDI/Nod NPC infantry combat.
 - Clean pause/resume bridge for the Renegade NXT spline navigation plugin.
 - Automatic ragdoll on death with hit-direction impulse.
 - Same-actor respawning: the soldier is never destroyed by this plugin.
-- Original-transform, custom-transform, or team spawn-point respawning.
+- Original, team spawn-point, custom transform, custom transform list, tagged actor, and runtime-override respawning.
 - Replicated health, target, team, ammo, death state, ragdoll/respawn RPCs, and shot cosmetic RPCs.
+
+
+## Player combat (v1.3.2)
+
+> **v1.3.4 editor fix:** Player Input, gamepad sensitivity, aiming, and camera values remain editable even while `Player Controlled Combat` is unticked. The Boolean controls runtime activation only.
+
+Enable `Player Controlled Combat` on the player Character's combat component. Keep `Register As Combat Target` enabled so enemy AI can attack the player.
+
+Recommended Enhanced Input connections:
+
+- Rifle Started -> `Player Start Automatic Rifle Fire`
+- Rifle Completed/Canceled -> `Player Stop Automatic Rifle Fire`
+- Pistol Started -> `Player Fire Pistol`
+- Reload Started -> `Player Reload`
+
+The client submits its current view ray, but the server validates aim, fire cadence, ammo, and weapon state before tracing and applying damage. A second trace from the selected muzzle Scene Component to the camera aim point prevents shooting through nearby cover. Bullet mesh and ground blood effects use the same established visual pipeline.
+
+See `Docs/Player_Combat.md` for the full setup, weapon-switch events, HUD values, multiplayer behaviour, and custom respawn modes.
 
 ## Bullet mesh and ground blood (v1.2.1)
 
@@ -85,4 +109,10 @@ Version 1.1.3 replaces direct access to private skeletal-mesh animation flags wi
 5. Set **Bullet Visual Spawn Component** to `BulletSpawn`.
 6. Use **Bullet Visual Spawn Relative Offset** for final local-space alignment.
 
-At runtime, Blueprints can instead call **Set Bullet Visual Spawn Component** and pass any Scene Component owned by that same soldier. The selected component affects only the visible bullet mesh; the authoritative hitscan and damage logic remain unchanged.
+At runtime, Blueprints can instead call **Set Bullet Visual Spawn Component** and pass any Scene Component owned by that same soldier. The selected component remains the visible bullet origin. In player mode it is also used as the server-authoritative muzzle-obstruction trace origin so close cover blocks the shot correctly.
+
+
+### Built-in player controls and polished aiming (v1.3.2)
+Player characters can fire, aim, reload, select rifle/pistol and control camera look through exposed keyboard/mouse and gamepad FKey settings without creating Input Action assets. Aim now performs actual presentation work: the Character faces the camera/controller yaw, orient-to-movement is temporarily disabled, the selected Camera Component smoothly zooms to `Aimed Field Of View`, and all original movement/FOV values are restored on release, death, respawn, or shutdown.
+
+Assign `Player Aim Camera Component` to the exact player camera when the Character owns several cameras. If unassigned, the plugin prefers an active Camera Component and can fall back to PlayerCameraManager. Disable the built-in input path when using an existing Enhanced Input graph; the public `Player Start Aiming`, `Player Stop Aiming`, and `Player Set Aiming` nodes use the same polished presentation path.

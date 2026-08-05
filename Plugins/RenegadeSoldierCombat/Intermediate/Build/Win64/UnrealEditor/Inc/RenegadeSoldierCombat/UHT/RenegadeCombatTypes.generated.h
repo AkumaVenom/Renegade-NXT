@@ -22,7 +22,7 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 struct Z_Construct_UScriptStruct_FRenegadeWeaponSettings_Statics;
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeWeaponSettings(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_42_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_61_GENERATED_BODY \
 	friend struct ::Z_Construct_UScriptStruct_FRenegadeWeaponSettings_Statics; \
 	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadeWeaponSettings(ETypeConstructPhase::Inner); }
 
@@ -34,7 +34,7 @@ struct FRenegadeWeaponSettings;
 struct Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics;
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeTargetingSettings(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_114_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_141_GENERATED_BODY \
 	friend struct ::Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics; \
 	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadeTargetingSettings(ETypeConstructPhase::Inner); }
 
@@ -46,7 +46,7 @@ struct FRenegadeTargetingSettings;
 struct Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings_Statics;
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_141_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_168_GENERATED_BODY \
 	friend struct ::Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings_Statics; \
 	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings(ETypeConstructPhase::Inner); }
 
@@ -54,11 +54,47 @@ RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeComb
 struct FRenegadeCombatMovementSettings;
 // ********** End ScriptStruct FRenegadeCombatMovementSettings *************************************
 
+// ********** Begin ScriptStruct FRenegadePlayerCombatSettings *************************************
+struct Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings_Statics;
+RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings(ETypeConstructPhase);
+
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_211_GENERATED_BODY \
+	friend struct ::Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings_Statics; \
+	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings(ETypeConstructPhase::Inner); }
+
+
+struct FRenegadePlayerCombatSettings;
+// ********** End ScriptStruct FRenegadePlayerCombatSettings ***************************************
+
+// ********** Begin ScriptStruct FRenegadePlayerAimPresentationSettings ****************************
+struct Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings_Statics;
+RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings(ETypeConstructPhase);
+
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_262_GENERATED_BODY \
+	friend struct ::Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings_Statics; \
+	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings(ETypeConstructPhase::Inner); }
+
+
+struct FRenegadePlayerAimPresentationSettings;
+// ********** End ScriptStruct FRenegadePlayerAimPresentationSettings ******************************
+
+// ********** Begin ScriptStruct FRenegadePlayerInputSettings **************************************
+struct Z_Construct_UScriptStruct_FRenegadePlayerInputSettings_Statics;
+RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerInputSettings(ETypeConstructPhase);
+
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_325_GENERATED_BODY \
+	friend struct ::Z_Construct_UScriptStruct_FRenegadePlayerInputSettings_Statics; \
+	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadePlayerInputSettings(ETypeConstructPhase::Inner); }
+
+
+struct FRenegadePlayerInputSettings;
+// ********** End ScriptStruct FRenegadePlayerInputSettings ****************************************
+
 // ********** Begin ScriptStruct FRenegadeCombatVisualSettings *************************************
 struct Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings_Statics;
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_184_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_431_GENERATED_BODY \
 	friend struct ::Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings_Statics; \
 	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings(ETypeConstructPhase::Inner); }
 
@@ -70,7 +106,7 @@ struct FRenegadeCombatVisualSettings;
 struct Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics;
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_284_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h_558_GENERATED_BODY \
 	friend struct ::Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics; \
 	UE_NODEBUG static UScriptStruct* StaticStruct() { return Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings(ETypeConstructPhase::Inner); }
 
@@ -92,6 +128,16 @@ template<> struct TIsUEnumClass<ERenegadeWeaponClass> { enum { Value = true }; }
 template<> UE_NODEBUG RENEGADESOLDIERCOMBAT_NON_ATTRIBUTED_API UEnum* StaticEnum<ERenegadeWeaponClass>();
 // ********** End Enum ERenegadeWeaponClass ********************************************************
 
+// ********** Begin Enum ERenegadePlayerWeaponSlot *************************************************
+#define FOREACH_ENUM_ERENEGADEPLAYERWEAPONSLOT(op) \
+	op(ERenegadePlayerWeaponSlot::AutomaticRifle) \
+	op(ERenegadePlayerWeaponSlot::Pistol) 
+
+enum class ERenegadePlayerWeaponSlot : uint8;
+template<> struct TIsUEnumClass<ERenegadePlayerWeaponSlot> { enum { Value = true }; };
+template<> UE_NODEBUG RENEGADESOLDIERCOMBAT_NON_ATTRIBUTED_API UEnum* StaticEnum<ERenegadePlayerWeaponSlot>();
+// ********** End Enum ERenegadePlayerWeaponSlot ***************************************************
+
 // ********** Begin Enum ERenegadeCombatMoveType ***************************************************
 #define FOREACH_ENUM_ERENEGADECOMBATMOVETYPE(op) \
 	op(ERenegadeCombatMoveType::Hold) \
@@ -110,11 +156,25 @@ template<> UE_NODEBUG RENEGADESOLDIERCOMBAT_NON_ATTRIBUTED_API UEnum* StaticEnum
 #define FOREACH_ENUM_ERENEGADERESPAWNTRANSFORMMODE(op) \
 	op(ERenegadeRespawnTransformMode::OriginalTransform) \
 	op(ERenegadeRespawnTransformMode::MatchingTeamSpawnPoint) \
-	op(ERenegadeRespawnTransformMode::CustomTransform) 
+	op(ERenegadeRespawnTransformMode::CustomTransform) \
+	op(ERenegadeRespawnTransformMode::CustomTransformList) \
+	op(ERenegadeRespawnTransformMode::TaggedActor) \
+	op(ERenegadeRespawnTransformMode::RuntimeOverride) 
 
 enum class ERenegadeRespawnTransformMode : uint8;
 template<> struct TIsUEnumClass<ERenegadeRespawnTransformMode> { enum { Value = true }; };
 template<> UE_NODEBUG RENEGADESOLDIERCOMBAT_NON_ATTRIBUTED_API UEnum* StaticEnum<ERenegadeRespawnTransformMode>();
 // ********** End Enum ERenegadeRespawnTransformMode ***********************************************
+
+// ********** Begin Enum ERenegadeRespawnLocationSelection *****************************************
+#define FOREACH_ENUM_ERENEGADERESPAWNLOCATIONSELECTION(op) \
+	op(ERenegadeRespawnLocationSelection::First) \
+	op(ERenegadeRespawnLocationSelection::Random) \
+	op(ERenegadeRespawnLocationSelection::Sequential) 
+
+enum class ERenegadeRespawnLocationSelection : uint8;
+template<> struct TIsUEnumClass<ERenegadeRespawnLocationSelection> { enum { Value = true }; };
+template<> UE_NODEBUG RENEGADESOLDIERCOMBAT_NON_ATTRIBUTED_API UEnum* StaticEnum<ERenegadeRespawnLocationSelection>();
+// ********** End Enum ERenegadeRespawnLocationSelection *******************************************
 
 PRAGMA_ENABLE_DEPRECATION_WARNINGS

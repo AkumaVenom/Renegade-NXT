@@ -6,17 +6,20 @@
 
 #include "UObject/GeneratedCppIncludes.h"
 #include "RenegadeCombatTypes.h"
+#include "InputCoreTypes.h"
 
 PRAGMA_DISABLE_DEPRECATION_WARNINGS
 static_assert(!UE_WITH_CONSTINIT_UOBJECT, "This generated code can only be compiled with !UE_WITH_CONSTINIT_UOBJECT");
 void EmptyLinkFunctionForGeneratedCodeRenegadeCombatTypes() {}
 
 // ********** Begin Cross Module References ********************************************************
+COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FLinearColor(ETypeConstructPhase);
 COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FRotator(ETypeConstructPhase);
 COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FTransform(ETypeConstructPhase);
 COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FVector(ETypeConstructPhase);
 COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FVector2D(ETypeConstructPhase);
 ENGINE_API UEnum* Z_Construct_UEnum_Engine_ECollisionChannel(ETypeConstructPhase);
+INPUTCORE_API UScriptStruct* Z_Construct_UScriptStruct_FKey(ETypeConstructPhase);
 COREUOBJECT_API UClass* Z_Construct_UClass_UClass(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_AActor(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_UDamageType(ETypeConstructPhase);
@@ -27,11 +30,16 @@ ENGINE_API UClass* Z_Construct_UClass_UStaticMesh(ETypeConstructPhase);
 // ********** Begin Same Module References *********************************************************
 UPackage* Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeCombatMoveType(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnLocationSelection(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnTransformMode(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeWeaponClass(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerInputSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeTargetingSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeWeaponSettings(ETypeConstructPhase);
 // ********** End Same Module References ***********************************************************
@@ -99,6 +107,66 @@ UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeWeaponClass(ETypeConstru
 }
 #undef UHT_STATICS
 // ********** End Enum ERenegadeWeaponClass ********************************************************
+
+// ********** Begin Enum ERenegadePlayerWeaponSlot *************************************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot_Statics
+template<> RENEGADESOLDIERCOMBAT_NON_ATTRIBUTED_API UEnum* StaticEnum<ERenegadePlayerWeaponSlot>()
+{
+	return Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot(ETypeConstructPhase::Outer);
+}
+struct UHT_STATICS
+{
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "AutomaticRifle.DisplayName", "Automatic Rifle" },
+		{ "AutomaticRifle.Name", "ERenegadePlayerWeaponSlot::AutomaticRifle" },
+		{ "BlueprintType", "true" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+		{ "Pistol.DisplayName", "Pistol" },
+		{ "Pistol.Name", "ERenegadePlayerWeaponSlot::Pistol" },
+	};
+#endif // WITH_METADATA
+	static constexpr UECodeGen_Private::FEnumeratorParam Enumerators[] = {
+		{ "ERenegadePlayerWeaponSlot::AutomaticRifle", (int64)ERenegadePlayerWeaponSlot::AutomaticRifle },
+		{ "ERenegadePlayerWeaponSlot::Pistol", (int64)ERenegadePlayerWeaponSlot::Pistol },
+	};
+	static const UECodeGen_Private::FEnumParams EnumParams;
+}; // struct UHT_STATICS 
+const UECodeGen_Private::FEnumParams UHT_STATICS::EnumParams = {
+	(FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat,
+	nullptr,
+	"ERenegadePlayerWeaponSlot",
+	"ERenegadePlayerWeaponSlot",
+	UHT_STATICS::Enumerators,
+	RF_Public|RF_Transient|RF_MarkAsNative,
+	UE_ARRAY_COUNT(UHT_STATICS::Enumerators),
+	EEnumFlags::None,
+	(uint8)UEnum::ECppForm::EnumClass,
+	(uint8)UEnum::EUnderlyingType::uint8,
+	METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)
+};
+static FEnumRegistrationInfo ZRIE_ERenegadePlayerWeaponSlot;
+UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot(ETypeConstructPhase Phase)
+{
+	if (Phase == ETypeConstructPhase::Outer)
+	{
+		if (!ZRIE_ERenegadePlayerWeaponSlot.OuterSingleton)
+		{
+			ZRIE_ERenegadePlayerWeaponSlot.OuterSingleton = GetStaticEnum(Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, (UObject*)Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase::Outer), TEXT("ERenegadePlayerWeaponSlot"));
+		}
+		return ZRIE_ERenegadePlayerWeaponSlot.OuterSingleton;
+	}
+	if (!ZRIE_ERenegadePlayerWeaponSlot.InnerSingleton)
+	{
+		UECodeGen_Private::ConstructUEnum(ZRIE_ERenegadePlayerWeaponSlot.InnerSingleton, UHT_STATICS::EnumParams);
+	}
+	return ZRIE_ERenegadePlayerWeaponSlot.InnerSingleton;
+}
+#undef UHT_STATICS
+// ********** End Enum ERenegadePlayerWeaponSlot ***************************************************
 
 // ********** Begin Enum ERenegadeCombatMoveType ***************************************************
 #ifdef UHT_STATICS
@@ -182,17 +250,26 @@ struct UHT_STATICS
 		{ "BlueprintType", "true" },
 		{ "CustomTransform.DisplayName", "Custom Transform" },
 		{ "CustomTransform.Name", "ERenegadeRespawnTransformMode::CustomTransform" },
+		{ "CustomTransformList.DisplayName", "Custom Transform List" },
+		{ "CustomTransformList.Name", "ERenegadeRespawnTransformMode::CustomTransformList" },
 		{ "MatchingTeamSpawnPoint.DisplayName", "Random Matching Team Spawn Point" },
 		{ "MatchingTeamSpawnPoint.Name", "ERenegadeRespawnTransformMode::MatchingTeamSpawnPoint" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
 		{ "OriginalTransform.DisplayName", "Original Actor Transform" },
 		{ "OriginalTransform.Name", "ERenegadeRespawnTransformMode::OriginalTransform" },
+		{ "RuntimeOverride.DisplayName", "Runtime Transform Override" },
+		{ "RuntimeOverride.Name", "ERenegadeRespawnTransformMode::RuntimeOverride" },
+		{ "TaggedActor.DisplayName", "Actor With Respawn Tag" },
+		{ "TaggedActor.Name", "ERenegadeRespawnTransformMode::TaggedActor" },
 	};
 #endif // WITH_METADATA
 	static constexpr UECodeGen_Private::FEnumeratorParam Enumerators[] = {
 		{ "ERenegadeRespawnTransformMode::OriginalTransform", (int64)ERenegadeRespawnTransformMode::OriginalTransform },
 		{ "ERenegadeRespawnTransformMode::MatchingTeamSpawnPoint", (int64)ERenegadeRespawnTransformMode::MatchingTeamSpawnPoint },
 		{ "ERenegadeRespawnTransformMode::CustomTransform", (int64)ERenegadeRespawnTransformMode::CustomTransform },
+		{ "ERenegadeRespawnTransformMode::CustomTransformList", (int64)ERenegadeRespawnTransformMode::CustomTransformList },
+		{ "ERenegadeRespawnTransformMode::TaggedActor", (int64)ERenegadeRespawnTransformMode::TaggedActor },
+		{ "ERenegadeRespawnTransformMode::RuntimeOverride", (int64)ERenegadeRespawnTransformMode::RuntimeOverride },
 	};
 	static const UECodeGen_Private::FEnumParams EnumParams;
 }; // struct UHT_STATICS 
@@ -228,6 +305,69 @@ UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnTransformMode(ETy
 }
 #undef UHT_STATICS
 // ********** End Enum ERenegadeRespawnTransformMode ***********************************************
+
+// ********** Begin Enum ERenegadeRespawnLocationSelection *****************************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnLocationSelection_Statics
+template<> RENEGADESOLDIERCOMBAT_NON_ATTRIBUTED_API UEnum* StaticEnum<ERenegadeRespawnLocationSelection>()
+{
+	return Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnLocationSelection(ETypeConstructPhase::Outer);
+}
+struct UHT_STATICS
+{
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "BlueprintType", "true" },
+		{ "First.DisplayName", "First Location" },
+		{ "First.Name", "ERenegadeRespawnLocationSelection::First" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+		{ "Random.DisplayName", "Random Location" },
+		{ "Random.Name", "ERenegadeRespawnLocationSelection::Random" },
+		{ "Sequential.DisplayName", "Sequential Locations" },
+		{ "Sequential.Name", "ERenegadeRespawnLocationSelection::Sequential" },
+	};
+#endif // WITH_METADATA
+	static constexpr UECodeGen_Private::FEnumeratorParam Enumerators[] = {
+		{ "ERenegadeRespawnLocationSelection::First", (int64)ERenegadeRespawnLocationSelection::First },
+		{ "ERenegadeRespawnLocationSelection::Random", (int64)ERenegadeRespawnLocationSelection::Random },
+		{ "ERenegadeRespawnLocationSelection::Sequential", (int64)ERenegadeRespawnLocationSelection::Sequential },
+	};
+	static const UECodeGen_Private::FEnumParams EnumParams;
+}; // struct UHT_STATICS 
+const UECodeGen_Private::FEnumParams UHT_STATICS::EnumParams = {
+	(FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat,
+	nullptr,
+	"ERenegadeRespawnLocationSelection",
+	"ERenegadeRespawnLocationSelection",
+	UHT_STATICS::Enumerators,
+	RF_Public|RF_Transient|RF_MarkAsNative,
+	UE_ARRAY_COUNT(UHT_STATICS::Enumerators),
+	EEnumFlags::None,
+	(uint8)UEnum::ECppForm::EnumClass,
+	(uint8)UEnum::EUnderlyingType::uint8,
+	METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)
+};
+static FEnumRegistrationInfo ZRIE_ERenegadeRespawnLocationSelection;
+UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnLocationSelection(ETypeConstructPhase Phase)
+{
+	if (Phase == ETypeConstructPhase::Outer)
+	{
+		if (!ZRIE_ERenegadeRespawnLocationSelection.OuterSingleton)
+		{
+			ZRIE_ERenegadeRespawnLocationSelection.OuterSingleton = GetStaticEnum(Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnLocationSelection, (UObject*)Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase::Outer), TEXT("ERenegadeRespawnLocationSelection"));
+		}
+		return ZRIE_ERenegadeRespawnLocationSelection.OuterSingleton;
+	}
+	if (!ZRIE_ERenegadeRespawnLocationSelection.InnerSingleton)
+	{
+		UECodeGen_Private::ConstructUEnum(ZRIE_ERenegadeRespawnLocationSelection.InnerSingleton, UHT_STATICS::EnumParams);
+	}
+	return ZRIE_ERenegadeRespawnLocationSelection.InnerSingleton;
+}
+#undef UHT_STATICS
+// ********** End Enum ERenegadeRespawnLocationSelection *******************************************
 
 // ********** Begin ScriptStruct FRenegadeWeaponSettings *******************************************
 #ifdef UHT_STATICS
@@ -343,6 +483,27 @@ struct UHT_STATICS
 		{ "Category", "Weapon|Trace" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bUseCombatTargetObjectTraceFallback_MetaData[] = {
+		{ "Category", "Weapon|Trace" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Also checks the configured combat-target object type and chooses whichever valid hit is closest. This allows Character hits even when their mesh/capsule does not block the weapon trace channel. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Also checks the configured combat-target object type and chooses whichever valid hit is closest. This allows Character hits even when their mesh/capsule does not block the weapon trace channel." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_CombatTargetObjectType_MetaData[] = {
+		{ "Category", "Weapon|Trace" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Object type used by the combat-target fallback trace. Character capsules normally use Pawn. */" },
+#endif
+		{ "EditCondition", "bUseCombatTargetObjectTraceFallback" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Object type used by the combat-target fallback trace. Character capsules normally use Pawn." },
+#endif
+	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAllowFriendlyFire_MetaData[] = {
 		{ "Category", "Weapon|Trace" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
@@ -380,6 +541,12 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FNamePropertyParams NewProp_MuzzleSocketName;
 	static const UECodeGen_Private::FNamePropertyParams NewProp_AimBoneName;
 	static const UECodeGen_Private::FBytePropertyParams NewProp_TraceChannel;
+	static void NewProp_bUseCombatTargetObjectTraceFallback_SetBit(void* Obj)
+	{
+		((FRenegadeWeaponSettings*)Obj)->bUseCombatTargetObjectTraceFallback = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bUseCombatTargetObjectTraceFallback;
+	static const UECodeGen_Private::FBytePropertyParams NewProp_CombatTargetObjectType;
 	static void NewProp_bAllowFriendlyFire_SetBit(void* Obj)
 	{
 		((FRenegadeWeaponSettings*)Obj)->bAllowFriendlyFire = 1;
@@ -418,6 +585,8 @@ const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_ReloadSeconds
 const UECodeGen_Private::FNamePropertyParams UHT_STATICS::NewProp_MuzzleSocketName = { "MuzzleSocketName", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Name, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, MuzzleSocketName), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MuzzleSocketName_MetaData), NewProp_MuzzleSocketName_MetaData) };
 const UECodeGen_Private::FNamePropertyParams UHT_STATICS::NewProp_AimBoneName = { "AimBoneName", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Name, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, AimBoneName), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimBoneName_MetaData), NewProp_AimBoneName_MetaData) };
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_TraceChannel = { "TraceChannel", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, TraceChannel), Z_Construct_UEnum_Engine_ECollisionChannel, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TraceChannel_MetaData), NewProp_TraceChannel_MetaData) }; // 3aff698625c18cc2ccaa87a587b2eac8c50cdec7
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUseCombatTargetObjectTraceFallback = { "bUseCombatTargetObjectTraceFallback", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeWeaponSettings), &UHT_STATICS::NewProp_bUseCombatTargetObjectTraceFallback_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUseCombatTargetObjectTraceFallback_MetaData), NewProp_bUseCombatTargetObjectTraceFallback_MetaData) };
+const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_CombatTargetObjectType = { "CombatTargetObjectType", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, CombatTargetObjectType), Z_Construct_UEnum_Engine_ECollisionChannel, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CombatTargetObjectType_MetaData), NewProp_CombatTargetObjectType_MetaData) }; // 3aff698625c18cc2ccaa87a587b2eac8c50cdec7
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAllowFriendlyFire = { "bAllowFriendlyFire", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeWeaponSettings), &UHT_STATICS::NewProp_bAllowFriendlyFire_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAllowFriendlyFire_MetaData), NewProp_bAllowFriendlyFire_MetaData) };
 const UECodeGen_Private::FClassPropertyParams UHT_STATICS::NewProp_DamageTypeClass = { "DamageTypeClass", nullptr, (EPropertyFlags)0x0014000000000005, UECodeGen_Private::EPropertyGenFlags::Class, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, DamageTypeClass), Z_Construct_UClass_UClass, Z_Construct_UClass_UDamageType, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DamageTypeClass_MetaData), NewProp_DamageTypeClass_MetaData) };
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
@@ -443,6 +612,8 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MuzzleSocketName,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimBoneName,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TraceChannel,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bUseCombatTargetObjectTraceFallback,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CombatTargetObjectType,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAllowFriendlyFire,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DamageTypeClass,
 };
@@ -775,6 +946,939 @@ UScriptStruct* Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings(ETypeCo
 #undef UHT_STATICS
 // ********** End ScriptStruct FRenegadeCombatMovementSettings *************************************
 
+// ********** Begin ScriptStruct FRenegadePlayerCombatSettings *************************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings_Statics
+struct UHT_STATICS
+{
+	static inline consteval int32 GetStructSize() { return DataSizeOf<FRenegadePlayerCombatSettings>(); }
+	static inline consteval int16 GetStructAlignment() { return alignof(FRenegadePlayerCombatSettings); }
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "BlueprintType", "true" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bUseControllerViewForAim_MetaData[] = {
+		{ "Category", "Player Aiming" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Uses the owning Player Controller view/camera ray to aim manual shots. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Uses the owning Player Controller view/camera ray to aim manual shots." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MaximumClientViewOriginError_MetaData[] = {
+		{ "Category", "Player Aiming|Networking" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum accepted distance between the client camera origin and the authoritative pawn view origin. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum accepted distance between the client camera origin and the authoritative pawn view origin." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MaximumClientAimAngleError_MetaData[] = {
+		{ "Category", "Player Aiming|Networking" },
+		{ "ClampMax", "180.0" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum accepted angular difference between the submitted client aim and replicated controller aim. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum accepted angular difference between the submitted client aim and replicated controller aim." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bApplyWeaponSpread_MetaData[] = {
+		{ "Category", "Player Aiming" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Applies the weapon's hip-fire and movement spread to player shots. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Applies the weapon's hip-fire and movement spread to player shots." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_AimedSpreadMultiplier_MetaData[] = {
+		{ "Category", "Player Aiming" },
+		{ "ClampMax", "1.0" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Multiplies final player spread while Aim is active. 0 is perfectly accurate and 1 keeps full hip-fire spread. */" },
+#endif
+		{ "EditCondition", "bApplyWeaponSpread" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Multiplies final player spread while Aim is active. 0 is perfectly accurate and 1 keeps full hip-fire spread." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bPreventMuzzleObstructionShooting_MetaData[] = {
+		{ "Category", "Player Aiming" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Performs a second trace from the muzzle to the camera aim point so the player cannot shoot through nearby cover. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Performs a second trace from the muzzle to the camera aim point so the player cannot shoot through nearby cover." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAutomaticRifleFiresWhileHeld_MetaData[] = {
+		{ "Category", "Player Input" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Automatic rifle repeatedly requests shots while the fire input is held. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Automatic rifle repeatedly requests shots while the fire input is held." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAutoReloadWhenEmpty_MetaData[] = {
+		{ "Category", "Player Input" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Automatically starts a reload when a player weapon reaches zero magazine ammunition. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Automatically starts a reload when a player weapon reaches zero magazine ammunition." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bRefillAllWeaponsOnRespawn_MetaData[] = {
+		{ "Category", "Player Respawn" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Refills both player weapons when the same actor respawns. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Refills both player weapons when the same actor respawns." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ServerFireRateTolerance_MetaData[] = {
+		{ "Category", "Player Input|Networking" },
+		{ "ClampMax", "1.0" },
+		{ "ClampMin", "0.80" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Server cadence tolerance. Values below 1 permit a small amount of network jitter without allowing faster fire. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Server cadence tolerance. Values below 1 permit a small amount of network jitter without allowing faster fire." },
+#endif
+	};
+#endif // WITH_METADATA
+
+// ********** Begin ScriptStruct FRenegadePlayerCombatSettings constinit property declarations *****
+	static void NewProp_bUseControllerViewForAim_SetBit(void* Obj)
+	{
+		((FRenegadePlayerCombatSettings*)Obj)->bUseControllerViewForAim = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bUseControllerViewForAim;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MaximumClientViewOriginError;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MaximumClientAimAngleError;
+	static void NewProp_bApplyWeaponSpread_SetBit(void* Obj)
+	{
+		((FRenegadePlayerCombatSettings*)Obj)->bApplyWeaponSpread = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bApplyWeaponSpread;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_AimedSpreadMultiplier;
+	static void NewProp_bPreventMuzzleObstructionShooting_SetBit(void* Obj)
+	{
+		((FRenegadePlayerCombatSettings*)Obj)->bPreventMuzzleObstructionShooting = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bPreventMuzzleObstructionShooting;
+	static void NewProp_bAutomaticRifleFiresWhileHeld_SetBit(void* Obj)
+	{
+		((FRenegadePlayerCombatSettings*)Obj)->bAutomaticRifleFiresWhileHeld = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bAutomaticRifleFiresWhileHeld;
+	static void NewProp_bAutoReloadWhenEmpty_SetBit(void* Obj)
+	{
+		((FRenegadePlayerCombatSettings*)Obj)->bAutoReloadWhenEmpty = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bAutoReloadWhenEmpty;
+	static void NewProp_bRefillAllWeaponsOnRespawn_SetBit(void* Obj)
+	{
+		((FRenegadePlayerCombatSettings*)Obj)->bRefillAllWeaponsOnRespawn = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bRefillAllWeaponsOnRespawn;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_ServerFireRateTolerance;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End ScriptStruct FRenegadePlayerCombatSettings constinit property declarations *******
+	static void* NewStructOps()
+	{
+		return (UScriptStruct::ICppStructOps*)new UScriptStruct::TCppStructOps<FRenegadePlayerCombatSettings>();
+	}
+	static const UECodeGen_Private::FStructParams StructParams;
+}; // struct UHT_STATICS
+
+// ********** Begin ScriptStruct FRenegadePlayerCombatSettings Property Definitions ****************
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUseControllerViewForAim = { "bUseControllerViewForAim", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerCombatSettings), &UHT_STATICS::NewProp_bUseControllerViewForAim_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUseControllerViewForAim_MetaData), NewProp_bUseControllerViewForAim_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumClientViewOriginError = { "MaximumClientViewOriginError", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerCombatSettings, MaximumClientViewOriginError), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumClientViewOriginError_MetaData), NewProp_MaximumClientViewOriginError_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumClientAimAngleError = { "MaximumClientAimAngleError", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerCombatSettings, MaximumClientAimAngleError), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumClientAimAngleError_MetaData), NewProp_MaximumClientAimAngleError_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bApplyWeaponSpread = { "bApplyWeaponSpread", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerCombatSettings), &UHT_STATICS::NewProp_bApplyWeaponSpread_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bApplyWeaponSpread_MetaData), NewProp_bApplyWeaponSpread_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AimedSpreadMultiplier = { "AimedSpreadMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerCombatSettings, AimedSpreadMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimedSpreadMultiplier_MetaData), NewProp_AimedSpreadMultiplier_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bPreventMuzzleObstructionShooting = { "bPreventMuzzleObstructionShooting", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerCombatSettings), &UHT_STATICS::NewProp_bPreventMuzzleObstructionShooting_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bPreventMuzzleObstructionShooting_MetaData), NewProp_bPreventMuzzleObstructionShooting_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAutomaticRifleFiresWhileHeld = { "bAutomaticRifleFiresWhileHeld", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerCombatSettings), &UHT_STATICS::NewProp_bAutomaticRifleFiresWhileHeld_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAutomaticRifleFiresWhileHeld_MetaData), NewProp_bAutomaticRifleFiresWhileHeld_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAutoReloadWhenEmpty = { "bAutoReloadWhenEmpty", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerCombatSettings), &UHT_STATICS::NewProp_bAutoReloadWhenEmpty_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAutoReloadWhenEmpty_MetaData), NewProp_bAutoReloadWhenEmpty_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bRefillAllWeaponsOnRespawn = { "bRefillAllWeaponsOnRespawn", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerCombatSettings), &UHT_STATICS::NewProp_bRefillAllWeaponsOnRespawn_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bRefillAllWeaponsOnRespawn_MetaData), NewProp_bRefillAllWeaponsOnRespawn_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_ServerFireRateTolerance = { "ServerFireRateTolerance", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerCombatSettings, ServerFireRateTolerance), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ServerFireRateTolerance_MetaData), NewProp_ServerFireRateTolerance_MetaData) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bUseControllerViewForAim,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumClientViewOriginError,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumClientAimAngleError,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bApplyWeaponSpread,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimedSpreadMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bPreventMuzzleObstructionShooting,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAutomaticRifleFiresWhileHeld,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAutoReloadWhenEmpty,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bRefillAllWeaponsOnRespawn,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ServerFireRateTolerance,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End ScriptStruct FRenegadePlayerCombatSettings Property Definitions ******************
+const UECodeGen_Private::FStructParams UHT_STATICS::StructParams = {
+	(FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat,
+	nullptr,
+	&NewStructOps,
+	"RenegadePlayerCombatSettings",
+	UHT_STATICS::PropPointers,
+	UE_ARRAY_COUNT(UHT_STATICS::PropPointers),
+	DataSizeOf<FRenegadePlayerCombatSettings>(),
+	alignof(FRenegadePlayerCombatSettings),
+	RF_Public|RF_Transient|RF_MarkAsNative,
+	EStructFlags(0x00000201),
+	METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)
+};
+static FStructRegistrationInfo Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings;
+UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings(ETypeConstructPhase Phase)
+{
+	if (Phase == ETypeConstructPhase::Outer)
+	{
+		if (!Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings.OuterSingleton)
+		{
+			Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings.OuterSingleton = GetStaticStruct(Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings, (UObject*)Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase::Outer), TEXT("RenegadePlayerCombatSettings"));
+		}
+		return Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings.OuterSingleton;
+	}
+	if (!Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings.InnerSingleton)
+	{
+		UECodeGen_Private::ConstructUScriptStruct(Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings.InnerSingleton, UHT_STATICS::StructParams);
+	}
+	return CastChecked<UScriptStruct>(Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings.InnerSingleton);
+}
+#undef UHT_STATICS
+// ********** End ScriptStruct FRenegadePlayerCombatSettings ***************************************
+
+// ********** Begin ScriptStruct FRenegadePlayerAimPresentationSettings ****************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings_Statics
+struct UHT_STATICS
+{
+	static inline consteval int32 GetStructSize() { return DataSizeOf<FRenegadePlayerAimPresentationSettings>(); }
+	static inline consteval int16 GetStructAlignment() { return alignof(FRenegadePlayerAimPresentationSettings); }
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "BlueprintType", "true" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/**\n * Local and network-safe presentation applied while a player-controlled combatant is aiming.\n * Camera zoom is cosmetic/local. Character yaw remains authoritative through normal Character replication.\n */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Local and network-safe presentation applied while a player-controlled combatant is aiming.\nCamera zoom is cosmetic/local. Character yaw remains authoritative through normal Character replication." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableAimPresentation_MetaData[] = {
+		{ "Category", "Aim Presentation" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Master switch for camera-facing rotation and camera zoom while the player aim state is active. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Master switch for camera-facing rotation and camera zoom while the player aim state is active." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bRotateCharacterToCameraForward_MetaData[] = {
+		{ "Category", "Aim Presentation|Rotation" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Keeps the Character body yaw aligned with the owning camera/controller forward direction while aiming. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Keeps the Character body yaw aligned with the owning camera/controller forward direction while aiming." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bSnapCharacterToCameraYawOnAimStart_MetaData[] = {
+		{ "Category", "Aim Presentation|Rotation" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Instantly aligns body yaw when aim begins before smooth maintenance takes over. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation && bRotateCharacterToCameraForward" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Instantly aligns body yaw when aim begins before smooth maintenance takes over." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_CharacterRotationSpeedDegreesPerSecond_MetaData[] = {
+		{ "Category", "Aim Presentation|Rotation" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum body yaw rotation speed while aiming. Set to 0 for instant alignment every frame. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation && bRotateCharacterToCameraForward" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum body yaw rotation speed while aiming. Set to 0 for instant alignment every frame." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bDisableOrientRotationToMovementWhileAiming_MetaData[] = {
+		{ "Category", "Aim Presentation|Rotation" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Prevents movement direction from turning the Character away from the camera while aiming. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation && bRotateCharacterToCameraForward" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Prevents movement direction from turning the Character away from the camera while aiming." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bUseControllerDesiredRotationWhileAiming_MetaData[] = {
+		{ "Category", "Aim Presentation|Rotation" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Lets Character Movement use Controller rotation while aiming. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation && bRotateCharacterToCameraForward" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Lets Character Movement use Controller rotation while aiming." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bUseControllerRotationYawWhileAiming_MetaData[] = {
+		{ "Category", "Aim Presentation|Rotation" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Lets the Character consume Controller yaw while aiming. Original Blueprint settings are restored on release. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation && bRotateCharacterToCameraForward" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Lets the Character consume Controller yaw while aiming. Original Blueprint settings are restored on release." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bZoomCameraWhileAiming_MetaData[] = {
+		{ "Category", "Aim Presentation|Camera" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Smoothly changes the local player's camera field of view while aiming. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Smoothly changes the local player's camera field of view while aiming." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_AimedFieldOfView_MetaData[] = {
+		{ "Category", "Aim Presentation|Camera" },
+		{ "ClampMax", "170.0" },
+		{ "ClampMin", "5.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Horizontal field of view used while aiming. Lower values zoom farther in. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation && bZoomCameraWhileAiming" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Horizontal field of view used while aiming. Lower values zoom farther in." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ZoomInInterpSpeed_MetaData[] = {
+		{ "Category", "Aim Presentation|Camera" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** FOV interpolation speed when entering aim. Set to 0 for instant zoom. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation && bZoomCameraWhileAiming" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "FOV interpolation speed when entering aim. Set to 0 for instant zoom." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ZoomOutInterpSpeed_MetaData[] = {
+		{ "Category", "Aim Presentation|Camera" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** FOV interpolation speed when leaving aim. Set to 0 for instant restoration. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation && bZoomCameraWhileAiming" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "FOV interpolation speed when leaving aim. Set to 0 for instant restoration." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAutoFindActiveCameraComponent_MetaData[] = {
+		{ "Category", "Aim Presentation|Camera" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Finds the active Camera Component automatically when no camera component is explicitly assigned. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation && bZoomCameraWhileAiming" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Finds the active Camera Component automatically when no camera component is explicitly assigned." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bUsePlayerCameraManagerFallback_MetaData[] = {
+		{ "Category", "Aim Presentation|Camera" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Uses PlayerCameraManager FOV locking when the player pawn has no usable Camera Component. */" },
+#endif
+		{ "EditCondition", "bEnableAimPresentation && bZoomCameraWhileAiming" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Uses PlayerCameraManager FOV locking when the player pawn has no usable Camera Component." },
+#endif
+	};
+#endif // WITH_METADATA
+
+// ********** Begin ScriptStruct FRenegadePlayerAimPresentationSettings constinit property declarations 
+	static void NewProp_bEnableAimPresentation_SetBit(void* Obj)
+	{
+		((FRenegadePlayerAimPresentationSettings*)Obj)->bEnableAimPresentation = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnableAimPresentation;
+	static void NewProp_bRotateCharacterToCameraForward_SetBit(void* Obj)
+	{
+		((FRenegadePlayerAimPresentationSettings*)Obj)->bRotateCharacterToCameraForward = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bRotateCharacterToCameraForward;
+	static void NewProp_bSnapCharacterToCameraYawOnAimStart_SetBit(void* Obj)
+	{
+		((FRenegadePlayerAimPresentationSettings*)Obj)->bSnapCharacterToCameraYawOnAimStart = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bSnapCharacterToCameraYawOnAimStart;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_CharacterRotationSpeedDegreesPerSecond;
+	static void NewProp_bDisableOrientRotationToMovementWhileAiming_SetBit(void* Obj)
+	{
+		((FRenegadePlayerAimPresentationSettings*)Obj)->bDisableOrientRotationToMovementWhileAiming = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bDisableOrientRotationToMovementWhileAiming;
+	static void NewProp_bUseControllerDesiredRotationWhileAiming_SetBit(void* Obj)
+	{
+		((FRenegadePlayerAimPresentationSettings*)Obj)->bUseControllerDesiredRotationWhileAiming = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bUseControllerDesiredRotationWhileAiming;
+	static void NewProp_bUseControllerRotationYawWhileAiming_SetBit(void* Obj)
+	{
+		((FRenegadePlayerAimPresentationSettings*)Obj)->bUseControllerRotationYawWhileAiming = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bUseControllerRotationYawWhileAiming;
+	static void NewProp_bZoomCameraWhileAiming_SetBit(void* Obj)
+	{
+		((FRenegadePlayerAimPresentationSettings*)Obj)->bZoomCameraWhileAiming = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bZoomCameraWhileAiming;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_AimedFieldOfView;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_ZoomInInterpSpeed;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_ZoomOutInterpSpeed;
+	static void NewProp_bAutoFindActiveCameraComponent_SetBit(void* Obj)
+	{
+		((FRenegadePlayerAimPresentationSettings*)Obj)->bAutoFindActiveCameraComponent = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bAutoFindActiveCameraComponent;
+	static void NewProp_bUsePlayerCameraManagerFallback_SetBit(void* Obj)
+	{
+		((FRenegadePlayerAimPresentationSettings*)Obj)->bUsePlayerCameraManagerFallback = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bUsePlayerCameraManagerFallback;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End ScriptStruct FRenegadePlayerAimPresentationSettings constinit property declarations 
+	static void* NewStructOps()
+	{
+		return (UScriptStruct::ICppStructOps*)new UScriptStruct::TCppStructOps<FRenegadePlayerAimPresentationSettings>();
+	}
+	static const UECodeGen_Private::FStructParams StructParams;
+}; // struct UHT_STATICS
+
+// ********** Begin ScriptStruct FRenegadePlayerAimPresentationSettings Property Definitions *******
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableAimPresentation = { "bEnableAimPresentation", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerAimPresentationSettings), &UHT_STATICS::NewProp_bEnableAimPresentation_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableAimPresentation_MetaData), NewProp_bEnableAimPresentation_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bRotateCharacterToCameraForward = { "bRotateCharacterToCameraForward", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerAimPresentationSettings), &UHT_STATICS::NewProp_bRotateCharacterToCameraForward_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bRotateCharacterToCameraForward_MetaData), NewProp_bRotateCharacterToCameraForward_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bSnapCharacterToCameraYawOnAimStart = { "bSnapCharacterToCameraYawOnAimStart", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerAimPresentationSettings), &UHT_STATICS::NewProp_bSnapCharacterToCameraYawOnAimStart_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bSnapCharacterToCameraYawOnAimStart_MetaData), NewProp_bSnapCharacterToCameraYawOnAimStart_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_CharacterRotationSpeedDegreesPerSecond = { "CharacterRotationSpeedDegreesPerSecond", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerAimPresentationSettings, CharacterRotationSpeedDegreesPerSecond), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CharacterRotationSpeedDegreesPerSecond_MetaData), NewProp_CharacterRotationSpeedDegreesPerSecond_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bDisableOrientRotationToMovementWhileAiming = { "bDisableOrientRotationToMovementWhileAiming", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerAimPresentationSettings), &UHT_STATICS::NewProp_bDisableOrientRotationToMovementWhileAiming_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bDisableOrientRotationToMovementWhileAiming_MetaData), NewProp_bDisableOrientRotationToMovementWhileAiming_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUseControllerDesiredRotationWhileAiming = { "bUseControllerDesiredRotationWhileAiming", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerAimPresentationSettings), &UHT_STATICS::NewProp_bUseControllerDesiredRotationWhileAiming_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUseControllerDesiredRotationWhileAiming_MetaData), NewProp_bUseControllerDesiredRotationWhileAiming_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUseControllerRotationYawWhileAiming = { "bUseControllerRotationYawWhileAiming", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerAimPresentationSettings), &UHT_STATICS::NewProp_bUseControllerRotationYawWhileAiming_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUseControllerRotationYawWhileAiming_MetaData), NewProp_bUseControllerRotationYawWhileAiming_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bZoomCameraWhileAiming = { "bZoomCameraWhileAiming", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerAimPresentationSettings), &UHT_STATICS::NewProp_bZoomCameraWhileAiming_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bZoomCameraWhileAiming_MetaData), NewProp_bZoomCameraWhileAiming_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AimedFieldOfView = { "AimedFieldOfView", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerAimPresentationSettings, AimedFieldOfView), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimedFieldOfView_MetaData), NewProp_AimedFieldOfView_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_ZoomInInterpSpeed = { "ZoomInInterpSpeed", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerAimPresentationSettings, ZoomInInterpSpeed), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ZoomInInterpSpeed_MetaData), NewProp_ZoomInInterpSpeed_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_ZoomOutInterpSpeed = { "ZoomOutInterpSpeed", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerAimPresentationSettings, ZoomOutInterpSpeed), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ZoomOutInterpSpeed_MetaData), NewProp_ZoomOutInterpSpeed_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAutoFindActiveCameraComponent = { "bAutoFindActiveCameraComponent", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerAimPresentationSettings), &UHT_STATICS::NewProp_bAutoFindActiveCameraComponent_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAutoFindActiveCameraComponent_MetaData), NewProp_bAutoFindActiveCameraComponent_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUsePlayerCameraManagerFallback = { "bUsePlayerCameraManagerFallback", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerAimPresentationSettings), &UHT_STATICS::NewProp_bUsePlayerCameraManagerFallback_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUsePlayerCameraManagerFallback_MetaData), NewProp_bUsePlayerCameraManagerFallback_MetaData) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableAimPresentation,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bRotateCharacterToCameraForward,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bSnapCharacterToCameraYawOnAimStart,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CharacterRotationSpeedDegreesPerSecond,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bDisableOrientRotationToMovementWhileAiming,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bUseControllerDesiredRotationWhileAiming,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bUseControllerRotationYawWhileAiming,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bZoomCameraWhileAiming,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimedFieldOfView,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ZoomInInterpSpeed,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ZoomOutInterpSpeed,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAutoFindActiveCameraComponent,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bUsePlayerCameraManagerFallback,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End ScriptStruct FRenegadePlayerAimPresentationSettings Property Definitions *********
+const UECodeGen_Private::FStructParams UHT_STATICS::StructParams = {
+	(FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat,
+	nullptr,
+	&NewStructOps,
+	"RenegadePlayerAimPresentationSettings",
+	UHT_STATICS::PropPointers,
+	UE_ARRAY_COUNT(UHT_STATICS::PropPointers),
+	DataSizeOf<FRenegadePlayerAimPresentationSettings>(),
+	alignof(FRenegadePlayerAimPresentationSettings),
+	RF_Public|RF_Transient|RF_MarkAsNative,
+	EStructFlags(0x00000201),
+	METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)
+};
+static FStructRegistrationInfo Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings;
+UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings(ETypeConstructPhase Phase)
+{
+	if (Phase == ETypeConstructPhase::Outer)
+	{
+		if (!Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings.OuterSingleton)
+		{
+			Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings.OuterSingleton = GetStaticStruct(Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings, (UObject*)Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase::Outer), TEXT("RenegadePlayerAimPresentationSettings"));
+		}
+		return Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings.OuterSingleton;
+	}
+	if (!Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings.InnerSingleton)
+	{
+		UECodeGen_Private::ConstructUScriptStruct(Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings.InnerSingleton, UHT_STATICS::StructParams);
+	}
+	return CastChecked<UScriptStruct>(Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings.InnerSingleton);
+}
+#undef UHT_STATICS
+// ********** End ScriptStruct FRenegadePlayerAimPresentationSettings ******************************
+
+// ********** Begin ScriptStruct FRenegadePlayerInputSettings **************************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UScriptStruct_FRenegadePlayerInputSettings_Statics
+struct UHT_STATICS
+{
+	static inline consteval int32 GetStructSize() { return DataSizeOf<FRenegadePlayerInputSettings>(); }
+	static inline consteval int16 GetStructAlignment() { return alignof(FRenegadePlayerInputSettings); }
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "BlueprintType", "true" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/**\n * Optional self-contained keyboard/mouse and gamepad bindings for player combat.\n * These bindings poll the owning local Player Controller, so no project Input Action assets are required.\n */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Optional self-contained keyboard/mouse and gamepad bindings for player combat.\nThese bindings poll the owning local Player Controller, so no project Input Action assets are required." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableBuiltInInput_MetaData[] = {
+		{ "Category", "Built-In Input" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Enables the plugin's built-in input polling. Disable this when an existing Enhanced Input Blueprint drives the public input nodes. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Enables the plugin's built-in input polling. Disable this when an existing Enhanced Input Blueprint drives the public input nodes." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableBuiltInLookInput_MetaData[] = {
+		{ "Category", "Built-In Input|Look" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Applies mouse and right-stick look directly to the owning Player Controller. */" },
+#endif
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Applies mouse and right-stick look directly to the owning Player Controller." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bOnlyLookWhileAiming_MetaData[] = {
+		{ "Category", "Built-In Input|Look" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** When true, look input is only applied while the Aim button is active. */" },
+#endif
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "When true, look input is only applied while the Aim button is active." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_AimingLookSensitivityMultiplier_MetaData[] = {
+		{ "Category", "Built-In Input|Look" },
+		{ "ClampMax", "2.0" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Multiplies mouse and right-stick look sensitivity while Aim is active. */" },
+#endif
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Multiplies mouse and right-stick look sensitivity while Aim is active." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bIgnoreInputWhileMouseCursorVisible_MetaData[] = {
+		{ "Category", "Built-In Input" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Prevents weapon input while the Player Controller is displaying a mouse cursor for menus. */" },
+#endif
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Prevents weapon input while the Player Controller is displaying a mouse cursor for menus." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAllowInputWhenPaused_MetaData[] = {
+		{ "Category", "Built-In Input" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Allows the input polling path to run while the world is paused. Disabled by default. */" },
+#endif
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Allows the input polling path to run while the world is paused. Disabled by default." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bToggleAim_MetaData[] = {
+		{ "Category", "Built-In Input|Aim" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Aim is held by default. Enable this to toggle aim on each Aim-button press. */" },
+#endif
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Aim is held by default. Enable this to toggle aim on each Aim-button press." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bRequireAimToFire_MetaData[] = {
+		{ "Category", "Built-In Input|Aim" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Requires Aim to be active before the Fire button can start a shot. */" },
+#endif
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Requires Aim to be active before the Fire button can start a shot." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_KeyboardMouseFireKey_MetaData[] = {
+		{ "Category", "Built-In Input|Keyboard and Mouse" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_KeyboardMouseAimKey_MetaData[] = {
+		{ "Category", "Built-In Input|Keyboard and Mouse" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_KeyboardMouseReloadKey_MetaData[] = {
+		{ "Category", "Built-In Input|Keyboard and Mouse" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_KeyboardMouseSelectRifleKey_MetaData[] = {
+		{ "Category", "Built-In Input|Keyboard and Mouse" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_KeyboardMouseSelectPistolKey_MetaData[] = {
+		{ "Category", "Built-In Input|Keyboard and Mouse" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MouseLookXAxis_MetaData[] = {
+		{ "Category", "Built-In Input|Keyboard and Mouse|Look" },
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MouseLookYAxis_MetaData[] = {
+		{ "Category", "Built-In Input|Keyboard and Mouse|Look" },
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MouseYawSensitivity_MetaData[] = {
+		{ "Category", "Built-In Input|Keyboard and Mouse|Look" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MousePitchSensitivity_MetaData[] = {
+		{ "Category", "Built-In Input|Keyboard and Mouse|Look" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bInvertMouseY_MetaData[] = {
+		{ "Category", "Built-In Input|Keyboard and Mouse|Look" },
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadFireKey_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadAimKey_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadReloadKey_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadSelectRifleKey_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadSelectPistolKey_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadButtonThreshold_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad" },
+		{ "ClampMax", "1.0" },
+		{ "ClampMin", "0.01" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadLookXAxis_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad|Look" },
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadLookYAxis_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad|Look" },
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadYawSpeedDegreesPerSecond_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad|Look" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum right-stick yaw speed in degrees per second. */" },
+#endif
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum right-stick yaw speed in degrees per second." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadPitchSpeedDegreesPerSecond_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad|Look" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum right-stick pitch speed in degrees per second. */" },
+#endif
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum right-stick pitch speed in degrees per second." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadLookDeadZone_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad|Look" },
+		{ "ClampMax", "0.95" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bInvertGamepadY_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad|Look" },
+		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin ScriptStruct FRenegadePlayerInputSettings constinit property declarations ******
+	static void NewProp_bEnableBuiltInInput_SetBit(void* Obj)
+	{
+		((FRenegadePlayerInputSettings*)Obj)->bEnableBuiltInInput = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnableBuiltInInput;
+	static void NewProp_bEnableBuiltInLookInput_SetBit(void* Obj)
+	{
+		((FRenegadePlayerInputSettings*)Obj)->bEnableBuiltInLookInput = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnableBuiltInLookInput;
+	static void NewProp_bOnlyLookWhileAiming_SetBit(void* Obj)
+	{
+		((FRenegadePlayerInputSettings*)Obj)->bOnlyLookWhileAiming = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bOnlyLookWhileAiming;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_AimingLookSensitivityMultiplier;
+	static void NewProp_bIgnoreInputWhileMouseCursorVisible_SetBit(void* Obj)
+	{
+		((FRenegadePlayerInputSettings*)Obj)->bIgnoreInputWhileMouseCursorVisible = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bIgnoreInputWhileMouseCursorVisible;
+	static void NewProp_bAllowInputWhenPaused_SetBit(void* Obj)
+	{
+		((FRenegadePlayerInputSettings*)Obj)->bAllowInputWhenPaused = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bAllowInputWhenPaused;
+	static void NewProp_bToggleAim_SetBit(void* Obj)
+	{
+		((FRenegadePlayerInputSettings*)Obj)->bToggleAim = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bToggleAim;
+	static void NewProp_bRequireAimToFire_SetBit(void* Obj)
+	{
+		((FRenegadePlayerInputSettings*)Obj)->bRequireAimToFire = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bRequireAimToFire;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseFireKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseAimKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseReloadKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseSelectRifleKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseSelectPistolKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_MouseLookXAxis;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_MouseLookYAxis;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MouseYawSensitivity;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MousePitchSensitivity;
+	static void NewProp_bInvertMouseY_SetBit(void* Obj)
+	{
+		((FRenegadePlayerInputSettings*)Obj)->bInvertMouseY = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bInvertMouseY;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadFireKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadAimKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadReloadKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadSelectRifleKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadSelectPistolKey;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GamepadButtonThreshold;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadLookXAxis;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadLookYAxis;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GamepadYawSpeedDegreesPerSecond;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GamepadPitchSpeedDegreesPerSecond;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_GamepadLookDeadZone;
+	static void NewProp_bInvertGamepadY_SetBit(void* Obj)
+	{
+		((FRenegadePlayerInputSettings*)Obj)->bInvertGamepadY = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bInvertGamepadY;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End ScriptStruct FRenegadePlayerInputSettings constinit property declarations ********
+	static void* NewStructOps()
+	{
+		return (UScriptStruct::ICppStructOps*)new UScriptStruct::TCppStructOps<FRenegadePlayerInputSettings>();
+	}
+	static const UECodeGen_Private::FStructParams StructParams;
+}; // struct UHT_STATICS
+
+// ********** Begin ScriptStruct FRenegadePlayerInputSettings Property Definitions *****************
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableBuiltInInput = { "bEnableBuiltInInput", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerInputSettings), &UHT_STATICS::NewProp_bEnableBuiltInInput_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableBuiltInInput_MetaData), NewProp_bEnableBuiltInInput_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableBuiltInLookInput = { "bEnableBuiltInLookInput", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerInputSettings), &UHT_STATICS::NewProp_bEnableBuiltInLookInput_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableBuiltInLookInput_MetaData), NewProp_bEnableBuiltInLookInput_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bOnlyLookWhileAiming = { "bOnlyLookWhileAiming", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerInputSettings), &UHT_STATICS::NewProp_bOnlyLookWhileAiming_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bOnlyLookWhileAiming_MetaData), NewProp_bOnlyLookWhileAiming_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AimingLookSensitivityMultiplier = { "AimingLookSensitivityMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, AimingLookSensitivityMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimingLookSensitivityMultiplier_MetaData), NewProp_AimingLookSensitivityMultiplier_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bIgnoreInputWhileMouseCursorVisible = { "bIgnoreInputWhileMouseCursorVisible", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerInputSettings), &UHT_STATICS::NewProp_bIgnoreInputWhileMouseCursorVisible_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bIgnoreInputWhileMouseCursorVisible_MetaData), NewProp_bIgnoreInputWhileMouseCursorVisible_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAllowInputWhenPaused = { "bAllowInputWhenPaused", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerInputSettings), &UHT_STATICS::NewProp_bAllowInputWhenPaused_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAllowInputWhenPaused_MetaData), NewProp_bAllowInputWhenPaused_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bToggleAim = { "bToggleAim", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerInputSettings), &UHT_STATICS::NewProp_bToggleAim_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bToggleAim_MetaData), NewProp_bToggleAim_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bRequireAimToFire = { "bRequireAimToFire", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerInputSettings), &UHT_STATICS::NewProp_bRequireAimToFire_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bRequireAimToFire_MetaData), NewProp_bRequireAimToFire_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseFireKey = { "KeyboardMouseFireKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, KeyboardMouseFireKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseFireKey_MetaData), NewProp_KeyboardMouseFireKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseAimKey = { "KeyboardMouseAimKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, KeyboardMouseAimKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseAimKey_MetaData), NewProp_KeyboardMouseAimKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseReloadKey = { "KeyboardMouseReloadKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, KeyboardMouseReloadKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseReloadKey_MetaData), NewProp_KeyboardMouseReloadKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseSelectRifleKey = { "KeyboardMouseSelectRifleKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, KeyboardMouseSelectRifleKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseSelectRifleKey_MetaData), NewProp_KeyboardMouseSelectRifleKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseSelectPistolKey = { "KeyboardMouseSelectPistolKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, KeyboardMouseSelectPistolKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseSelectPistolKey_MetaData), NewProp_KeyboardMouseSelectPistolKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_MouseLookXAxis = { "MouseLookXAxis", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, MouseLookXAxis), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MouseLookXAxis_MetaData), NewProp_MouseLookXAxis_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_MouseLookYAxis = { "MouseLookYAxis", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, MouseLookYAxis), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MouseLookYAxis_MetaData), NewProp_MouseLookYAxis_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MouseYawSensitivity = { "MouseYawSensitivity", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, MouseYawSensitivity), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MouseYawSensitivity_MetaData), NewProp_MouseYawSensitivity_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MousePitchSensitivity = { "MousePitchSensitivity", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, MousePitchSensitivity), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MousePitchSensitivity_MetaData), NewProp_MousePitchSensitivity_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bInvertMouseY = { "bInvertMouseY", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerInputSettings), &UHT_STATICS::NewProp_bInvertMouseY_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bInvertMouseY_MetaData), NewProp_bInvertMouseY_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadFireKey = { "GamepadFireKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadFireKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadFireKey_MetaData), NewProp_GamepadFireKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadAimKey = { "GamepadAimKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadAimKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadAimKey_MetaData), NewProp_GamepadAimKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadReloadKey = { "GamepadReloadKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadReloadKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadReloadKey_MetaData), NewProp_GamepadReloadKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadSelectRifleKey = { "GamepadSelectRifleKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadSelectRifleKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadSelectRifleKey_MetaData), NewProp_GamepadSelectRifleKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadSelectPistolKey = { "GamepadSelectPistolKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadSelectPistolKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadSelectPistolKey_MetaData), NewProp_GamepadSelectPistolKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GamepadButtonThreshold = { "GamepadButtonThreshold", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadButtonThreshold), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadButtonThreshold_MetaData), NewProp_GamepadButtonThreshold_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadLookXAxis = { "GamepadLookXAxis", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadLookXAxis), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadLookXAxis_MetaData), NewProp_GamepadLookXAxis_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadLookYAxis = { "GamepadLookYAxis", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadLookYAxis), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadLookYAxis_MetaData), NewProp_GamepadLookYAxis_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GamepadYawSpeedDegreesPerSecond = { "GamepadYawSpeedDegreesPerSecond", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadYawSpeedDegreesPerSecond), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadYawSpeedDegreesPerSecond_MetaData), NewProp_GamepadYawSpeedDegreesPerSecond_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GamepadPitchSpeedDegreesPerSecond = { "GamepadPitchSpeedDegreesPerSecond", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadPitchSpeedDegreesPerSecond), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadPitchSpeedDegreesPerSecond_MetaData), NewProp_GamepadPitchSpeedDegreesPerSecond_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GamepadLookDeadZone = { "GamepadLookDeadZone", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadLookDeadZone), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadLookDeadZone_MetaData), NewProp_GamepadLookDeadZone_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bInvertGamepadY = { "bInvertGamepadY", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerInputSettings), &UHT_STATICS::NewProp_bInvertGamepadY_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bInvertGamepadY_MetaData), NewProp_bInvertGamepadY_MetaData) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableBuiltInInput,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableBuiltInLookInput,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bOnlyLookWhileAiming,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimingLookSensitivityMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bIgnoreInputWhileMouseCursorVisible,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAllowInputWhenPaused,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bToggleAim,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bRequireAimToFire,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseFireKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseAimKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseReloadKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseSelectRifleKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseSelectPistolKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MouseLookXAxis,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MouseLookYAxis,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MouseYawSensitivity,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MousePitchSensitivity,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bInvertMouseY,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadFireKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadAimKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadReloadKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadSelectRifleKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadSelectPistolKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadButtonThreshold,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadLookXAxis,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadLookYAxis,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadYawSpeedDegreesPerSecond,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadPitchSpeedDegreesPerSecond,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadLookDeadZone,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bInvertGamepadY,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End ScriptStruct FRenegadePlayerInputSettings Property Definitions *******************
+const UECodeGen_Private::FStructParams UHT_STATICS::StructParams = {
+	(FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat,
+	nullptr,
+	&NewStructOps,
+	"RenegadePlayerInputSettings",
+	UHT_STATICS::PropPointers,
+	UE_ARRAY_COUNT(UHT_STATICS::PropPointers),
+	DataSizeOf<FRenegadePlayerInputSettings>(),
+	alignof(FRenegadePlayerInputSettings),
+	RF_Public|RF_Transient|RF_MarkAsNative,
+	EStructFlags(0x00000201),
+	METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)
+};
+static FStructRegistrationInfo Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings;
+UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerInputSettings(ETypeConstructPhase Phase)
+{
+	if (Phase == ETypeConstructPhase::Outer)
+	{
+		if (!Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings.OuterSingleton)
+		{
+			Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings.OuterSingleton = GetStaticStruct(Z_Construct_UScriptStruct_FRenegadePlayerInputSettings, (UObject*)Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase::Outer), TEXT("RenegadePlayerInputSettings"));
+		}
+		return Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings.OuterSingleton;
+	}
+	if (!Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings.InnerSingleton)
+	{
+		UECodeGen_Private::ConstructUScriptStruct(Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings.InnerSingleton, UHT_STATICS::StructParams);
+	}
+	return CastChecked<UScriptStruct>(Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings.InnerSingleton);
+}
+#undef UHT_STATICS
+// ********** End ScriptStruct FRenegadePlayerInputSettings ****************************************
+
 // ********** Begin ScriptStruct FRenegadeCombatVisualSettings *************************************
 #ifdef UHT_STATICS
 #error UHT_STATICS already defined
@@ -908,6 +2012,78 @@ struct UHT_STATICS
 		{ "Category", "Bullet Visual|Performance" },
 		{ "EditCondition", "bEnableBulletMeshVisual" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bDrawDebugShotLine_MetaData[] = {
+		{ "Category", "Shot Debug" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Draws the exact authoritative weapon trace whenever a shot is executed. Useful for verifying player aim and collision setup. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Draws the exact authoritative weapon trace whenever a shot is executed. Useful for verifying player aim and collision setup." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_DebugShotLineDuration_MetaData[] = {
+		{ "Category", "Shot Debug" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** How long the shot debug line remains visible. Zero draws for one frame. */" },
+#endif
+		{ "EditCondition", "bDrawDebugShotLine" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "How long the shot debug line remains visible. Zero draws for one frame." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_DebugShotLineThickness_MetaData[] = {
+		{ "Category", "Shot Debug" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bDrawDebugShotLine" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bDrawDebugShotImpactPoint_MetaData[] = {
+		{ "Category", "Shot Debug" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Draws a small point at a blocking hit location. */" },
+#endif
+		{ "EditCondition", "bDrawDebugShotLine" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Draws a small point at a blocking hit location." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_DebugShotDamageColor_MetaData[] = {
+		{ "Category", "Shot Debug" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Colour used when the trace resolves and damages a combat target. */" },
+#endif
+		{ "EditCondition", "bDrawDebugShotLine" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Colour used when the trace resolves and damages a combat target." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_DebugShotBlockedColor_MetaData[] = {
+		{ "Category", "Shot Debug" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Colour used when the trace hits geometry or a non-damageable actor. */" },
+#endif
+		{ "EditCondition", "bDrawDebugShotLine" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Colour used when the trace hits geometry or a non-damageable actor." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_DebugShotMissColor_MetaData[] = {
+		{ "Category", "Shot Debug" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Colour used when the trace reaches maximum range without a blocking hit. */" },
+#endif
+		{ "EditCondition", "bDrawDebugShotLine" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Colour used when the trace reaches maximum range without a blocking hit." },
+#endif
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableGroundBloodSplatter_MetaData[] = {
 		{ "Category", "Ground Blood" },
@@ -1053,6 +2229,21 @@ struct UHT_STATICS
 		((FRenegadeCombatVisualSettings*)Obj)->bBulletVisualCastsShadow = 1;
 	}
 	static const UECodeGen_Private::FBoolPropertyParams NewProp_bBulletVisualCastsShadow;
+	static void NewProp_bDrawDebugShotLine_SetBit(void* Obj)
+	{
+		((FRenegadeCombatVisualSettings*)Obj)->bDrawDebugShotLine = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bDrawDebugShotLine;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_DebugShotLineDuration;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_DebugShotLineThickness;
+	static void NewProp_bDrawDebugShotImpactPoint_SetBit(void* Obj)
+	{
+		((FRenegadeCombatVisualSettings*)Obj)->bDrawDebugShotImpactPoint = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bDrawDebugShotImpactPoint;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_DebugShotDamageColor;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_DebugShotBlockedColor;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_DebugShotMissColor;
 	static void NewProp_bEnableGroundBloodSplatter_SetBit(void* Obj)
 	{
 		((FRenegadeCombatVisualSettings*)Obj)->bEnableGroundBloodSplatter = 1;
@@ -1098,6 +2289,13 @@ const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_BulletVisualM
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_BulletVisualImpactStopShortDistance = { "BulletVisualImpactStopShortDistance", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, BulletVisualImpactStopShortDistance), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletVisualImpactStopShortDistance_MetaData), NewProp_BulletVisualImpactStopShortDistance_MetaData) };
 const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_BulletVisualPoolSize = { "BulletVisualPoolSize", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, BulletVisualPoolSize), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletVisualPoolSize_MetaData), NewProp_BulletVisualPoolSize_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bBulletVisualCastsShadow = { "bBulletVisualCastsShadow", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeCombatVisualSettings), &UHT_STATICS::NewProp_bBulletVisualCastsShadow_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bBulletVisualCastsShadow_MetaData), NewProp_bBulletVisualCastsShadow_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bDrawDebugShotLine = { "bDrawDebugShotLine", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeCombatVisualSettings), &UHT_STATICS::NewProp_bDrawDebugShotLine_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bDrawDebugShotLine_MetaData), NewProp_bDrawDebugShotLine_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_DebugShotLineDuration = { "DebugShotLineDuration", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, DebugShotLineDuration), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DebugShotLineDuration_MetaData), NewProp_DebugShotLineDuration_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_DebugShotLineThickness = { "DebugShotLineThickness", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, DebugShotLineThickness), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DebugShotLineThickness_MetaData), NewProp_DebugShotLineThickness_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bDrawDebugShotImpactPoint = { "bDrawDebugShotImpactPoint", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeCombatVisualSettings), &UHT_STATICS::NewProp_bDrawDebugShotImpactPoint_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bDrawDebugShotImpactPoint_MetaData), NewProp_bDrawDebugShotImpactPoint_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_DebugShotDamageColor = { "DebugShotDamageColor", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, DebugShotDamageColor), Z_Construct_UScriptStruct_FLinearColor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DebugShotDamageColor_MetaData), NewProp_DebugShotDamageColor_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_DebugShotBlockedColor = { "DebugShotBlockedColor", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, DebugShotBlockedColor), Z_Construct_UScriptStruct_FLinearColor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DebugShotBlockedColor_MetaData), NewProp_DebugShotBlockedColor_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_DebugShotMissColor = { "DebugShotMissColor", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, DebugShotMissColor), Z_Construct_UScriptStruct_FLinearColor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DebugShotMissColor_MetaData), NewProp_DebugShotMissColor_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableGroundBloodSplatter = { "bEnableGroundBloodSplatter", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeCombatVisualSettings), &UHT_STATICS::NewProp_bEnableGroundBloodSplatter_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableGroundBloodSplatter_MetaData), NewProp_bEnableGroundBloodSplatter_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_GroundBloodDecalMaterials_Inner = { "GroundBloodDecalMaterials", nullptr, (EPropertyFlags)0x0104000000000000, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, 0, Z_Construct_UClass_UMaterialInterface, METADATA_PARAMS(0, nullptr) };
 const UECodeGen_Private::FArrayPropertyParams UHT_STATICS::NewProp_GroundBloodDecalMaterials = { "GroundBloodDecalMaterials", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Array, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeCombatVisualSettings, GroundBloodDecalMaterials), EArrayPropertyFlags::None, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GroundBloodDecalMaterials_MetaData), NewProp_GroundBloodDecalMaterials_MetaData) };
@@ -1126,6 +2324,13 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletVisualImpactStopShortDistance,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletVisualPoolSize,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bBulletVisualCastsShadow,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bDrawDebugShotLine,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DebugShotLineDuration,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DebugShotLineThickness,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bDrawDebugShotImpactPoint,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DebugShotDamageColor,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DebugShotBlockedColor,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DebugShotMissColor,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableGroundBloodSplatter,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodDecalMaterials_Inner,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GroundBloodDecalMaterials,
@@ -1221,6 +2426,60 @@ struct UHT_STATICS
 		{ "Category", "Respawn" },
 		{ "EditCondition", "bCanRespawn" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_CustomRespawnTransforms_MetaData[] = {
+		{ "Category", "Respawn|Custom Locations" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Optional list of authored respawn transforms used by Custom Transform List mode. */" },
+#endif
+		{ "EditCondition", "bCanRespawn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Optional list of authored respawn transforms used by Custom Transform List mode." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_CustomRespawnSelection_MetaData[] = {
+		{ "Category", "Respawn|Custom Locations" },
+		{ "EditCondition", "bCanRespawn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RespawnActorTag_MetaData[] = {
+		{ "Category", "Respawn|Tagged Locations" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Finds enabled level actors carrying this Actor Tag when Tagged Actor mode is selected. */" },
+#endif
+		{ "EditCondition", "bCanRespawn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Finds enabled level actors carrying this Actor Tag when Tagged Actor mode is selected." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_TaggedActorSelection_MetaData[] = {
+		{ "Category", "Respawn|Tagged Locations" },
+		{ "EditCondition", "bCanRespawn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RespawnVerticalOffset_MetaData[] = {
+		{ "Category", "Respawn" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Added in world Z after resolving any respawn transform. */" },
+#endif
+		{ "EditCondition", "bCanRespawn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Added in world Z after resolving any respawn transform." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bApplyRespawnRotationToController_MetaData[] = {
+		{ "Category", "Respawn" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Rotates a Player Controller to match the selected respawn transform. */" },
+#endif
+		{ "EditCondition", "bCanRespawn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Rotates a Player Controller to match the selected respawn transform." },
+#endif
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableAutomaticRagdoll_MetaData[] = {
 		{ "Category", "Ragdoll" },
@@ -1349,6 +2608,19 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FBytePropertyParams NewProp_RespawnTransformMode_Underlying;
 	static const UECodeGen_Private::FEnumPropertyParams NewProp_RespawnTransformMode;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_CustomRespawnTransform;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_CustomRespawnTransforms_Inner;
+	static const UECodeGen_Private::FArrayPropertyParams NewProp_CustomRespawnTransforms;
+	static const UECodeGen_Private::FBytePropertyParams NewProp_CustomRespawnSelection_Underlying;
+	static const UECodeGen_Private::FEnumPropertyParams NewProp_CustomRespawnSelection;
+	static const UECodeGen_Private::FNamePropertyParams NewProp_RespawnActorTag;
+	static const UECodeGen_Private::FBytePropertyParams NewProp_TaggedActorSelection_Underlying;
+	static const UECodeGen_Private::FEnumPropertyParams NewProp_TaggedActorSelection;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_RespawnVerticalOffset;
+	static void NewProp_bApplyRespawnRotationToController_SetBit(void* Obj)
+	{
+		((FRenegadeHealthRespawnSettings*)Obj)->bApplyRespawnRotationToController = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bApplyRespawnRotationToController;
 	static void NewProp_bEnableAutomaticRagdoll_SetBit(void* Obj)
 	{
 		((FRenegadeHealthRespawnSettings*)Obj)->bEnableAutomaticRagdoll = 1;
@@ -1418,8 +2690,17 @@ const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bCanRespawn = 
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RespawnDelaySeconds = { "RespawnDelaySeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeHealthRespawnSettings, RespawnDelaySeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RespawnDelaySeconds_MetaData), NewProp_RespawnDelaySeconds_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RespawnInvulnerabilitySeconds = { "RespawnInvulnerabilitySeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeHealthRespawnSettings, RespawnInvulnerabilitySeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RespawnInvulnerabilitySeconds_MetaData), NewProp_RespawnInvulnerabilitySeconds_MetaData) };
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_RespawnTransformMode_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_RespawnTransformMode = { "RespawnTransformMode", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeHealthRespawnSettings, RespawnTransformMode), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnTransformMode, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RespawnTransformMode_MetaData), NewProp_RespawnTransformMode_MetaData) }; // d05f4aa40af3f998160720f17ed9e7bd1e3269a8
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_RespawnTransformMode = { "RespawnTransformMode", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeHealthRespawnSettings, RespawnTransformMode), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnTransformMode, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RespawnTransformMode_MetaData), NewProp_RespawnTransformMode_MetaData) }; // fc208f9666eee50ae292f1e8ea8f7110eb0c307d
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_CustomRespawnTransform = { "CustomRespawnTransform", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeHealthRespawnSettings, CustomRespawnTransform), Z_Construct_UScriptStruct_FTransform, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CustomRespawnTransform_MetaData), NewProp_CustomRespawnTransform_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_CustomRespawnTransforms_Inner = { "CustomRespawnTransforms", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, 0, Z_Construct_UScriptStruct_FTransform, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FArrayPropertyParams UHT_STATICS::NewProp_CustomRespawnTransforms = { "CustomRespawnTransforms", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Array, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeHealthRespawnSettings, CustomRespawnTransforms), EArrayPropertyFlags::None, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CustomRespawnTransforms_MetaData), NewProp_CustomRespawnTransforms_MetaData) };
+const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_CustomRespawnSelection_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_CustomRespawnSelection = { "CustomRespawnSelection", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeHealthRespawnSettings, CustomRespawnSelection), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnLocationSelection, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CustomRespawnSelection_MetaData), NewProp_CustomRespawnSelection_MetaData) }; // 9bacda9031df4f83442d24bff6c1c6b31e01b0d0
+const UECodeGen_Private::FNamePropertyParams UHT_STATICS::NewProp_RespawnActorTag = { "RespawnActorTag", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Name, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeHealthRespawnSettings, RespawnActorTag), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RespawnActorTag_MetaData), NewProp_RespawnActorTag_MetaData) };
+const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_TaggedActorSelection_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_TaggedActorSelection = { "TaggedActorSelection", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeHealthRespawnSettings, TaggedActorSelection), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnLocationSelection, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TaggedActorSelection_MetaData), NewProp_TaggedActorSelection_MetaData) }; // 9bacda9031df4f83442d24bff6c1c6b31e01b0d0
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RespawnVerticalOffset = { "RespawnVerticalOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeHealthRespawnSettings, RespawnVerticalOffset), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RespawnVerticalOffset_MetaData), NewProp_RespawnVerticalOffset_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bApplyRespawnRotationToController = { "bApplyRespawnRotationToController", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeHealthRespawnSettings), &UHT_STATICS::NewProp_bApplyRespawnRotationToController_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bApplyRespawnRotationToController_MetaData), NewProp_bApplyRespawnRotationToController_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableAutomaticRagdoll = { "bEnableAutomaticRagdoll", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeHealthRespawnSettings), &UHT_STATICS::NewProp_bEnableAutomaticRagdoll_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableAutomaticRagdoll_MetaData), NewProp_bEnableAutomaticRagdoll_MetaData) };
 const UECodeGen_Private::FNamePropertyParams UHT_STATICS::NewProp_RagdollMeshComponentTag = { "RagdollMeshComponentTag", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Name, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeHealthRespawnSettings, RagdollMeshComponentTag), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RagdollMeshComponentTag_MetaData), NewProp_RagdollMeshComponentTag_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAutoFindRagdollMeshWithPhysicsAsset = { "bAutoFindRagdollMeshWithPhysicsAsset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeHealthRespawnSettings), &UHT_STATICS::NewProp_bAutoFindRagdollMeshWithPhysicsAsset_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAutoFindRagdollMeshWithPhysicsAsset_MetaData), NewProp_bAutoFindRagdollMeshWithPhysicsAsset_MetaData) };
@@ -1442,6 +2723,15 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RespawnTransformMode_Underlying,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RespawnTransformMode,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CustomRespawnTransform,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CustomRespawnTransforms_Inner,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CustomRespawnTransforms,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CustomRespawnSelection_Underlying,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CustomRespawnSelection,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RespawnActorTag,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TaggedActorSelection_Underlying,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TaggedActorSelection,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RespawnVerticalOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bApplyRespawnRotationToController,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableAutomaticRagdoll,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RagdollMeshComponentTag,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAutoFindRagdollMeshWithPhysicsAsset,
@@ -1501,18 +2791,23 @@ struct UHT_STATICS
 {
 	static constexpr FEnumRegisterCompiledInInfo EnumInfo[] = {
 		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeWeaponClass, TEXT("ERenegadeWeaponClass"), &ZRIE_ERenegadeWeaponClass, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 601435708U) },
+		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, TEXT("ERenegadePlayerWeaponSlot"), &ZRIE_ERenegadePlayerWeaponSlot, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 2546147236U) },
 		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeCombatMoveType, TEXT("ERenegadeCombatMoveType"), &ZRIE_ERenegadeCombatMoveType, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 1476638583U) },
-		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnTransformMode, TEXT("ERenegadeRespawnTransformMode"), &ZRIE_ERenegadeRespawnTransformMode, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 3495905956U) },
+		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnTransformMode, TEXT("ERenegadeRespawnTransformMode"), &ZRIE_ERenegadeRespawnTransformMode, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 4229992342U) },
+		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnLocationSelection, TEXT("ERenegadeRespawnLocationSelection"), &ZRIE_ERenegadeRespawnLocationSelection, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 2611796624U) },
 	};
 	static constexpr FStructRegisterCompiledInInfo ScriptStructInfo[] = {
-		{ Z_Construct_UScriptStruct_FRenegadeWeaponSettings, Z_Construct_UScriptStruct_FRenegadeWeaponSettings_Statics::NewStructOps, TEXT("RenegadeWeaponSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeWeaponSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeWeaponSettings), 432380438U) },
+		{ Z_Construct_UScriptStruct_FRenegadeWeaponSettings, Z_Construct_UScriptStruct_FRenegadeWeaponSettings_Statics::NewStructOps, TEXT("RenegadeWeaponSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeWeaponSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeWeaponSettings), 3105848085U) },
 		{ Z_Construct_UScriptStruct_FRenegadeTargetingSettings, Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics::NewStructOps, TEXT("RenegadeTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeTargetingSettings), 2865162924U) },
 		{ Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings, Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings_Statics::NewStructOps, TEXT("RenegadeCombatMovementSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatMovementSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatMovementSettings), 3050183974U) },
-		{ Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings, Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings_Statics::NewStructOps, TEXT("RenegadeCombatVisualSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatVisualSettings), 3833718575U) },
-		{ Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings, Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics::NewStructOps, TEXT("RenegadeHealthRespawnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeHealthRespawnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeHealthRespawnSettings), 2966336579U) },
+		{ Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings, Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings_Statics::NewStructOps, TEXT("RenegadePlayerCombatSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerCombatSettings), 3336172806U) },
+		{ Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings, Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings_Statics::NewStructOps, TEXT("RenegadePlayerAimPresentationSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerAimPresentationSettings), 2735215814U) },
+		{ Z_Construct_UScriptStruct_FRenegadePlayerInputSettings, Z_Construct_UScriptStruct_FRenegadePlayerInputSettings_Statics::NewStructOps, TEXT("RenegadePlayerInputSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerInputSettings), 1482115598U) },
+		{ Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings, Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings_Statics::NewStructOps, TEXT("RenegadeCombatVisualSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatVisualSettings), 793923901U) },
+		{ Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings, Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics::NewStructOps, TEXT("RenegadeHealthRespawnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeHealthRespawnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeHealthRespawnSettings), 1785623175U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_e7072cc425b62ec0fa555719ede73605123e0aca{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_12704f037f7f1ce173653633593576ef4cd61f84{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	nullptr, 0,
 	UHT_STATICS::ScriptStructInfo, UE_ARRAY_COUNT(UHT_STATICS::ScriptStructInfo),

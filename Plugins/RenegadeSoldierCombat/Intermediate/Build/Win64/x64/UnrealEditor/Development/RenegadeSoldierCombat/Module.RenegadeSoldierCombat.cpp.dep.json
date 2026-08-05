@@ -29,7 +29,14 @@
             "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesoldiercombat\\source\\renegadesoldiercombat\\public\\renegadeweaponprofile.h",
             "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesoldiercombat\\intermediate\\build\\win64\\unrealeditor\\inc\\renegadesoldiercombat\\uht\\renegadeweaponprofile.generated.h",
             "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesoldiercombat\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\renegadesoldiercombat\\permoduleinline.gen.cpp",
-            "c:\\program files\\epic games\\ue_5.8\\engine\\source\\runtime\\core\\public\\hal\\permoduleinline.inl"
+            "c:\\program files\\epic games\\ue_5.8\\engine\\source\\runtime\\core\\public\\hal\\permoduleinline.inl",
+            "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesoldiercombat\\source\\renegadesoldiercombat\\private\\renegadecombatblueprintlibrary.cpp",
+            "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesoldiercombat\\source\\renegadesoldiercombat\\private\\renegadecombatregistrysubsystem.cpp",
+            "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesoldiercombat\\source\\renegadesoldiercombat\\private\\renegadesoldiercombatmodule.cpp",
+            "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesoldiercombat\\source\\renegadesoldiercombat\\public\\renegadesoldiercombatmodule.h",
+            "c:\\users\\619\\documents\\unreal projects\\renegade-nxt\\plugins\\renegadesoldiercombat\\source\\renegadesoldiercombat\\private\\renegadesoldierspawnpoint.cpp",
+            "c:\\program files\\epic games\\ue_5.8\\engine\\source\\runtime\\engine\\classes\\components\\arrowcomponent.h",
+            "c:\\program files\\epic games\\ue_5.8\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\uht\\arrowcomponent.generated.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

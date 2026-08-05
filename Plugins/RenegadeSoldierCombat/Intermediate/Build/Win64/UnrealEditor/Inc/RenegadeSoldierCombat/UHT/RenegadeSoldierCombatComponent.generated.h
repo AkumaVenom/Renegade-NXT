@@ -18,26 +18,42 @@
 PRAGMA_DISABLE_DEPRECATION_WARNINGS
 class AActor;
 class AController;
+class UCameraComponent;
 class UDamageType;
 class UDecalComponent;
 class USceneComponent;
 class USkeletalMeshComponent;
 enum class ERenegadeCombatMoveType : uint8;
+enum class ERenegadePlayerWeaponSlot : uint8;
 struct FHitResult;
 struct FRenegadeWeaponSettings;
+struct FVector_NetQuantize;
+struct FVector_NetQuantizeNormal;
 
 // ********** Begin Class URenegadeSoldierCombatComponent ******************************************
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_53_RPC_WRAPPERS_NO_PURE_DECLS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_60_RPC_WRAPPERS_NO_PURE_DECLS \
 	virtual void MulticastFinishRespawn_Implementation(FTransform RespawnTransform); \
 	virtual void MulticastBeginDeath_Implementation(AActor* Killer, FVector RagdollImpulse, FName HitBone); \
 	virtual void MulticastReloadFinished_Implementation(); \
 	virtual void MulticastReloadStarted_Implementation(); \
-	virtual void MulticastShotFired_Implementation(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult, bool bSpawnGroundBloodForHit); \
+	virtual void MulticastShotFired_Implementation(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult, bool bSpawnGroundBloodForHit, bool bDamagedCombatTarget); \
+	virtual void ServerSelectPlayerWeapon_Implementation(ERenegadePlayerWeaponSlot NewWeapon); \
+	virtual void ServerRequestPlayerReload_Implementation(ERenegadePlayerWeaponSlot RequestedWeapon); \
+	virtual void ServerSetPlayerAiming_Implementation(bool bNewAiming); \
+	virtual void ServerRequestPlayerShot_Implementation(FVector_NetQuantize ClientViewLocation, FVector_NetQuantizeNormal ClientViewDirection, ERenegadePlayerWeaponSlot RequestedWeapon, bool bClientAiming); \
 	DECLARE_FUNCTION(execMulticastFinishRespawn); \
 	DECLARE_FUNCTION(execMulticastBeginDeath); \
 	DECLARE_FUNCTION(execMulticastReloadFinished); \
 	DECLARE_FUNCTION(execMulticastReloadStarted); \
 	DECLARE_FUNCTION(execMulticastShotFired); \
+	DECLARE_FUNCTION(execServerSelectPlayerWeapon); \
+	DECLARE_FUNCTION(execServerRequestPlayerReload); \
+	DECLARE_FUNCTION(execServerSetPlayerAiming); \
+	DECLARE_FUNCTION(execServerRequestPlayerShot); \
+	DECLARE_FUNCTION(execOnRep_PlayerAiming); \
+	DECLARE_FUNCTION(execOnRep_PistolAmmo); \
+	DECLARE_FUNCTION(execOnRep_AutomaticRifleAmmo); \
+	DECLARE_FUNCTION(execOnRep_ActivePlayerWeapon); \
 	DECLARE_FUNCTION(execOnRep_CurrentTarget); \
 	DECLARE_FUNCTION(execOnRep_Dead); \
 	DECLARE_FUNCTION(execOnRep_CurrentHealth); \
@@ -55,10 +71,43 @@ struct FRenegadeWeaponSettings;
 	DECLARE_FUNCTION(execValidateRagdollSetup); \
 	DECLARE_FUNCTION(execIsInvulnerable); \
 	DECLARE_FUNCTION(execSetInvulnerable); \
+	DECLARE_FUNCTION(execClearCustomRespawnTransforms); \
+	DECLARE_FUNCTION(execAddCustomRespawnTransform); \
+	DECLARE_FUNCTION(execSetCustomRespawnTransforms); \
+	DECLARE_FUNCTION(execHasRuntimeRespawnTransform); \
+	DECLARE_FUNCTION(execClearRuntimeRespawnTransform); \
+	DECLARE_FUNCTION(execSetRuntimeRespawnTransform); \
 	DECLARE_FUNCTION(execRespawnNow); \
 	DECLARE_FUNCTION(execForceKill); \
 	DECLARE_FUNCTION(execHeal); \
 	DECLARE_FUNCTION(execGetHealthPercent); \
+	DECLARE_FUNCTION(execIsReloading); \
+	DECLARE_FUNCTION(execIsBuiltInPlayerInputEnabled); \
+	DECLARE_FUNCTION(execSetBuiltInPlayerInputEnabled); \
+	DECLARE_FUNCTION(execRestorePlayerAimPresentation); \
+	DECLARE_FUNCTION(execSnapPlayerCharacterToAimForward); \
+	DECLARE_FUNCTION(execGetPlayerAimCameraComponent); \
+	DECLARE_FUNCTION(execClearPlayerAimCameraComponent); \
+	DECLARE_FUNCTION(execSetPlayerAimCameraComponent); \
+	DECLARE_FUNCTION(execGetPlayerAimAlpha); \
+	DECLARE_FUNCTION(execIsPlayerAiming); \
+	DECLARE_FUNCTION(execPlayerStopAiming); \
+	DECLARE_FUNCTION(execPlayerStartAiming); \
+	DECLARE_FUNCTION(execPlayerSetAiming); \
+	DECLARE_FUNCTION(execIsPlayerFireHeld); \
+	DECLARE_FUNCTION(execGetPlayerWeaponAmmo); \
+	DECLARE_FUNCTION(execGetPlayerWeaponSettings); \
+	DECLARE_FUNCTION(execSelectPlayerPistol); \
+	DECLARE_FUNCTION(execSelectPlayerAutomaticRifle); \
+	DECLARE_FUNCTION(execSelectPlayerWeapon); \
+	DECLARE_FUNCTION(execPlayerFirePistol); \
+	DECLARE_FUNCTION(execPlayerStopAutomaticRifleFire); \
+	DECLARE_FUNCTION(execPlayerStartAutomaticRifleFire); \
+	DECLARE_FUNCTION(execPlayerReload); \
+	DECLARE_FUNCTION(execPlayerFireOnce); \
+	DECLARE_FUNCTION(execPlayerStopFire); \
+	DECLARE_FUNCTION(execPlayerStartFire); \
+	DECLARE_FUNCTION(execIsPlayerControlledCombatant); \
 	DECLARE_FUNCTION(execIsInCombat); \
 	DECLARE_FUNCTION(execIsValidCombatTarget); \
 	DECLARE_FUNCTION(execIsHostileToActor); \
@@ -72,11 +121,11 @@ struct FRenegadeWeaponSettings;
 	DECLARE_FUNCTION(execStartAutoCombat);
 
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_53_CALLBACK_WRAPPERS
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_60_CALLBACK_WRAPPERS
 struct Z_Construct_UClass_URenegadeSoldierCombatComponent_Statics;
 RENEGADESOLDIERCOMBAT_API UClass* Z_Construct_UClass_URenegadeSoldierCombatComponent(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_53_INCLASS_NO_PURE_DECLS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_60_INCLASS_NO_PURE_DECLS \
 private: \
 	friend struct ::Z_Construct_UClass_URenegadeSoldierCombatComponent_Statics; \
 	friend RENEGADESOLDIERCOMBAT_API UClass* ::Z_Construct_UClass_URenegadeSoldierCombatComponent(ETypeConstructPhase); \
@@ -87,16 +136,21 @@ public: \
 	{ \
 		NETFIELD_REP_START=(uint16)((int32)Super::ENetFields_Private::NETFIELD_REP_END + (int32)1), \
 		TeamId=NETFIELD_REP_START, \
+		bPlayerControlledCombat, \
 		bLockCombatRotationToCurrentTarget, \
 		CurrentHealth, \
 		bIsDead, \
 		CurrentTarget, \
 		CurrentMagazineAmmo, \
-		NETFIELD_REP_END=CurrentMagazineAmmo	}; \
+		ActivePlayerWeapon, \
+		CurrentAutomaticRifleAmmo, \
+		CurrentPistolAmmo, \
+		bIsPlayerAiming, \
+		NETFIELD_REP_END=bIsPlayerAiming	}; \
 	DECLARE_VALIDATE_GENERATED_REP_ENUMS(NO_API)
 
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_53_ENHANCED_CONSTRUCTORS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_60_ENHANCED_CONSTRUCTORS \
 	/** Deleted move- and copy-constructors, should never be used */ \
 	URenegadeSoldierCombatComponent(URenegadeSoldierCombatComponent&&) = delete; \
 	URenegadeSoldierCombatComponent(const URenegadeSoldierCombatComponent&) = delete; \
@@ -106,14 +160,14 @@ public: \
 	NO_API virtual ~URenegadeSoldierCombatComponent();
 
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_50_PROLOG
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_53_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_57_PROLOG
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_60_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_53_RPC_WRAPPERS_NO_PURE_DECLS \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_53_CALLBACK_WRAPPERS \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_53_INCLASS_NO_PURE_DECLS \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_53_ENHANCED_CONSTRUCTORS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_60_RPC_WRAPPERS_NO_PURE_DECLS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_60_CALLBACK_WRAPPERS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_60_INCLASS_NO_PURE_DECLS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_60_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 

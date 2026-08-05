@@ -58,4 +58,4 @@ Resolution priority:
 
 **Bullet Visual Spawn Relative Offset** is transformed in the selected component's local space. The mesh is then moved forward by **Bullet Visual Muzzle Forward Offset** along the shot direction.
 
-The spawn component is cosmetic only. Hitscan tracing, hit confirmation, damage, and blood placement continue to use the authoritative shot result.
+AI hitscan behaviour is unchanged. In player mode, the server also uses the resolved spawn component as the muzzle origin for the second obstruction trace toward the validated camera aim point. Hit confirmation, damage, and blood placement remain server authoritative.

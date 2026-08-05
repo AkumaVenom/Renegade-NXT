@@ -3,12 +3,18 @@
 #include "RenegadeSoldierCombatModule.h"
 
 #include "AIController.h"
+#include "Camera/CameraComponent.h"
+#include "Camera/PlayerCameraManager.h"
+#include "CollisionQueryParams.h"
 #include "EngineUtils.h"
 #include "Engine/World.h"
+#include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/DamageType.h"
+#include "GameFramework/PlayerController.h"
+#include "InputCoreTypes.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/SceneComponent.h"
@@ -32,6 +38,151 @@ namespace RenegadeCombatPrivate
     {
         return TeamName.IsNone() || TeamName.IsEqual(FName(TEXT("Neutral")), ENameCase::IgnoreCase);
     }
+
+    static bool IsValidPlayerWeaponSlot(const ERenegadePlayerWeaponSlot WeaponSlot)
+    {
+        return WeaponSlot == ERenegadePlayerWeaponSlot::AutomaticRifle
+            || WeaponSlot == ERenegadePlayerWeaponSlot::Pistol;
+    }
+
+    /** Ignore the owning pawn and every actor attached to it so weapon/armour child actors cannot block the muzzle trace. */
+    static void AddOwnerHierarchyToTraceIgnore(const AActor* RootActor, FCollisionQueryParams& QueryParams)
+    {
+        if (!IsValid(RootActor))
+        {
+            return;
+        }
+
+        QueryParams.AddIgnoredActor(RootActor);
+
+        TArray<AActor*> AttachedActors;
+        RootActor->GetAttachedActors(AttachedActors, true, true);
+        for (AActor* AttachedActor : AttachedActors)
+        {
+            if (IsValid(AttachedActor))
+            {
+                QueryParams.AddIgnoredActor(AttachedActor);
+            }
+        }
+
+        TArray<AActor*> ChildActors;
+        RootActor->GetAllChildActors(ChildActors, true);
+        for (AActor* ChildActor : ChildActors)
+        {
+            if (IsValid(ChildActor))
+            {
+                QueryParams.AddIgnoredActor(ChildActor);
+            }
+        }
+    }
+
+    /** Run the authored channel trace and an optional combat-object trace, keeping the closest blocking result. */
+    static bool PerformWeaponTrace(
+        UWorld* World,
+        FHitResult& OutHit,
+        const FVector& Start,
+        const FVector& End,
+        const FRenegadeWeaponSettings& Weapon,
+        const FCollisionQueryParams& QueryParams)
+    {
+        if (!IsValid(World))
+        {
+            OutHit = FHitResult();
+            return false;
+        }
+
+        FHitResult ChannelHit;
+        const bool bChannelHit = World->LineTraceSingleByChannel(
+            ChannelHit,
+            Start,
+            End,
+            Weapon.TraceChannel,
+            QueryParams);
+
+        bool bObjectHit = false;
+        FHitResult ObjectHit;
+        if (Weapon.bUseCombatTargetObjectTraceFallback)
+        {
+            const FCollisionObjectQueryParams ObjectQueryParams(Weapon.CombatTargetObjectType);
+            bObjectHit = World->LineTraceSingleByObjectType(
+                ObjectHit,
+                Start,
+                End,
+                ObjectQueryParams,
+                QueryParams);
+        }
+
+        if (bChannelHit && bObjectHit)
+        {
+            OutHit = ObjectHit.Distance < ChannelHit.Distance ? ObjectHit : ChannelHit;
+            return true;
+        }
+
+        if (bObjectHit)
+        {
+            OutHit = ObjectHit;
+            return true;
+        }
+
+        if (bChannelHit)
+        {
+            OutHit = ChannelHit;
+            return true;
+        }
+
+        OutHit = FHitResult();
+        return false;
+    }
+
+    /** Resolve a combat component through child-actor, attachment, owner, or instigator chains. */
+    static URenegadeSoldierCombatComponent* ResolveCombatComponentFromActorHierarchy(AActor* StartActor)
+    {
+        if (!IsValid(StartActor))
+        {
+            return nullptr;
+        }
+
+        TArray<AActor*> PendingActors;
+        TSet<AActor*> VisitedActors;
+        PendingActors.Add(StartActor);
+
+        constexpr int32 MaximumActorsToInspect = 24;
+        int32 InspectedActors = 0;
+
+        while (PendingActors.Num() > 0 && InspectedActors < MaximumActorsToInspect)
+        {
+            AActor* Candidate = PendingActors.Pop(EAllowShrinking::No);
+            if (!IsValid(Candidate) || VisitedActors.Contains(Candidate))
+            {
+                continue;
+            }
+
+            VisitedActors.Add(Candidate);
+            ++InspectedActors;
+
+            if (URenegadeSoldierCombatComponent* CombatComponent = Candidate->FindComponentByClass<URenegadeSoldierCombatComponent>())
+            {
+                return CombatComponent;
+            }
+
+            if (AActor* ParentActor = Candidate->GetAttachParentActor())
+            {
+                PendingActors.Add(ParentActor);
+            }
+
+            if (AActor* OwnerActor = Candidate->GetOwner())
+            {
+                PendingActors.Add(OwnerActor);
+            }
+
+            if (APawn* InstigatorPawn = Candidate->GetInstigator())
+            {
+                PendingActors.Add(InstigatorPawn);
+            }
+        }
+
+        return nullptr;
+    }
 }
 
 URenegadeSoldierCombatComponent::URenegadeSoldierCombatComponent()
@@ -39,6 +190,28 @@ URenegadeSoldierCombatComponent::URenegadeSoldierCombatComponent()
     PrimaryComponentTick.bCanEverTick = true;
     PrimaryComponentTick.bStartWithTickEnabled = false;
     SetIsReplicatedByDefault(true);
+
+    InlinePlayerAutomaticRifleSettings.WeaponClass = ERenegadeWeaponClass::AutomaticRifle;
+    InlinePlayerAutomaticRifleSettings.DamagePerShot = 11.0f;
+    InlinePlayerAutomaticRifleSettings.RoundsPerMinute = 600.0f;
+    InlinePlayerAutomaticRifleSettings.MagazineSize = 30;
+    InlinePlayerAutomaticRifleSettings.MinimumBurstShots = 1;
+    InlinePlayerAutomaticRifleSettings.MaximumBurstShots = 1;
+    InlinePlayerAutomaticRifleSettings.MinimumBurstPause = 0.0f;
+    InlinePlayerAutomaticRifleSettings.MaximumBurstPause = 0.0f;
+
+    InlinePlayerPistolSettings.WeaponClass = ERenegadeWeaponClass::Pistol;
+    InlinePlayerPistolSettings.DamagePerShot = 24.0f;
+    InlinePlayerPistolSettings.MaximumRange = 3500.0f;
+    InlinePlayerPistolSettings.RoundsPerMinute = 360.0f;
+    InlinePlayerPistolSettings.MinimumBurstShots = 1;
+    InlinePlayerPistolSettings.MaximumBurstShots = 1;
+    InlinePlayerPistolSettings.MinimumBurstPause = 0.0f;
+    InlinePlayerPistolSettings.MaximumBurstPause = 0.0f;
+    InlinePlayerPistolSettings.HipFireSpreadDegrees = 1.35f;
+    InlinePlayerPistolSettings.MovingSpreadPenaltyDegrees = 0.8f;
+    InlinePlayerPistolSettings.MagazineSize = 12;
+    InlinePlayerPistolSettings.ReloadSeconds = 1.55f;
 }
 
 void URenegadeSoldierCombatComponent::BeginPlay()
@@ -70,8 +243,18 @@ void URenegadeSoldierCombatComponent::BeginPlay()
     if (HasAuthority())
     {
         CurrentHealth = FMath::Max(1.0f, HealthAndRespawn.MaximumHealth);
-        const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
-        CurrentMagazineAmmo = Weapon.bUseMagazine ? FMath::Max(1, Weapon.MagazineSize) : 0;
+
+        if (bPlayerControlledCombat)
+        {
+            bAutoCombatEnabled = false;
+            InitializePlayerWeaponAmmo(true);
+            SyncCurrentMagazineFromPlayerWeapon();
+        }
+        else
+        {
+            const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
+            CurrentMagazineAmmo = Weapon.bUseMagazine ? FMath::Max(1, Weapon.MagazineSize) : 0;
+        }
 
         if (AActor* Owner = GetOwner())
         {
@@ -81,15 +264,29 @@ void URenegadeSoldierCombatComponent::BeginPlay()
 
     RegisterWithCombatWorld();
 
-    if (HasAuthority() && bAutoStartOnBeginPlay && bAutoCombatEnabled)
+    if (HasAuthority() && !bPlayerControlledCombat && bAutoStartOnBeginPlay && bAutoCombatEnabled)
     {
         StartAutoCombat();
     }
+
+    PlayerAimAlpha = bIsPlayerAiming ? 1.0f : 0.0f;
+    ResetPlayerAimCameraCapture();
+    if (bPlayerControlledCombat && bIsPlayerAiming)
+    {
+        HandlePlayerAimStateChanged(false);
+    }
+
+    UpdateComponentTickState();
 }
 
 void URenegadeSoldierCombatComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     RestoreCombatFacingMode(true);
+    RestorePlayerAimRotationMode();
+    RestorePlayerAimCameraZoom(true);
+    PlayerAimAlpha = 0.0f;
+    ResetBuiltInPlayerInputState(false);
+    StopLocalPlayerFireTimer();
     StopAllBulletMeshVisuals();
 
     for (UStaticMeshComponent* BulletComponent : BulletVisualComponents)
@@ -122,6 +319,12 @@ void URenegadeSoldierCombatComponent::TickComponent(float DeltaTime, ELevelTick 
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+    // Optional self-contained input runs only for the owning local player.
+    UpdateBuiltInPlayerInput(DeltaTime);
+
+    // Player aim presentation owns camera zoom and camera-facing Character yaw while aiming.
+    UpdatePlayerAimPresentation(DeltaTime);
+
     // Cosmetic bullet components run on clients and on the listen-server view.
     UpdateBulletMeshVisuals(DeltaTime);
 
@@ -150,6 +353,11 @@ void URenegadeSoldierCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetim
     DOREPLIFETIME(URenegadeSoldierCombatComponent, CurrentTarget);
     DOREPLIFETIME(URenegadeSoldierCombatComponent, CurrentMagazineAmmo);
     DOREPLIFETIME(URenegadeSoldierCombatComponent, bLockCombatRotationToCurrentTarget);
+    DOREPLIFETIME(URenegadeSoldierCombatComponent, bPlayerControlledCombat);
+    DOREPLIFETIME(URenegadeSoldierCombatComponent, ActivePlayerWeapon);
+    DOREPLIFETIME(URenegadeSoldierCombatComponent, CurrentAutomaticRifleAmmo);
+    DOREPLIFETIME(URenegadeSoldierCombatComponent, CurrentPistolAmmo);
+    DOREPLIFETIME(URenegadeSoldierCombatComponent, bIsPlayerAiming);
 }
 
 void URenegadeSoldierCombatComponent::RegisterWithCombatWorld()
@@ -320,7 +528,7 @@ bool URenegadeSoldierCombatComponent::HasAuthority() const
 
 void URenegadeSoldierCombatComponent::StartAutoCombat()
 {
-    if (!HasAuthority() || bIsDead)
+    if (!HasAuthority() || bIsDead || bPlayerControlledCombat)
     {
         return;
     }
@@ -523,8 +731,20 @@ void URenegadeSoldierCombatComponent::RespawnNow()
     bReloading = false;
     bInvulnerable = HealthAndRespawn.RespawnInvulnerabilitySeconds > 0.0f;
 
-    const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
-    CurrentMagazineAmmo = Weapon.bUseMagazine ? FMath::Max(1, Weapon.MagazineSize) : 0;
+    if (bPlayerControlledCombat)
+    {
+        if (PlayerCombat.bRefillAllWeaponsOnRespawn)
+        {
+            InitializePlayerWeaponAmmo(true);
+        }
+        SyncCurrentMagazineFromPlayerWeapon();
+        NextAllowedPlayerShotServerTime = -BIG_NUMBER;
+    }
+    else
+    {
+        const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
+        CurrentMagazineAmmo = Weapon.bUseMagazine ? FMath::Max(1, Weapon.MagazineSize) : 0;
+    }
 
     MulticastFinishRespawn(RespawnTransform);
 
@@ -546,6 +766,60 @@ void URenegadeSoldierCombatComponent::RespawnNow()
     {
         Owner->ForceNetUpdate();
     }
+}
+
+void URenegadeSoldierCombatComponent::SetRuntimeRespawnTransform(FTransform NewRespawnTransform)
+{
+    if (!HasAuthority())
+    {
+        return;
+    }
+
+    RuntimeRespawnTransform = NewRespawnTransform;
+    bHasRuntimeRespawnTransform = true;
+}
+
+void URenegadeSoldierCombatComponent::ClearRuntimeRespawnTransform()
+{
+    if (!HasAuthority())
+    {
+        return;
+    }
+
+    RuntimeRespawnTransform = FTransform::Identity;
+    bHasRuntimeRespawnTransform = false;
+}
+
+void URenegadeSoldierCombatComponent::SetCustomRespawnTransforms(const TArray<FTransform>& NewRespawnTransforms)
+{
+    if (!HasAuthority())
+    {
+        return;
+    }
+
+    HealthAndRespawn.CustomRespawnTransforms = NewRespawnTransforms;
+    CustomRespawnSequentialIndex = 0;
+}
+
+void URenegadeSoldierCombatComponent::AddCustomRespawnTransform(FTransform NewRespawnTransform)
+{
+    if (!HasAuthority())
+    {
+        return;
+    }
+
+    HealthAndRespawn.CustomRespawnTransforms.Add(NewRespawnTransform);
+}
+
+void URenegadeSoldierCombatComponent::ClearCustomRespawnTransforms()
+{
+    if (!HasAuthority())
+    {
+        return;
+    }
+
+    HealthAndRespawn.CustomRespawnTransforms.Reset();
+    CustomRespawnSequentialIndex = 0;
 }
 
 void URenegadeSoldierCombatComponent::SetInvulnerable(bool bNewInvulnerable)
@@ -615,11 +889,1187 @@ bool URenegadeSoldierCombatComponent::ValidateRagdollSetup(FString& FailureReaso
 
 FRenegadeWeaponSettings URenegadeSoldierCombatComponent::GetActiveWeaponSettings() const
 {
+    if (bPlayerControlledCombat)
+    {
+        return GetPlayerWeaponSettings(ActivePlayerWeapon);
+    }
+
     if (bUseWeaponProfile && IsValid(WeaponProfile))
     {
         return WeaponProfile->Settings;
     }
     return InlineWeaponSettings;
+}
+
+FRenegadeWeaponSettings URenegadeSoldierCombatComponent::GetPlayerWeaponSettings(ERenegadePlayerWeaponSlot WeaponSlot) const
+{
+    if (bUsePlayerWeaponProfiles)
+    {
+        if (WeaponSlot == ERenegadePlayerWeaponSlot::Pistol && IsValid(PlayerPistolProfile))
+        {
+            return PlayerPistolProfile->Settings;
+        }
+
+        if (WeaponSlot == ERenegadePlayerWeaponSlot::AutomaticRifle && IsValid(PlayerAutomaticRifleProfile))
+        {
+            return PlayerAutomaticRifleProfile->Settings;
+        }
+    }
+
+    return WeaponSlot == ERenegadePlayerWeaponSlot::Pistol
+        ? InlinePlayerPistolSettings
+        : InlinePlayerAutomaticRifleSettings;
+}
+
+int32 URenegadeSoldierCombatComponent::GetPlayerWeaponAmmo(ERenegadePlayerWeaponSlot WeaponSlot) const
+{
+    return WeaponSlot == ERenegadePlayerWeaponSlot::Pistol
+        ? CurrentPistolAmmo
+        : CurrentAutomaticRifleAmmo;
+}
+
+int32& URenegadeSoldierCombatComponent::GetMutablePlayerAmmo(ERenegadePlayerWeaponSlot WeaponSlot)
+{
+    return WeaponSlot == ERenegadePlayerWeaponSlot::Pistol
+        ? CurrentPistolAmmo
+        : CurrentAutomaticRifleAmmo;
+}
+
+void URenegadeSoldierCombatComponent::SetPlayerAmmo(ERenegadePlayerWeaponSlot WeaponSlot, int32 NewAmmo)
+{
+    int32& Ammo = GetMutablePlayerAmmo(WeaponSlot);
+    const int32 PreviousAmmo = Ammo;
+    Ammo = FMath::Max(0, NewAmmo);
+
+    if (ActivePlayerWeapon == WeaponSlot)
+    {
+        CurrentMagazineAmmo = Ammo;
+    }
+
+    if (PreviousAmmo != Ammo)
+    {
+        OnPlayerAmmoChanged.Broadcast(WeaponSlot, PreviousAmmo, Ammo);
+    }
+}
+
+void URenegadeSoldierCombatComponent::InitializePlayerWeaponAmmo(bool bForceRefill)
+{
+    const FRenegadeWeaponSettings Rifle = GetPlayerWeaponSettings(ERenegadePlayerWeaponSlot::AutomaticRifle);
+    const FRenegadeWeaponSettings Pistol = GetPlayerWeaponSettings(ERenegadePlayerWeaponSlot::Pistol);
+
+    if (bForceRefill || CurrentAutomaticRifleAmmo < 0)
+    {
+        SetPlayerAmmo(ERenegadePlayerWeaponSlot::AutomaticRifle, Rifle.bUseMagazine ? FMath::Max(1, Rifle.MagazineSize) : 0);
+    }
+
+    if (bForceRefill || CurrentPistolAmmo < 0)
+    {
+        SetPlayerAmmo(ERenegadePlayerWeaponSlot::Pistol, Pistol.bUseMagazine ? FMath::Max(1, Pistol.MagazineSize) : 0);
+    }
+}
+
+void URenegadeSoldierCombatComponent::SyncCurrentMagazineFromPlayerWeapon()
+{
+    CurrentMagazineAmmo = GetPlayerWeaponAmmo(ActivePlayerWeapon);
+}
+
+bool URenegadeSoldierCombatComponent::IsLocallyControlledPlayer() const
+{
+    return bPlayerControlledCombat
+        && IsValid(OwnerCharacter)
+        && OwnerCharacter->IsLocallyControlled()
+        && IsValid(Cast<APlayerController>(OwnerCharacter->GetController()));
+}
+
+bool URenegadeSoldierCombatComponent::ResolveLocalPlayerView(FVector& OutViewLocation, FVector& OutViewDirection) const
+{
+    OutViewLocation = FVector::ZeroVector;
+    OutViewDirection = FVector::ForwardVector;
+
+    if (!IsValid(OwnerCharacter))
+    {
+        return false;
+    }
+
+    if (PlayerCombat.bUseControllerViewForAim)
+    {
+        if (AController* Controller = GetOwningController())
+        {
+            FRotator ViewRotation;
+            Controller->GetPlayerViewPoint(OutViewLocation, ViewRotation);
+            OutViewDirection = ViewRotation.Vector().GetSafeNormal();
+            return !OutViewDirection.IsNearlyZero();
+        }
+    }
+
+    FRotator EyeRotation;
+    OwnerCharacter->GetActorEyesViewPoint(OutViewLocation, EyeRotation);
+    OutViewDirection = EyeRotation.Vector().GetSafeNormal();
+    return !OutViewDirection.IsNearlyZero();
+}
+
+void URenegadeSoldierCombatComponent::PlayerStartFire()
+{
+    if (!bPlayerControlledCombat || bIsDead || !IsLocallyControlledPlayer())
+    {
+        return;
+    }
+
+    StopLocalPlayerFireTimer();
+
+    const FRenegadeWeaponSettings Weapon = GetPlayerWeaponSettings(ActivePlayerWeapon);
+    const bool bRepeat = ActivePlayerWeapon == ERenegadePlayerWeaponSlot::AutomaticRifle
+        && PlayerCombat.bAutomaticRifleFiresWhileHeld;
+
+    // Preserve a held automatic-rifle request through a reload so firing can resume when the magazine is ready.
+    bLocalPlayerFireHeld = bRepeat;
+
+    if (bReloading || (PlayerInput.bRequireAimToFire && !bIsPlayerAiming))
+    {
+        return;
+    }
+
+    SubmitLocalPlayerShot();
+
+    if (bRepeat && GetWorld())
+    {
+        const float SecondsPerShot = 60.0f / FMath::Max(1.0f, Weapon.RoundsPerMinute);
+        GetWorld()->GetTimerManager().SetTimer(
+            LocalPlayerFireTimer,
+            this,
+            &URenegadeSoldierCombatComponent::SubmitLocalPlayerShot,
+            FMath::Max(0.01f, SecondsPerShot),
+            true,
+            FMath::Max(0.01f, SecondsPerShot));
+    }
+}
+
+void URenegadeSoldierCombatComponent::PlayerStopFire()
+{
+    StopLocalPlayerFireTimer();
+}
+
+void URenegadeSoldierCombatComponent::PauseLocalPlayerFireTimer()
+{
+    if (UWorld* World = GetWorld())
+    {
+        World->GetTimerManager().ClearTimer(LocalPlayerFireTimer);
+    }
+}
+
+void URenegadeSoldierCombatComponent::StopLocalPlayerFireTimer()
+{
+    bLocalPlayerFireHeld = false;
+    PauseLocalPlayerFireTimer();
+}
+
+void URenegadeSoldierCombatComponent::PlayerFireOnce()
+{
+    if (!bPlayerControlledCombat || bIsDead || bReloading || !IsLocallyControlledPlayer()
+        || (PlayerInput.bRequireAimToFire && !bIsPlayerAiming))
+    {
+        return;
+    }
+
+    SubmitLocalPlayerShot();
+}
+
+void URenegadeSoldierCombatComponent::SubmitLocalPlayerShot()
+{
+    if (!bPlayerControlledCombat || bIsDead || bReloading)
+    {
+        return;
+    }
+
+    FVector ViewLocation;
+    FVector ViewDirection;
+    if (!ResolveLocalPlayerView(ViewLocation, ViewDirection))
+    {
+        return;
+    }
+
+    if (HasAuthority())
+    {
+        PerformPlayerShotServer(ViewLocation, ViewDirection, ActivePlayerWeapon, bIsPlayerAiming);
+    }
+    else
+    {
+        ServerRequestPlayerShot(ViewLocation, ViewDirection, ActivePlayerWeapon, bIsPlayerAiming);
+    }
+}
+
+void URenegadeSoldierCombatComponent::SetPlayerAimingInternal(bool bNewAiming)
+{
+    if (!bPlayerControlledCombat)
+    {
+        bNewAiming = false;
+    }
+
+    bNewAiming = bNewAiming && !bIsDead;
+    if (bIsPlayerAiming == bNewAiming)
+    {
+        // Settings may have changed while the state stayed the same. Keep presentation synchronised.
+        if (bIsPlayerAiming)
+        {
+            ApplyPlayerAimRotationMode();
+            UpdateComponentTickState();
+        }
+        return;
+    }
+
+    const bool bPreviousAiming = bIsPlayerAiming;
+    bIsPlayerAiming = bNewAiming;
+    HandlePlayerAimStateChanged(bPreviousAiming);
+    OnPlayerAimChanged.Broadcast(bIsPlayerAiming);
+
+    if (!bIsPlayerAiming && PlayerInput.bRequireAimToFire)
+    {
+        StopLocalPlayerFireTimer();
+        bBuiltInFireCommandActive = false;
+    }
+
+    if (HasAuthority())
+    {
+        if (AActor* Owner = GetOwner())
+        {
+            Owner->ForceNetUpdate();
+        }
+    }
+}
+
+void URenegadeSoldierCombatComponent::HandlePlayerAimStateChanged(bool bPreviousAiming)
+{
+    if (!bPlayerControlledCombat || bIsDead || !PlayerAimPresentation.bEnableAimPresentation)
+    {
+        RestorePlayerAimRotationMode();
+        UpdateComponentTickState();
+        return;
+    }
+
+    if (bIsPlayerAiming)
+    {
+        ApplyPlayerAimRotationMode();
+        if (!bPreviousAiming && PlayerAimPresentation.bSnapCharacterToCameraYawOnAimStart)
+        {
+            RotatePlayerCharacterToAimForward(0.0f, true);
+        }
+
+        // Capture and apply an initial camera step immediately so aim never appears unresponsive.
+        UpdatePlayerAimCameraZoom(0.0f, PlayerAimPresentation.ZoomInInterpSpeed <= KINDA_SMALL_NUMBER);
+    }
+    else
+    {
+        RestorePlayerAimRotationMode();
+        if (PlayerAimPresentation.ZoomOutInterpSpeed <= KINDA_SMALL_NUMBER)
+        {
+            RestorePlayerAimCameraZoom(true);
+        }
+    }
+
+    UpdateComponentTickState();
+}
+
+void URenegadeSoldierCombatComponent::ApplyPlayerAimRotationMode()
+{
+    if (bPlayerAimRotationModeApplied || !bPlayerControlledCombat || bIsDead
+        || !PlayerAimPresentation.bEnableAimPresentation
+        || !PlayerAimPresentation.bRotateCharacterToCameraForward
+        || (!HasAuthority() && !IsLocallyControlledPlayer()))
+    {
+        return;
+    }
+
+    ResolveOwnerComponents();
+    if (!IsValid(OwnerCharacter))
+    {
+        return;
+    }
+
+    if (IsValid(OwnerMovement))
+    {
+        if (PlayerAimPresentation.bDisableOrientRotationToMovementWhileAiming)
+        {
+            OwnerMovement->bOrientRotationToMovement = false;
+        }
+        OwnerMovement->bUseControllerDesiredRotation = PlayerAimPresentation.bUseControllerDesiredRotationWhileAiming;
+    }
+
+    OwnerCharacter->bUseControllerRotationYaw = PlayerAimPresentation.bUseControllerRotationYawWhileAiming;
+    bPlayerAimRotationModeApplied = true;
+}
+
+void URenegadeSoldierCombatComponent::RestorePlayerAimRotationMode()
+{
+    if (!bPlayerAimRotationModeApplied)
+    {
+        return;
+    }
+
+    ResolveOwnerComponents();
+    if (IsValid(OwnerMovement))
+    {
+        OwnerMovement->bOrientRotationToMovement = bOriginalOrientRotationToMovement;
+        OwnerMovement->bUseControllerDesiredRotation = bOriginalUseControllerDesiredRotation;
+    }
+
+    if (IsValid(OwnerCharacter))
+    {
+        OwnerCharacter->bUseControllerRotationYaw = bOriginalUseControllerRotationYaw;
+    }
+
+    bPlayerAimRotationModeApplied = false;
+}
+
+void URenegadeSoldierCombatComponent::RotatePlayerCharacterToAimForward(float DeltaTime, bool bInstant)
+{
+    if ((!bIsPlayerAiming && !bInstant) || bIsDead || !bPlayerControlledCombat
+        || !PlayerAimPresentation.bEnableAimPresentation
+        || !PlayerAimPresentation.bRotateCharacterToCameraForward
+        || (!HasAuthority() && !IsLocallyControlledPlayer())
+        || !IsValid(GetOwner()))
+    {
+        return;
+    }
+
+    AController* Controller = GetOwningController();
+    if (!IsValid(Controller))
+    {
+        return;
+    }
+
+    FRotator ViewRotation = Controller->GetControlRotation();
+    if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+    {
+        FVector ViewLocation;
+        PlayerController->GetPlayerViewPoint(ViewLocation, ViewRotation);
+    }
+
+    FRotator CurrentRotation = GetOwner()->GetActorRotation();
+    const FRotator DesiredRotation(0.0f, ViewRotation.Yaw, 0.0f);
+    const float RotationSpeed = FMath::Max(0.0f, PlayerAimPresentation.CharacterRotationSpeedDegreesPerSecond);
+    const FRotator NewRotation = bInstant || RotationSpeed <= KINDA_SMALL_NUMBER || DeltaTime <= 0.0f
+        ? DesiredRotation
+        : FMath::RInterpConstantTo(CurrentRotation, DesiredRotation, DeltaTime, RotationSpeed);
+
+    GetOwner()->SetActorRotation(NewRotation, ETeleportType::None);
+}
+
+UCameraComponent* URenegadeSoldierCombatComponent::ResolvePlayerAimCameraComponent() const
+{
+    AActor* Owner = GetOwner();
+    if (!IsValid(Owner))
+    {
+        return nullptr;
+    }
+
+    if (IsValid(RuntimePlayerAimCameraComponent) && RuntimePlayerAimCameraComponent->GetOwner() == Owner)
+    {
+        return RuntimePlayerAimCameraComponent;
+    }
+
+    if (UActorComponent* SelectedComponent = PlayerAimCameraComponent.GetComponent(Owner))
+    {
+        if (UCameraComponent* SelectedCamera = Cast<UCameraComponent>(SelectedComponent))
+        {
+            return SelectedCamera;
+        }
+    }
+
+    TArray<UCameraComponent*> Cameras;
+    Owner->GetComponents<UCameraComponent>(Cameras);
+
+    if (!PlayerAimCameraComponentTag.IsNone())
+    {
+        for (UCameraComponent* Camera : Cameras)
+        {
+            if (IsValid(Camera) && Camera->ComponentHasTag(PlayerAimCameraComponentTag))
+            {
+                return Camera;
+            }
+        }
+    }
+
+    if (PlayerAimPresentation.bAutoFindActiveCameraComponent)
+    {
+        for (UCameraComponent* Camera : Cameras)
+        {
+            if (IsValid(Camera) && Camera->IsActive())
+            {
+                return Camera;
+            }
+        }
+    }
+
+    for (UCameraComponent* Camera : Cameras)
+    {
+        if (IsValid(Camera))
+        {
+            return Camera;
+        }
+    }
+
+    return nullptr;
+}
+
+APlayerCameraManager* URenegadeSoldierCombatComponent::ResolveLocalPlayerCameraManager() const
+{
+    APlayerController* PlayerController = Cast<APlayerController>(GetOwningController());
+    return IsValid(PlayerController) && PlayerController->IsLocalController()
+        ? PlayerController->PlayerCameraManager
+        : nullptr;
+}
+
+void URenegadeSoldierCombatComponent::ResetPlayerAimCameraCapture()
+{
+    CapturedPlayerAimCameraComponent.Reset();
+    CapturedPlayerAimCameraManager.Reset();
+    bOriginalPlayerAimCameraFOVCaptured = false;
+    bOriginalPlayerCameraManagerFOVCaptured = false;
+    bPlayerCameraManagerFOVLockedByPlugin = false;
+}
+
+void URenegadeSoldierCombatComponent::UpdatePlayerAimCameraZoom(float DeltaTime, bool bInstant)
+{
+    if (!IsLocallyControlledPlayer())
+    {
+        return;
+    }
+
+    const bool bCanZoom = bPlayerControlledCombat
+        && PlayerAimPresentation.bEnableAimPresentation
+        && PlayerAimPresentation.bZoomCameraWhileAiming;
+    const bool bTargetAiming = bCanZoom && bIsPlayerAiming && !bIsDead;
+    const bool bHasPendingCameraRestore = bOriginalPlayerAimCameraFOVCaptured
+        || bOriginalPlayerCameraManagerFOVCaptured
+        || bPlayerCameraManagerFOVLockedByPlugin;
+    if (!bTargetAiming && !bHasPendingCameraRestore)
+    {
+        return;
+    }
+
+    if (UCameraComponent* Camera = ResolvePlayerAimCameraComponent())
+    {
+        // A Camera Component now owns the zoom; release any previous PlayerCameraManager fallback lock.
+        if (bOriginalPlayerCameraManagerFOVCaptured || bPlayerCameraManagerFOVLockedByPlugin)
+        {
+            APlayerCameraManager* CameraManager = CapturedPlayerAimCameraManager.IsValid()
+                ? CapturedPlayerAimCameraManager.Get()
+                : ResolveLocalPlayerCameraManager();
+            if (IsValid(CameraManager))
+            {
+                CameraManager->SetFOV(OriginalPlayerCameraManagerFOV);
+                CameraManager->UnlockFOV();
+            }
+            CapturedPlayerAimCameraManager.Reset();
+            bOriginalPlayerCameraManagerFOVCaptured = false;
+            bPlayerCameraManagerFOVLockedByPlugin = false;
+        }
+
+        if (CapturedPlayerAimCameraComponent.Get() != Camera)
+        {
+            if (CapturedPlayerAimCameraComponent.IsValid() && bOriginalPlayerAimCameraFOVCaptured)
+            {
+                CapturedPlayerAimCameraComponent->SetFieldOfView(OriginalPlayerAimCameraFOV);
+            }
+
+            CapturedPlayerAimCameraComponent = Camera;
+            OriginalPlayerAimCameraFOV = Camera->FieldOfView;
+            bOriginalPlayerAimCameraFOVCaptured = true;
+        }
+
+        const float TargetFOV = bTargetAiming
+            ? FMath::Clamp(PlayerAimPresentation.AimedFieldOfView, 5.0f, 170.0f)
+            : OriginalPlayerAimCameraFOV;
+        const float InterpSpeed = bTargetAiming
+            ? FMath::Max(0.0f, PlayerAimPresentation.ZoomInInterpSpeed)
+            : FMath::Max(0.0f, PlayerAimPresentation.ZoomOutInterpSpeed);
+        const float NewFOV = bInstant || InterpSpeed <= KINDA_SMALL_NUMBER
+            ? TargetFOV
+            : FMath::FInterpTo(Camera->FieldOfView, TargetFOV, FMath::Max(0.0f, DeltaTime), InterpSpeed);
+        Camera->SetFieldOfView(NewFOV);
+
+        if (!bTargetAiming && FMath::IsNearlyEqual(NewFOV, TargetFOV, 0.05f))
+        {
+            Camera->SetFieldOfView(TargetFOV);
+            CapturedPlayerAimCameraComponent.Reset();
+            bOriginalPlayerAimCameraFOVCaptured = false;
+        }
+        return;
+    }
+
+    if (!CapturedPlayerAimCameraComponent.IsValid())
+    {
+        bOriginalPlayerAimCameraFOVCaptured = false;
+    }
+
+    if (!PlayerAimPresentation.bUsePlayerCameraManagerFallback)
+    {
+        APlayerCameraManager* CameraManager = CapturedPlayerAimCameraManager.IsValid()
+            ? CapturedPlayerAimCameraManager.Get()
+            : ResolveLocalPlayerCameraManager();
+        if (IsValid(CameraManager) && (bOriginalPlayerCameraManagerFOVCaptured || bPlayerCameraManagerFOVLockedByPlugin))
+        {
+            CameraManager->SetFOV(OriginalPlayerCameraManagerFOV);
+            CameraManager->UnlockFOV();
+        }
+        CapturedPlayerAimCameraManager.Reset();
+        bOriginalPlayerCameraManagerFOVCaptured = false;
+        bPlayerCameraManagerFOVLockedByPlugin = false;
+        return;
+    }
+
+    APlayerCameraManager* CameraManager = ResolveLocalPlayerCameraManager();
+    if (!IsValid(CameraManager))
+    {
+        return;
+    }
+
+    if (!bOriginalPlayerCameraManagerFOVCaptured || CapturedPlayerAimCameraManager.Get() != CameraManager)
+    {
+        OriginalPlayerCameraManagerFOV = CameraManager->GetFOVAngle();
+        CapturedPlayerAimCameraManager = CameraManager;
+        bOriginalPlayerCameraManagerFOVCaptured = true;
+    }
+
+    const float CurrentFOV = CameraManager->GetFOVAngle();
+    const float TargetFOV = bTargetAiming
+        ? FMath::Clamp(PlayerAimPresentation.AimedFieldOfView, 5.0f, 170.0f)
+        : OriginalPlayerCameraManagerFOV;
+    const float InterpSpeed = bTargetAiming
+        ? FMath::Max(0.0f, PlayerAimPresentation.ZoomInInterpSpeed)
+        : FMath::Max(0.0f, PlayerAimPresentation.ZoomOutInterpSpeed);
+    const float NewFOV = bInstant || InterpSpeed <= KINDA_SMALL_NUMBER
+        ? TargetFOV
+        : FMath::FInterpTo(CurrentFOV, TargetFOV, FMath::Max(0.0f, DeltaTime), InterpSpeed);
+
+    CameraManager->SetFOV(NewFOV);
+    bPlayerCameraManagerFOVLockedByPlugin = true;
+
+    if (!bTargetAiming && FMath::IsNearlyEqual(NewFOV, TargetFOV, 0.05f))
+    {
+        CameraManager->SetFOV(TargetFOV);
+        CameraManager->UnlockFOV();
+        CapturedPlayerAimCameraManager.Reset();
+        bOriginalPlayerCameraManagerFOVCaptured = false;
+        bPlayerCameraManagerFOVLockedByPlugin = false;
+    }
+}
+
+void URenegadeSoldierCombatComponent::RestorePlayerAimCameraZoom(bool bInstant)
+{
+    if (CapturedPlayerAimCameraComponent.IsValid() && bOriginalPlayerAimCameraFOVCaptured)
+    {
+        UCameraComponent* Camera = CapturedPlayerAimCameraComponent.Get();
+        if (bInstant || PlayerAimPresentation.ZoomOutInterpSpeed <= KINDA_SMALL_NUMBER || !IsLocallyControlledPlayer())
+        {
+            Camera->SetFieldOfView(OriginalPlayerAimCameraFOV);
+            CapturedPlayerAimCameraComponent.Reset();
+            bOriginalPlayerAimCameraFOVCaptured = false;
+        }
+        else
+        {
+            UpdatePlayerAimCameraZoom(0.0f, false);
+        }
+    }
+    else if (!CapturedPlayerAimCameraComponent.IsValid())
+    {
+        bOriginalPlayerAimCameraFOVCaptured = false;
+    }
+
+    APlayerCameraManager* CameraManager = CapturedPlayerAimCameraManager.IsValid()
+        ? CapturedPlayerAimCameraManager.Get()
+        : ResolveLocalPlayerCameraManager();
+    if (IsValid(CameraManager) && (bOriginalPlayerCameraManagerFOVCaptured || bPlayerCameraManagerFOVLockedByPlugin))
+    {
+        CameraManager->SetFOV(OriginalPlayerCameraManagerFOV);
+        CameraManager->UnlockFOV();
+    }
+
+    CapturedPlayerAimCameraManager.Reset();
+    bOriginalPlayerCameraManagerFOVCaptured = false;
+    bPlayerCameraManagerFOVLockedByPlugin = false;
+}
+
+void URenegadeSoldierCombatComponent::UpdatePlayerAimPresentation(float DeltaTime)
+{
+    // Simulated proxies receive the server-authoritative Character rotation and do not need local aim ticking.
+    if (!HasAuthority() && !IsLocallyControlledPlayer())
+    {
+        return;
+    }
+
+    if (!bPlayerControlledCombat || !PlayerAimPresentation.bEnableAimPresentation || bIsDead)
+    {
+        RestorePlayerAimRotationMode();
+        UpdatePlayerAimCameraZoom(DeltaTime, false);
+        const float RestoreSpeed = FMath::Max(0.0f, PlayerAimPresentation.ZoomOutInterpSpeed);
+        PlayerAimAlpha = RestoreSpeed <= KINDA_SMALL_NUMBER
+            ? 0.0f
+            : FMath::FInterpTo(PlayerAimAlpha, 0.0f, FMath::Max(0.0f, DeltaTime), RestoreSpeed);
+        if (FMath::IsNearlyZero(PlayerAimAlpha, 0.001f))
+        {
+            PlayerAimAlpha = 0.0f;
+        }
+        return;
+    }
+
+    if (bIsPlayerAiming)
+    {
+        ApplyPlayerAimRotationMode();
+        RotatePlayerCharacterToAimForward(DeltaTime, false);
+    }
+    else
+    {
+        RestorePlayerAimRotationMode();
+    }
+
+    UpdatePlayerAimCameraZoom(DeltaTime, false);
+
+    const float TargetAlpha = bIsPlayerAiming ? 1.0f : 0.0f;
+    const float InterpSpeed = bIsPlayerAiming
+        ? FMath::Max(0.0f, PlayerAimPresentation.ZoomInInterpSpeed)
+        : FMath::Max(0.0f, PlayerAimPresentation.ZoomOutInterpSpeed);
+    PlayerAimAlpha = InterpSpeed <= KINDA_SMALL_NUMBER
+        ? TargetAlpha
+        : FMath::FInterpTo(PlayerAimAlpha, TargetAlpha, FMath::Max(0.0f, DeltaTime), InterpSpeed);
+
+    if (FMath::IsNearlyEqual(PlayerAimAlpha, TargetAlpha, 0.001f))
+    {
+        PlayerAimAlpha = TargetAlpha;
+    }
+}
+
+bool URenegadeSoldierCombatComponent::HasPlayerAimPresentationWork() const
+{
+    if (!HasAuthority() && !IsLocallyControlledPlayer())
+    {
+        return false;
+    }
+
+    const bool bNeedsRestoration = bPlayerAimRotationModeApplied
+        || PlayerAimAlpha > KINDA_SMALL_NUMBER
+        || bOriginalPlayerAimCameraFOVCaptured
+        || bOriginalPlayerCameraManagerFOVCaptured
+        || bPlayerCameraManagerFOVLockedByPlugin;
+
+    return bNeedsRestoration || (bPlayerControlledCombat && bIsPlayerAiming);
+}
+
+void URenegadeSoldierCombatComponent::SetPlayerAimCameraComponent(UCameraComponent* NewCameraComponent)
+{
+    if (IsValid(NewCameraComponent) && NewCameraComponent->GetOwner() != GetOwner())
+    {
+        UE_LOG(LogRenegadeSoldierCombat, Warning,
+            TEXT("%s rejected Player Aim Camera Component '%s' because it belongs to a different actor."),
+            *GetNameSafe(GetOwner()), *GetNameSafe(NewCameraComponent));
+        return;
+    }
+
+    RestorePlayerAimCameraZoom(true);
+    RuntimePlayerAimCameraComponent = NewCameraComponent;
+    ResetPlayerAimCameraCapture();
+
+    if (bIsPlayerAiming)
+    {
+        UpdatePlayerAimCameraZoom(0.0f, PlayerAimPresentation.ZoomInInterpSpeed <= KINDA_SMALL_NUMBER);
+    }
+    UpdateComponentTickState();
+}
+
+void URenegadeSoldierCombatComponent::ClearPlayerAimCameraComponent()
+{
+    SetPlayerAimCameraComponent(nullptr);
+}
+
+UCameraComponent* URenegadeSoldierCombatComponent::GetPlayerAimCameraComponent() const
+{
+    return ResolvePlayerAimCameraComponent();
+}
+
+void URenegadeSoldierCombatComponent::SnapPlayerCharacterToAimForward()
+{
+    if (!bPlayerControlledCombat || bIsDead)
+    {
+        return;
+    }
+
+    ApplyPlayerAimRotationMode();
+    RotatePlayerCharacterToAimForward(0.0f, true);
+}
+
+void URenegadeSoldierCombatComponent::RestorePlayerAimPresentation()
+{
+    const bool bWasAiming = bIsPlayerAiming;
+    bIsPlayerAiming = false;
+    RestorePlayerAimRotationMode();
+    RestorePlayerAimCameraZoom(true);
+    PlayerAimAlpha = 0.0f;
+
+    if (bWasAiming)
+    {
+        OnPlayerAimChanged.Broadcast(false);
+        if (!HasAuthority() && IsLocallyControlledPlayer())
+        {
+            ServerSetPlayerAiming(false);
+        }
+        else if (HasAuthority() && IsValid(GetOwner()))
+        {
+            GetOwner()->ForceNetUpdate();
+        }
+    }
+
+    UpdateComponentTickState();
+}
+
+void URenegadeSoldierCombatComponent::PlayerSetAiming(bool bNewAiming)
+{
+    if (!bPlayerControlledCombat || (!IsLocallyControlledPlayer() && !HasAuthority()))
+    {
+        return;
+    }
+
+    bNewAiming = bNewAiming && !bIsDead;
+    if (bIsPlayerAiming == bNewAiming)
+    {
+        return;
+    }
+
+    SetPlayerAimingInternal(bNewAiming);
+    if (!HasAuthority())
+    {
+        ServerSetPlayerAiming(bNewAiming);
+    }
+}
+
+void URenegadeSoldierCombatComponent::SetBuiltInPlayerInputEnabled(bool bEnabled)
+{
+    PlayerInput.bEnableBuiltInInput = bEnabled;
+    if (!bEnabled)
+    {
+        ResetBuiltInPlayerInputState(true);
+    }
+    UpdateComponentTickState();
+}
+
+bool URenegadeSoldierCombatComponent::IsBuiltInInputKeyDown(APlayerController* PlayerController, const FKey& Key) const
+{
+    if (!IsValid(PlayerController) || !Key.IsValid())
+    {
+        return false;
+    }
+
+    return PlayerController->IsInputKeyDown(Key)
+        || FMath::Abs(PlayerController->GetInputAnalogKeyState(Key)) >= FMath::Clamp(PlayerInput.GamepadButtonThreshold, 0.01f, 1.0f);
+}
+
+float URenegadeSoldierCombatComponent::GetBuiltInInputAxis(APlayerController* PlayerController, const FKey& Key) const
+{
+    return IsValid(PlayerController) && Key.IsValid()
+        ? PlayerController->GetInputAnalogKeyState(Key)
+        : 0.0f;
+}
+
+float URenegadeSoldierCombatComponent::ApplyGamepadDeadZone(float Value) const
+{
+    const float DeadZone = FMath::Clamp(PlayerInput.GamepadLookDeadZone, 0.0f, 0.95f);
+    const float Magnitude = FMath::Abs(Value);
+    if (Magnitude <= DeadZone)
+    {
+        return 0.0f;
+    }
+
+    return FMath::Sign(Value) * FMath::Clamp((Magnitude - DeadZone) / FMath::Max(KINDA_SMALL_NUMBER, 1.0f - DeadZone), 0.0f, 1.0f);
+}
+
+void URenegadeSoldierCombatComponent::ResetBuiltInPlayerInputState(bool bClearAimState)
+{
+    if (bBuiltInFireCommandActive || bLocalPlayerFireHeld)
+    {
+        PlayerStopFire();
+    }
+
+    bBuiltInFireCommandActive = false;
+    bPreviousBuiltInAimDown = false;
+    bPreviousBuiltInReloadDown = false;
+    bPreviousBuiltInSelectRifleDown = false;
+    bPreviousBuiltInSelectPistolDown = false;
+
+    if (bClearAimState && bIsPlayerAiming)
+    {
+        if (IsLocallyControlledPlayer())
+        {
+            PlayerSetAiming(false);
+        }
+        else
+        {
+            SetPlayerAimingInternal(false);
+        }
+    }
+}
+
+void URenegadeSoldierCombatComponent::UpdateBuiltInPlayerInput(float DeltaTime)
+{
+    if (!PlayerInput.bEnableBuiltInInput || !bPlayerControlledCombat || !IsLocallyControlledPlayer())
+    {
+        return;
+    }
+
+    APlayerController* PlayerController = Cast<APlayerController>(GetOwningController());
+    const bool bBlockedByPause = UGameplayStatics::IsGamePaused(this) && !PlayerInput.bAllowInputWhenPaused;
+    const bool bBlockedByCursor = IsValid(PlayerController)
+        && PlayerInput.bIgnoreInputWhileMouseCursorVisible
+        && PlayerController->bShowMouseCursor;
+
+    if (!IsValid(PlayerController) || !PlayerController->InputEnabled() || bIsDead || bBlockedByPause || bBlockedByCursor)
+    {
+        ResetBuiltInPlayerInputState(true);
+        return;
+    }
+
+    const bool bSelectRifleDown = IsBuiltInInputKeyDown(PlayerController, PlayerInput.KeyboardMouseSelectRifleKey)
+        || IsBuiltInInputKeyDown(PlayerController, PlayerInput.GamepadSelectRifleKey);
+    const bool bSelectPistolDown = IsBuiltInInputKeyDown(PlayerController, PlayerInput.KeyboardMouseSelectPistolKey)
+        || IsBuiltInInputKeyDown(PlayerController, PlayerInput.GamepadSelectPistolKey);
+
+    if (bSelectRifleDown && !bPreviousBuiltInSelectRifleDown)
+    {
+        bBuiltInFireCommandActive = false;
+        SelectPlayerAutomaticRifle();
+    }
+    if (bSelectPistolDown && !bPreviousBuiltInSelectPistolDown)
+    {
+        bBuiltInFireCommandActive = false;
+        SelectPlayerPistol();
+    }
+
+    const bool bReloadDown = IsBuiltInInputKeyDown(PlayerController, PlayerInput.KeyboardMouseReloadKey)
+        || IsBuiltInInputKeyDown(PlayerController, PlayerInput.GamepadReloadKey);
+    const bool bReloadPressedThisFrame = bReloadDown && !bPreviousBuiltInReloadDown;
+    if (bReloadPressedThisFrame)
+    {
+        bBuiltInFireCommandActive = false;
+        PlayerReload();
+    }
+
+    const bool bAimDown = IsBuiltInInputKeyDown(PlayerController, PlayerInput.KeyboardMouseAimKey)
+        || IsBuiltInInputKeyDown(PlayerController, PlayerInput.GamepadAimKey);
+    if (PlayerInput.bToggleAim)
+    {
+        if (bAimDown && !bPreviousBuiltInAimDown)
+        {
+            PlayerSetAiming(!bIsPlayerAiming);
+        }
+    }
+    else if (bAimDown != bIsPlayerAiming)
+    {
+        PlayerSetAiming(bAimDown);
+    }
+
+    if (PlayerInput.bEnableBuiltInLookInput && (!PlayerInput.bOnlyLookWhileAiming || bIsPlayerAiming))
+    {
+        const float MouseYaw = GetBuiltInInputAxis(PlayerController, PlayerInput.MouseLookXAxis)
+            * FMath::Max(0.0f, PlayerInput.MouseYawSensitivity);
+        float MousePitch = GetBuiltInInputAxis(PlayerController, PlayerInput.MouseLookYAxis)
+            * FMath::Max(0.0f, PlayerInput.MousePitchSensitivity);
+        if (PlayerInput.bInvertMouseY)
+        {
+            MousePitch *= -1.0f;
+        }
+
+        const float GamepadYaw = ApplyGamepadDeadZone(GetBuiltInInputAxis(PlayerController, PlayerInput.GamepadLookXAxis))
+            * FMath::Max(0.0f, PlayerInput.GamepadYawSpeedDegreesPerSecond)
+            * FMath::Max(0.0f, DeltaTime);
+        float GamepadPitch = ApplyGamepadDeadZone(GetBuiltInInputAxis(PlayerController, PlayerInput.GamepadLookYAxis))
+            * FMath::Max(0.0f, PlayerInput.GamepadPitchSpeedDegreesPerSecond)
+            * FMath::Max(0.0f, DeltaTime);
+        if (PlayerInput.bInvertGamepadY)
+        {
+            GamepadPitch *= -1.0f;
+        }
+
+        const float AimLookMultiplier = bIsPlayerAiming
+            ? FMath::Clamp(PlayerInput.AimingLookSensitivityMultiplier, 0.0f, 2.0f)
+            : 1.0f;
+        const float FinalYawInput = (MouseYaw + GamepadYaw) * AimLookMultiplier;
+        const float FinalPitchInput = (MousePitch + GamepadPitch) * AimLookMultiplier;
+
+        if (!FMath::IsNearlyZero(FinalYawInput))
+        {
+            PlayerController->AddYawInput(FinalYawInput);
+        }
+        if (!FMath::IsNearlyZero(FinalPitchInput))
+        {
+            PlayerController->AddPitchInput(FinalPitchInput);
+        }
+    }
+
+    const bool bFireDown = IsBuiltInInputKeyDown(PlayerController, PlayerInput.KeyboardMouseFireKey)
+        || IsBuiltInInputKeyDown(PlayerController, PlayerInput.GamepadFireKey);
+    const bool bShouldIssueFire = bFireDown && (!PlayerInput.bRequireAimToFire || bIsPlayerAiming) && !bReloadPressedThisFrame;
+
+    if (bShouldIssueFire && !bBuiltInFireCommandActive)
+    {
+        bBuiltInFireCommandActive = true;
+        PlayerStartFire();
+    }
+    else if (!bShouldIssueFire && bBuiltInFireCommandActive)
+    {
+        bBuiltInFireCommandActive = false;
+        PlayerStopFire();
+    }
+
+    bPreviousBuiltInAimDown = bAimDown;
+    bPreviousBuiltInReloadDown = bReloadDown;
+    bPreviousBuiltInSelectRifleDown = bSelectRifleDown;
+    bPreviousBuiltInSelectPistolDown = bSelectPistolDown;
+}
+
+void URenegadeSoldierCombatComponent::PlayerReload()
+{
+    if (!bPlayerControlledCombat || bIsDead || !IsLocallyControlledPlayer())
+    {
+        return;
+    }
+
+    StopLocalPlayerFireTimer();
+
+    if (HasAuthority())
+    {
+        StartReload();
+    }
+    else
+    {
+        ServerRequestPlayerReload(ActivePlayerWeapon);
+    }
+}
+
+void URenegadeSoldierCombatComponent::PlayerStartAutomaticRifleFire()
+{
+    SelectPlayerWeapon(ERenegadePlayerWeaponSlot::AutomaticRifle);
+    PlayerStartFire();
+}
+
+void URenegadeSoldierCombatComponent::PlayerStopAutomaticRifleFire()
+{
+    PlayerStopFire();
+}
+
+void URenegadeSoldierCombatComponent::PlayerFirePistol()
+{
+    SelectPlayerWeapon(ERenegadePlayerWeaponSlot::Pistol);
+    PlayerFireOnce();
+}
+
+void URenegadeSoldierCombatComponent::SelectPlayerWeapon(ERenegadePlayerWeaponSlot NewWeapon)
+{
+    if (!RenegadeCombatPrivate::IsValidPlayerWeaponSlot(NewWeapon)
+        || !bPlayerControlledCombat || bIsDead || !IsLocallyControlledPlayer())
+    {
+        return;
+    }
+
+    StopLocalPlayerFireTimer();
+
+    if (HasAuthority())
+    {
+        SetPlayerWeaponInternal(NewWeapon);
+    }
+    else
+    {
+        const ERenegadePlayerWeaponSlot PreviousWeapon = ActivePlayerWeapon;
+        ActivePlayerWeapon = NewWeapon;
+        SyncCurrentMagazineFromPlayerWeapon();
+        if (PreviousWeapon != ActivePlayerWeapon)
+        {
+            OnPlayerWeaponChanged.Broadcast(PreviousWeapon, ActivePlayerWeapon);
+        }
+        ServerSelectPlayerWeapon(NewWeapon);
+    }
+}
+
+void URenegadeSoldierCombatComponent::SelectPlayerAutomaticRifle()
+{
+    SelectPlayerWeapon(ERenegadePlayerWeaponSlot::AutomaticRifle);
+}
+
+void URenegadeSoldierCombatComponent::SelectPlayerPistol()
+{
+    SelectPlayerWeapon(ERenegadePlayerWeaponSlot::Pistol);
+}
+
+void URenegadeSoldierCombatComponent::SetPlayerWeaponInternal(ERenegadePlayerWeaponSlot NewWeapon)
+{
+    if (!RenegadeCombatPrivate::IsValidPlayerWeaponSlot(NewWeapon)
+        || !HasAuthority() || !bPlayerControlledCombat || bIsDead || ActivePlayerWeapon == NewWeapon)
+    {
+        SyncCurrentMagazineFromPlayerWeapon();
+        return;
+    }
+
+    if (bReloading && GetWorld())
+    {
+        GetWorld()->GetTimerManager().ClearTimer(ReloadTimer);
+        bReloading = false;
+        MulticastReloadFinished();
+    }
+
+    const ERenegadePlayerWeaponSlot PreviousWeapon = ActivePlayerWeapon;
+    ActivePlayerWeapon = NewWeapon;
+    SyncCurrentMagazineFromPlayerWeapon();
+    OnPlayerWeaponChanged.Broadcast(PreviousWeapon, ActivePlayerWeapon);
+
+    if (AActor* Owner = GetOwner())
+    {
+        Owner->ForceNetUpdate();
+    }
+}
+
+void URenegadeSoldierCombatComponent::ServerSelectPlayerWeapon_Implementation(ERenegadePlayerWeaponSlot NewWeapon)
+{
+    SetPlayerWeaponInternal(NewWeapon);
+}
+
+void URenegadeSoldierCombatComponent::ServerRequestPlayerReload_Implementation(ERenegadePlayerWeaponSlot RequestedWeapon)
+{
+    if (!RenegadeCombatPrivate::IsValidPlayerWeaponSlot(RequestedWeapon)
+        || !bPlayerControlledCombat || bIsDead || RequestedWeapon != ActivePlayerWeapon)
+    {
+        return;
+    }
+
+    StartReload();
+}
+
+void URenegadeSoldierCombatComponent::ServerRequestPlayerShot_Implementation(
+    FVector_NetQuantize ClientViewLocation,
+    FVector_NetQuantizeNormal ClientViewDirection,
+    ERenegadePlayerWeaponSlot RequestedWeapon,
+    bool bClientAiming)
+{
+    PerformPlayerShotServer(ClientViewLocation, ClientViewDirection, RequestedWeapon, bClientAiming);
+}
+
+void URenegadeSoldierCombatComponent::ServerSetPlayerAiming_Implementation(bool bNewAiming)
+{
+    if (bPlayerControlledCombat)
+    {
+        SetPlayerAimingInternal(bNewAiming);
+    }
+}
+
+void URenegadeSoldierCombatComponent::PerformPlayerShotServer(
+    const FVector& ClientViewLocation,
+    const FVector& ClientViewDirection,
+    ERenegadePlayerWeaponSlot RequestedWeapon,
+    bool bClientAiming)
+{
+    if (!RenegadeCombatPrivate::IsValidPlayerWeaponSlot(RequestedWeapon)
+        || !HasAuthority() || !bPlayerControlledCombat || bIsDead || bReloading || !GetWorld()
+        || (PlayerInput.bRequireAimToFire && !bClientAiming)
+        || !IsValid(Cast<APlayerController>(GetOwningController())))
+    {
+        return;
+    }
+
+    SetPlayerAimingInternal(bClientAiming);
+
+    if (RequestedWeapon != ActivePlayerWeapon)
+    {
+        SetPlayerWeaponInternal(RequestedWeapon);
+    }
+
+    const FRenegadeWeaponSettings Weapon = GetPlayerWeaponSettings(ActivePlayerWeapon);
+    if (Weapon.bUseMagazine && GetPlayerWeaponAmmo(ActivePlayerWeapon) <= 0)
+    {
+        if (PlayerCombat.bAutoReloadWhenEmpty)
+        {
+            StartReload();
+        }
+        return;
+    }
+
+    const double Now = GetWorld()->GetTimeSeconds();
+    if (Now + KINDA_SMALL_NUMBER < NextAllowedPlayerShotServerTime)
+    {
+        return;
+    }
+
+    FVector AuthoritativeViewLocation = ClientViewLocation;
+    FVector AuthoritativeViewDirection = ClientViewDirection.GetSafeNormal();
+
+    FVector ServerViewLocation = GetMuzzleLocation();
+    FVector ServerViewDirection = GetOwner() ? GetOwner()->GetActorForwardVector() : FVector::ForwardVector;
+    if (AController* Controller = GetOwningController())
+    {
+        FRotator ServerViewRotation;
+        Controller->GetPlayerViewPoint(ServerViewLocation, ServerViewRotation);
+        ServerViewDirection = ServerViewRotation.Vector().GetSafeNormal();
+    }
+
+    const float MaximumOriginError = FMath::Max(0.0f, PlayerCombat.MaximumClientViewOriginError);
+    if (AuthoritativeViewLocation.ContainsNaN()
+        || (MaximumOriginError > 0.0f && FVector::DistSquared(AuthoritativeViewLocation, ServerViewLocation) > FMath::Square(MaximumOriginError)))
+    {
+        AuthoritativeViewLocation = ServerViewLocation;
+    }
+
+    if (AuthoritativeViewDirection.ContainsNaN() || AuthoritativeViewDirection.IsNearlyZero())
+    {
+        AuthoritativeViewDirection = ServerViewDirection;
+    }
+
+    const float MaxAimErrorDegrees = FMath::Clamp(PlayerCombat.MaximumClientAimAngleError, 0.0f, 180.0f);
+    if (MaxAimErrorDegrees < 180.0f)
+    {
+        const float MinimumDot = FMath::Cos(FMath::DegreesToRadians(MaxAimErrorDegrees));
+        if (FVector::DotProduct(AuthoritativeViewDirection, ServerViewDirection) < MinimumDot)
+        {
+            AuthoritativeViewDirection = ServerViewDirection;
+        }
+    }
+
+    if (PlayerCombat.bApplyWeaponSpread)
+    {
+        float SpreadDegrees = FMath::Max(0.0f, Weapon.HipFireSpreadDegrees);
+        if (GetOwner() && GetOwner()->GetVelocity().SizeSquared2D() > FMath::Square(20.0f))
+        {
+            SpreadDegrees += FMath::Max(0.0f, Weapon.MovingSpreadPenaltyDegrees);
+        }
+        if (bIsPlayerAiming)
+        {
+            SpreadDegrees *= FMath::Clamp(PlayerCombat.AimedSpreadMultiplier, 0.0f, 1.0f);
+        }
+        AuthoritativeViewDirection = FMath::VRandCone(AuthoritativeViewDirection, FMath::DegreesToRadians(SpreadDegrees));
+    }
+
+    const bool bShotExecuted = ExecuteWeaponShot(
+        Weapon,
+        AuthoritativeViewLocation,
+        AuthoritativeViewDirection,
+        PlayerCombat.bPreventMuzzleObstructionShooting);
+
+    if (!bShotExecuted)
+    {
+        return;
+    }
+
+    if (Weapon.bUseMagazine)
+    {
+        SetPlayerAmmo(ActivePlayerWeapon, GetPlayerWeaponAmmo(ActivePlayerWeapon) - 1);
+    }
+
+    const float SecondsPerShot = 60.0f / FMath::Max(1.0f, Weapon.RoundsPerMinute);
+    NextAllowedPlayerShotServerTime = Now + SecondsPerShot * FMath::Clamp(PlayerCombat.ServerFireRateTolerance, 0.80f, 1.0f);
+
+    if (Weapon.bUseMagazine && GetPlayerWeaponAmmo(ActivePlayerWeapon) <= 0 && PlayerCombat.bAutoReloadWhenEmpty)
+    {
+        StartReload();
+    }
+
+    if (AActor* Owner = GetOwner())
+    {
+        Owner->ForceNetUpdate();
+    }
 }
 
 void URenegadeSoldierCombatComponent::SetBulletVisualSpawnComponent(USceneComponent* NewSpawnComponent)
@@ -704,7 +2154,7 @@ void URenegadeSoldierCombatComponent::HandleOwnerAnyDamage(AActor* DamagedActor,
         Aggressor = InstigatedBy->GetPawn();
     }
 
-    if (!bIsDead && Targeting.bRetaliateWhenDamaged && IsValid(Aggressor) && IsHostileToActor(Aggressor))
+    if (!bPlayerControlledCombat && !bIsDead && Targeting.bRetaliateWhenDamaged && IsValid(Aggressor) && IsHostileToActor(Aggressor))
     {
         SetTargetInternal(Aggressor, true);
     }
@@ -725,6 +2175,19 @@ void URenegadeSoldierCombatComponent::OnRep_Dead()
 {
     if (bIsDead)
     {
+        if (bIsPlayerAiming)
+        {
+            const bool bPreviousAiming = bIsPlayerAiming;
+            bIsPlayerAiming = false;
+            HandlePlayerAimStateChanged(bPreviousAiming);
+            OnPlayerAimChanged.Broadcast(false);
+        }
+        else
+        {
+            RestorePlayerAimRotationMode();
+            UpdateComponentTickState();
+        }
+
         if (!bVisualRagdollActive)
         {
             BeginRagdollVisuals(FVector::ZeroVector, NAME_None);
@@ -742,9 +2205,43 @@ void URenegadeSoldierCombatComponent::OnRep_CurrentTarget()
     HandleLocalTargetTransition(PreviousTarget, CurrentTarget, !bIsDead);
 }
 
+void URenegadeSoldierCombatComponent::OnRep_ActivePlayerWeapon(ERenegadePlayerWeaponSlot PreviousWeapon)
+{
+    SyncCurrentMagazineFromPlayerWeapon();
+    StopLocalPlayerFireTimer();
+    OnPlayerWeaponChanged.Broadcast(PreviousWeapon, ActivePlayerWeapon);
+}
+
+void URenegadeSoldierCombatComponent::OnRep_AutomaticRifleAmmo(int32 PreviousAmmo)
+{
+    if (ActivePlayerWeapon == ERenegadePlayerWeaponSlot::AutomaticRifle)
+    {
+        CurrentMagazineAmmo = CurrentAutomaticRifleAmmo;
+    }
+    OnPlayerAmmoChanged.Broadcast(ERenegadePlayerWeaponSlot::AutomaticRifle, PreviousAmmo, CurrentAutomaticRifleAmmo);
+}
+
+void URenegadeSoldierCombatComponent::OnRep_PistolAmmo(int32 PreviousAmmo)
+{
+    if (ActivePlayerWeapon == ERenegadePlayerWeaponSlot::Pistol)
+    {
+        CurrentMagazineAmmo = CurrentPistolAmmo;
+    }
+    OnPlayerAmmoChanged.Broadcast(ERenegadePlayerWeaponSlot::Pistol, PreviousAmmo, CurrentPistolAmmo);
+}
+
+void URenegadeSoldierCombatComponent::OnRep_PlayerAiming(bool bPreviousAiming)
+{
+    if (bPreviousAiming != bIsPlayerAiming)
+    {
+        HandlePlayerAimStateChanged(bPreviousAiming);
+        OnPlayerAimChanged.Broadcast(bIsPlayerAiming);
+    }
+}
+
 void URenegadeSoldierCombatComponent::RefreshTargeting()
 {
-    if (!HasAuthority() || !bAutoCombatEnabled || bIsDead)
+    if (!HasAuthority() || bPlayerControlledCombat || !bAutoCombatEnabled || bIsDead)
     {
         return;
     }
@@ -845,12 +2342,24 @@ bool URenegadeSoldierCombatComponent::HasLineOfSightTo(const AActor* Target, FVe
     }
 
     FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(RenegadeCombatLineOfSight), false, GetOwner());
-    QueryParams.AddIgnoredActor(GetOwner());
+    RenegadeCombatPrivate::AddOwnerHierarchyToTraceIgnore(GetOwner(), QueryParams);
 
     FHitResult Hit;
     const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
-    const bool bBlocked = GetWorld()->LineTraceSingleByChannel(Hit, Start, AimLocation, Weapon.TraceChannel, QueryParams);
-    return !bBlocked || Hit.GetActor() == Target;
+    const bool bBlocked = RenegadeCombatPrivate::PerformWeaponTrace(GetWorld(), Hit, Start, AimLocation, Weapon, QueryParams);
+    if (!bBlocked)
+    {
+        return true;
+    }
+
+    if (Hit.GetActor() == Target)
+    {
+        return true;
+    }
+
+    const URenegadeSoldierCombatComponent* ResolvedHitCombat =
+        RenegadeCombatPrivate::ResolveCombatComponentFromActorHierarchy(Hit.GetActor());
+    return IsValid(ResolvedHitCombat) && ResolvedHitCombat->GetOwner() == Target;
 }
 
 FVector URenegadeSoldierCombatComponent::GetAimLocation(const AActor* Target) const
@@ -899,6 +2408,11 @@ void URenegadeSoldierCombatComponent::SetTargetInternal(AActor* NewTarget, bool 
     if (!HasAuthority())
     {
         return;
+    }
+
+    if (bPlayerControlledCombat)
+    {
+        NewTarget = nullptr;
     }
 
     if (NewTarget && !IsValidCombatTarget(NewTarget))
@@ -983,7 +2497,7 @@ void URenegadeSoldierCombatComponent::HandleLocalTargetTransition(AActor* Previo
 
 void URenegadeSoldierCombatComponent::ScheduleNextShot(float DelaySeconds)
 {
-    if (!HasAuthority() || bIsDead || !CurrentTarget || !GetWorld())
+    if (!HasAuthority() || bPlayerControlledCombat || bIsDead || !CurrentTarget || !GetWorld())
     {
         return;
     }
@@ -993,7 +2507,7 @@ void URenegadeSoldierCombatComponent::ScheduleNextShot(float DelaySeconds)
 
 void URenegadeSoldierCombatComponent::TryFireShot()
 {
-    if (!HasAuthority() || bIsDead || bReloading || !IsValidCombatTarget(CurrentTarget))
+    if (!HasAuthority() || bPlayerControlledCombat || bIsDead || bReloading || !IsValidCombatTarget(CurrentTarget))
     {
         return;
     }
@@ -1029,50 +2543,15 @@ void URenegadeSoldierCombatComponent::TryFireShot()
     }
     ShotDirection = FMath::VRandCone(ShotDirection, FMath::DegreesToRadians(SpreadDegrees));
 
-    const FVector DesiredTraceEnd = TraceStart + ShotDirection * FMath::Max(1.0f, Weapon.MaximumRange);
-    FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(RenegadeCombatWeaponTrace), true, GetOwner());
-    QueryParams.AddIgnoredActor(GetOwner());
-
-    FHitResult Hit;
-    const bool bBlockingHit = GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, DesiredTraceEnd, Weapon.TraceChannel, QueryParams);
-    const FVector TraceEnd = bBlockingHit ? Hit.ImpactPoint : DesiredTraceEnd;
-
-    AActor* HitActor = bBlockingHit ? Hit.GetActor() : nullptr;
-    const bool bCanDamageHitActor = IsValid(HitActor) && (Weapon.bAllowFriendlyFire || IsHostileToActor(HitActor));
-    URenegadeSoldierCombatComponent* HitCombat = bCanDamageHitActor
-        ? HitActor->FindComponentByClass<URenegadeSoldierCombatComponent>()
-        : nullptr;
-    const bool bDamagedCombatActor = bCanDamageHitActor && (!HitCombat || !HitCombat->bIsDead);
-    const bool bSpawnGroundBloodForHit = bDamagedCombatActor && HitCombat != nullptr;
-
-    MulticastShotFired(TraceStart, TraceEnd, bBlockingHit, Hit, bSpawnGroundBloodForHit);
+    if (!ExecuteWeaponShot(Weapon, TraceStart, ShotDirection, false))
+    {
+        ScheduleNextShot(0.08f);
+        return;
+    }
 
     if (Weapon.bUseMagazine)
     {
         CurrentMagazineAmmo = FMath::Max(0, CurrentMagazineAmmo - 1);
-    }
-
-    if (bDamagedCombatActor)
-    {
-        const float Damage = CalculateDamageForHit(Weapon, Hit, FVector::Distance(TraceStart, Hit.ImpactPoint));
-        if (HitCombat)
-        {
-            HitCombat->PrepareIncomingCombatHit(Hit, ShotDirection);
-        }
-
-        UGameplayStatics::ApplyPointDamage(
-            HitActor,
-            Damage,
-            ShotDirection,
-            Hit,
-            GetOwningController(),
-            GetOwner(),
-            Weapon.DamageTypeClass);
-
-        if (HitCombat)
-        {
-            HitCombat->ClearIncomingCombatHit();
-        }
     }
 
     --BurstShotsRemaining;
@@ -1093,6 +2572,140 @@ void URenegadeSoldierCombatComponent::TryFireShot()
         BurstShotsRemaining = FMath::RandRange(MinBurst, MaxBurst);
         ScheduleNextShot(FMath::FRandRange(FMath::Max(0.0f, Weapon.MinimumBurstPause), FMath::Max(Weapon.MinimumBurstPause, Weapon.MaximumBurstPause)));
     }
+}
+
+bool URenegadeSoldierCombatComponent::ExecuteWeaponShot(
+    const FRenegadeWeaponSettings& Weapon,
+    const FVector& TraceStart,
+    const FVector& BaseShotDirection,
+    bool bUseMuzzleObstructionTrace)
+{
+    if (!HasAuthority() || !GetWorld() || !GetOwner())
+    {
+        return false;
+    }
+
+    const FVector ShotDirection = BaseShotDirection.GetSafeNormal();
+    if (ShotDirection.IsNearlyZero())
+    {
+        return false;
+    }
+
+    const float MaximumRange = FMath::Max(1.0f, Weapon.MaximumRange);
+    const FVector DesiredAimEnd = TraceStart + ShotDirection * MaximumRange;
+
+    FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(RenegadeCombatWeaponTrace), true, GetOwner());
+    QueryParams.bReturnPhysicalMaterial = true;
+    RenegadeCombatPrivate::AddOwnerHierarchyToTraceIgnore(GetOwner(), QueryParams);
+
+    FHitResult AimHit;
+    const bool bAimBlockingHit = RenegadeCombatPrivate::PerformWeaponTrace(
+        GetWorld(),
+        AimHit,
+        TraceStart,
+        DesiredAimEnd,
+        Weapon,
+        QueryParams);
+    const FVector CameraAimPoint = bAimBlockingHit ? AimHit.ImpactPoint : DesiredAimEnd;
+
+    FVector FinalTraceStart = TraceStart;
+    FHitResult FinalHit = AimHit;
+    bool bFinalBlockingHit = bAimBlockingHit;
+
+    FVector ConfirmedAimPoint = CameraAimPoint;
+    if (bUseMuzzleObstructionTrace)
+    {
+        FinalTraceStart = ResolveBulletVisualSpawnLocation(GetMuzzleLocation());
+        const FVector MuzzleToAim = CameraAimPoint - FinalTraceStart;
+        const float MuzzleAimDistance = MuzzleToAim.Size();
+        if (MuzzleAimDistance > MaximumRange && MuzzleAimDistance > KINDA_SMALL_NUMBER)
+        {
+            ConfirmedAimPoint = FinalTraceStart + (MuzzleToAim / MuzzleAimDistance) * MaximumRange;
+        }
+
+        FinalHit = FHitResult();
+        bFinalBlockingHit = RenegadeCombatPrivate::PerformWeaponTrace(
+            GetWorld(),
+            FinalHit,
+            FinalTraceStart,
+            ConfirmedAimPoint,
+            Weapon,
+            QueryParams);
+    }
+
+    const FVector TraceEnd = bFinalBlockingHit ? FinalHit.ImpactPoint : ConfirmedAimPoint;
+    AActor* RawHitActor = bFinalBlockingHit ? FinalHit.GetActor() : nullptr;
+    URenegadeSoldierCombatComponent* HitCombat = bFinalBlockingHit
+        ? RenegadeCombatPrivate::ResolveCombatComponentFromActorHierarchy(RawHitActor)
+        : nullptr;
+    AActor* DamageActor = IsValid(HitCombat) ? HitCombat->GetOwner() : RawHitActor;
+
+    const bool bCanDamageHitActor = IsValid(DamageActor)
+        && (Weapon.bAllowFriendlyFire || IsHostileToActor(DamageActor));
+    const bool bDamagedCombatActor = bCanDamageHitActor && (!HitCombat || !HitCombat->bIsDead);
+    const bool bSpawnGroundBloodForHit = bDamagedCombatActor && HitCombat != nullptr;
+
+    MulticastShotFired(
+        FinalTraceStart,
+        TraceEnd,
+        bFinalBlockingHit,
+        FinalHit,
+        bSpawnGroundBloodForHit,
+        bDamagedCombatActor);
+
+    if (bDamagedCombatActor)
+    {
+        const float Damage = CalculateDamageForHit(Weapon, FinalHit, FVector::Distance(FinalTraceStart, FinalHit.ImpactPoint));
+        const FVector DamageDirection = (TraceEnd - FinalTraceStart).GetSafeNormal();
+
+        if (HitCombat)
+        {
+            HitCombat->PrepareIncomingCombatHit(FinalHit, DamageDirection);
+        }
+
+        TSubclassOf<UDamageType> ResolvedDamageType = Weapon.DamageTypeClass;
+        if (!ResolvedDamageType)
+        {
+            ResolvedDamageType = UDamageType::StaticClass();
+        }
+
+        const float AppliedDamage = UGameplayStatics::ApplyPointDamage(
+            DamageActor,
+            Damage,
+            DamageDirection,
+            FinalHit,
+            GetOwningController(),
+            GetOwner(),
+            ResolvedDamageType);
+
+        if (CombatVisuals.bDrawDebugShotLine)
+        {
+            UE_LOG(
+                LogRenegadeSoldierCombat,
+                Log,
+                TEXT("%s shot hit raw actor %s, resolved damage actor %s, applied %.2f damage."),
+                *GetNameSafe(GetOwner()),
+                *GetNameSafe(RawHitActor),
+                *GetNameSafe(DamageActor),
+                AppliedDamage);
+        }
+
+        if (HitCombat)
+        {
+            HitCombat->ClearIncomingCombatHit();
+        }
+    }
+    else if (CombatVisuals.bDrawDebugShotLine && bFinalBlockingHit)
+    {
+        UE_LOG(
+            LogRenegadeSoldierCombat,
+            Log,
+            TEXT("%s shot was blocked by %s but no hostile combat target was resolved."),
+            *GetNameSafe(GetOwner()),
+            *GetNameSafe(RawHitActor));
+    }
+
+    return true;
 }
 
 bool URenegadeSoldierCombatComponent::ShouldRunCosmeticVisuals() const
@@ -1460,7 +3073,8 @@ bool URenegadeSoldierCombatComponent::SpawnGroundBloodSplatter(const FHitResult&
 void URenegadeSoldierCombatComponent::UpdateComponentTickState()
 {
     const bool bNeedsCombatFacing = HasAuthority() && !bIsDead && bLockCombatRotationToCurrentTarget && IsValid(CurrentTarget);
-    SetComponentTickEnabled(bNeedsCombatFacing || HasActiveBulletMeshVisuals());
+    const bool bNeedsBuiltInPlayerInput = bPlayerControlledCombat && PlayerInput.bEnableBuiltInInput;
+    SetComponentTickEnabled(bNeedsCombatFacing || bNeedsBuiltInPlayerInput || HasPlayerAimPresentationWork() || HasActiveBulletMeshVisuals());
 }
 
 void URenegadeSoldierCombatComponent::StartReload()
@@ -1472,6 +3086,14 @@ void URenegadeSoldierCombatComponent::StartReload()
 
     const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
     if (!Weapon.bUseMagazine)
+    {
+        return;
+    }
+
+    const int32 ExistingAmmo = bPlayerControlledCombat
+        ? GetPlayerWeaponAmmo(ActivePlayerWeapon)
+        : CurrentMagazineAmmo;
+    if (ExistingAmmo >= FMath::Max(1, Weapon.MagazineSize))
     {
         return;
     }
@@ -1489,11 +3111,19 @@ void URenegadeSoldierCombatComponent::FinishReload()
     }
 
     const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
-    CurrentMagazineAmmo = FMath::Max(1, Weapon.MagazineSize);
+    if (bPlayerControlledCombat)
+    {
+        SetPlayerAmmo(ActivePlayerWeapon, FMath::Max(1, Weapon.MagazineSize));
+    }
+    else
+    {
+        CurrentMagazineAmmo = FMath::Max(1, Weapon.MagazineSize);
+    }
+
     bReloading = false;
     MulticastReloadFinished();
 
-    if (CurrentTarget)
+    if (!bPlayerControlledCombat && CurrentTarget)
     {
         ScheduleNextShot(0.05f);
     }
@@ -1522,7 +3152,7 @@ float URenegadeSoldierCombatComponent::CalculateDamageForHit(const FRenegadeWeap
 
 bool URenegadeSoldierCombatComponent::CanTakeCombatMovementControl() const
 {
-    if (!CombatMovement.bEnableCombatMovement || !OwnerCharacter || !GetOwningAIController())
+    if (bPlayerControlledCombat || !CombatMovement.bEnableCombatMovement || !OwnerCharacter || !GetOwningAIController())
     {
         return false;
     }
@@ -1825,6 +3455,7 @@ void URenegadeSoldierCombatComponent::BeginDeath(AController* InstigatedBy, AAct
 
     bIsDead = true;
     bInvulnerable = true;
+    SetPlayerAimingInternal(false);
 
     FVector ImpulseDirection = PendingIncomingShotDirection;
     FName HitBone = bHasPendingIncomingHit ? PendingIncomingHit.BoneName : NAME_None;
@@ -1877,6 +3508,8 @@ void URenegadeSoldierCombatComponent::BeginRagdollVisuals(const FVector& Impulse
     }
 
     ResolveOwnerComponents();
+    ResetBuiltInPlayerInputState(true);
+    StopLocalPlayerFireTimer();
     RestoreCombatFacingMode(true);
     UpdateComponentTickState();
 
@@ -2002,6 +3635,14 @@ void URenegadeSoldierCombatComponent::EndRagdollVisuals(const FTransform& Respaw
         GetOwner()->SetActorTransform(RespawnTransform, false, nullptr, ETeleportType::TeleportPhysics);
     }
 
+    if (HealthAndRespawn.bApplyRespawnRotationToController)
+    {
+        if (AController* Controller = GetOwningController())
+        {
+            Controller->SetControlRotation(RespawnTransform.GetRotation().Rotator());
+        }
+    }
+
     if (OwnerCapsule)
     {
         OwnerCapsule->SetCollisionEnabled(OriginalCapsuleCollisionEnabled);
@@ -2020,24 +3661,130 @@ void URenegadeSoldierCombatComponent::EndRagdollVisuals(const FTransform& Respaw
     bVisualRagdollActive = false;
 }
 
-FTransform URenegadeSoldierCombatComponent::ResolveRespawnTransform() const
+FTransform URenegadeSoldierCombatComponent::SelectTransformFromList(
+    const TArray<FTransform>& Transforms,
+    ERenegadeRespawnLocationSelection SelectionMode,
+    int32& InOutSequentialIndex) const
 {
+    if (Transforms.IsEmpty())
+    {
+        return OriginalActorTransform;
+    }
+
+    int32 SelectedIndex = 0;
+    switch (SelectionMode)
+    {
+        case ERenegadeRespawnLocationSelection::Random:
+            SelectedIndex = FMath::RandRange(0, Transforms.Num() - 1);
+            break;
+
+        case ERenegadeRespawnLocationSelection::Sequential:
+            SelectedIndex = FMath::Abs(InOutSequentialIndex) % Transforms.Num();
+            InOutSequentialIndex = (SelectedIndex + 1) % Transforms.Num();
+            break;
+
+        case ERenegadeRespawnLocationSelection::First:
+        default:
+            SelectedIndex = 0;
+            break;
+    }
+
+    return Transforms[SelectedIndex];
+}
+
+AActor* URenegadeSoldierCombatComponent::SelectTaggedRespawnActor() const
+{
+    if (!GetWorld() || HealthAndRespawn.RespawnActorTag.IsNone())
+    {
+        return nullptr;
+    }
+
+    TArray<AActor*> TaggedActors;
+    for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+    {
+        AActor* Candidate = *It;
+        if (IsValid(Candidate) && Candidate != GetOwner() && Candidate->ActorHasTag(HealthAndRespawn.RespawnActorTag))
+        {
+            TaggedActors.Add(Candidate);
+        }
+    }
+
+    TaggedActors.Sort([](const AActor& Left, const AActor& Right)
+    {
+        return Left.GetPathName() < Right.GetPathName();
+    });
+
+    if (TaggedActors.IsEmpty())
+    {
+        return nullptr;
+    }
+
+    int32 SelectedIndex = 0;
+    switch (HealthAndRespawn.TaggedActorSelection)
+    {
+        case ERenegadeRespawnLocationSelection::Random:
+            SelectedIndex = FMath::RandRange(0, TaggedActors.Num() - 1);
+            break;
+
+        case ERenegadeRespawnLocationSelection::Sequential:
+            SelectedIndex = FMath::Abs(TaggedRespawnSequentialIndex) % TaggedActors.Num();
+            TaggedRespawnSequentialIndex = (SelectedIndex + 1) % TaggedActors.Num();
+            break;
+
+        case ERenegadeRespawnLocationSelection::First:
+        default:
+            SelectedIndex = 0;
+            break;
+    }
+
+    return TaggedActors[SelectedIndex];
+}
+
+FTransform URenegadeSoldierCombatComponent::ResolveRespawnTransform()
+{
+    FTransform ResolvedTransform = OriginalActorTransform;
+
     switch (HealthAndRespawn.RespawnTransformMode)
     {
         case ERenegadeRespawnTransformMode::MatchingTeamSpawnPoint:
             if (ARenegadeSoldierSpawnPoint* SpawnPoint = SelectTeamSpawnPoint())
             {
-                return SpawnPoint->GetActorTransform();
+                ResolvedTransform = SpawnPoint->GetActorTransform();
             }
-            return OriginalActorTransform;
+            break;
 
         case ERenegadeRespawnTransformMode::CustomTransform:
-            return HealthAndRespawn.CustomRespawnTransform;
+            ResolvedTransform = HealthAndRespawn.CustomRespawnTransform;
+            break;
+
+        case ERenegadeRespawnTransformMode::CustomTransformList:
+            ResolvedTransform = SelectTransformFromList(
+                HealthAndRespawn.CustomRespawnTransforms,
+                HealthAndRespawn.CustomRespawnSelection,
+                CustomRespawnSequentialIndex);
+            break;
+
+        case ERenegadeRespawnTransformMode::TaggedActor:
+            if (AActor* TaggedActor = SelectTaggedRespawnActor())
+            {
+                ResolvedTransform = TaggedActor->GetActorTransform();
+            }
+            break;
+
+        case ERenegadeRespawnTransformMode::RuntimeOverride:
+            ResolvedTransform = bHasRuntimeRespawnTransform ? RuntimeRespawnTransform : OriginalActorTransform;
+            break;
 
         case ERenegadeRespawnTransformMode::OriginalTransform:
         default:
-            return OriginalActorTransform;
+            ResolvedTransform = OriginalActorTransform;
+            break;
     }
+
+    FVector Location = ResolvedTransform.GetLocation();
+    Location.Z += HealthAndRespawn.RespawnVerticalOffset;
+    ResolvedTransform.SetLocation(Location);
+    return ResolvedTransform;
 }
 
 ARenegadeSoldierSpawnPoint* URenegadeSoldierCombatComponent::SelectTeamSpawnPoint() const
@@ -2088,9 +3835,25 @@ AAIController* URenegadeSoldierCombatComponent::GetOwningAIController() const
     return Cast<AAIController>(GetOwningController());
 }
 
-void URenegadeSoldierCombatComponent::MulticastShotFired_Implementation(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult, bool bSpawnGroundBloodForHit)
+void URenegadeSoldierCombatComponent::MulticastShotFired_Implementation(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult, bool bSpawnGroundBloodForHit, bool bDamagedCombatTarget)
 {
     OnShotFired.Broadcast(TraceStart, TraceEnd, bBlockingHit, HitResult);
+
+    if (CombatVisuals.bDrawDebugShotLine && GetWorld() && ShouldRunCosmeticVisuals())
+    {
+        const FLinearColor DebugLinearColor = bDamagedCombatTarget
+            ? CombatVisuals.DebugShotDamageColor
+            : (bBlockingHit ? CombatVisuals.DebugShotBlockedColor : CombatVisuals.DebugShotMissColor);
+        const FColor DebugColor = DebugLinearColor.ToFColor(true);
+        const float DebugDuration = FMath::Max(0.0f, CombatVisuals.DebugShotLineDuration);
+        const float DebugThickness = FMath::Max(0.0f, CombatVisuals.DebugShotLineThickness);
+
+        DrawDebugLine(GetWorld(), TraceStart, TraceEnd, DebugColor, false, DebugDuration, 0, DebugThickness);
+        if (bBlockingHit && CombatVisuals.bDrawDebugShotImpactPoint)
+        {
+            DrawDebugPoint(GetWorld(), TraceEnd, 12.0f, DebugColor, false, DebugDuration, 0);
+        }
+    }
 
     const bool bDelayBlood = bSpawnGroundBloodForHit
         && CombatVisuals.bEnableGroundBloodSplatter
@@ -2105,12 +3868,23 @@ void URenegadeSoldierCombatComponent::MulticastShotFired_Implementation(FVector 
 
 void URenegadeSoldierCombatComponent::MulticastReloadStarted_Implementation()
 {
+    bReloading = true;
+    PauseLocalPlayerFireTimer();
     OnReloadStarted.Broadcast();
 }
 
 void URenegadeSoldierCombatComponent::MulticastReloadFinished_Implementation()
 {
+    bReloading = false;
     OnReloadFinished.Broadcast();
+
+    if (bLocalPlayerFireHeld
+        && IsLocallyControlledPlayer()
+        && ActivePlayerWeapon == ERenegadePlayerWeaponSlot::AutomaticRifle
+        && !bIsDead)
+    {
+        PlayerStartFire();
+    }
 }
 
 void URenegadeSoldierCombatComponent::MulticastBeginDeath_Implementation(AActor* Killer, FVector RagdollImpulse, FName HitBone)
@@ -2122,6 +3896,7 @@ void URenegadeSoldierCombatComponent::MulticastBeginDeath_Implementation(AActor*
 void URenegadeSoldierCombatComponent::MulticastFinishRespawn_Implementation(FTransform RespawnTransform)
 {
     EndRagdollVisuals(RespawnTransform);
+    OnRespawnTransformSelected.Broadcast(RespawnTransform);
     OnRespawned.Broadcast();
 
     if (HasAuthority())

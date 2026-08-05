@@ -47,3 +47,40 @@
 - [ ] Move the component and confirm the next shot starts from the new world location.
 - [ ] Clear the selection and confirm the original muzzle socket/trace-start fallback still works.
 - [ ] In multiplayer PIE, confirm each client resolves the Blueprint component and sees the same visual origin.
+
+
+## Player combat (v1.3.0)
+
+- [ ] Enable `Player Controlled Combat` on the player Character and confirm it does not automatically target, rotate toward, or move toward enemies.
+- [ ] Keep `Register As Combat Target` enabled and verify hostile AI acquires and damages the player.
+- [ ] Hold automatic-rifle input and verify shots follow configured RPM, stop on release, consume rifle ammo, and reload at zero.
+- [ ] Hold the rifle through reload and verify fire resumes only while the input remains held.
+- [ ] Press pistol input and verify exactly one pistol shot occurs per press with independent pistol ammunition.
+- [ ] Switch rifle/pistol and verify `Active Player Weapon`, `Current Magazine Ammo`, and weapon/ammo events update the HUD.
+- [ ] Aim beside close cover in third person and verify the muzzle obstruction trace hits the cover instead of shooting through it.
+- [ ] Confirm player shots use the selected bullet-spawn Scene Component, moving bullet mesh, impact result, and ground blood.
+- [ ] Kill the player and verify same-actor ragdoll/respawn restores movement, controller rotation, health, and configured ammo.
+- [ ] Test Original, Team Spawn Point, Custom Transform, Custom Transform List, Tagged Actor, and Runtime Override respawning.
+- [ ] In two-player PIE, verify only the owning client sends input, the server limits cadence/ammo, and all clients see one shot/blood visual.
+
+## v1.3.2 built-in player input and aim presentation
+
+- Enable `Player Controlled Combat` and `Enable Built-In Input` on the locally possessed Character.
+- Left Mouse Button and Gamepad Right Trigger fire the currently selected weapon.
+- Right Mouse Button and Gamepad Left Trigger update `Is Player Aiming`, `On Player Aim Changed`, body-facing rotation, and camera zoom.
+- Mouse X/Y and the gamepad right stick rotate the controller view without drift outside the configured dead zone.
+- R and Gamepad Face Button Left reload.
+- 1 / D-Pad Up selects the automatic rifle; 2 / D-Pad Down selects the pistol.
+- Holding fire repeats only for the automatic rifle and respects RPM, ammunition and reload.
+- Opening a cursor-driven menu stops fire and aim when `Ignore Input While Mouse Cursor Visible` is enabled.
+- Disable built-in input before testing an existing Enhanced Input graph to avoid duplicate look/fire calls.
+
+
+## v1.3.2 aim presentation regression checks
+
+- [ ] Select the exact player Camera Component in `Player Aim Camera Component`, or confirm active-camera auto-find resolves the correct one.
+- [ ] Press aim and verify the Character immediately turns to camera yaw and remains aligned while moving sideways/backward.
+- [ ] Verify the camera interpolates to `Aimed Field Of View` and restores the exact original FOV on release.
+- [ ] Call `Player Start Aiming` and `Player Stop Aiming` manually from Blueprint and verify they produce the same rotation/zoom as built-in input.
+- [ ] Kill the player while aimed and verify yaw settings and FOV restore before/through ragdoll and respawn.
+- [ ] Test a pawn without a Camera Component and verify PlayerCameraManager fallback zooms and unlocks cleanly.

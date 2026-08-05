@@ -11,6 +11,7 @@ public class RenegadeSoldierCombat : ModuleRules
             "Core",
             "CoreUObject",
             "Engine",
+            "InputCore",
             "AIModule",
             "NavigationSystem",
             "GameplayTasks",
