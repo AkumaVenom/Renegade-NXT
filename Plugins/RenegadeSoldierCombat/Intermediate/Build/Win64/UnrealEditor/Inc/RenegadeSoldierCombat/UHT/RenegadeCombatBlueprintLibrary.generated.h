@@ -23,6 +23,7 @@ struct FRenegadeWeaponSettings;
 
 // ********** Begin Class URenegadeCombatBlueprintLibrary ******************************************
 #define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatBlueprintLibrary_h_14_RPC_WRAPPERS_NO_PURE_DECLS \
+	DECLARE_FUNCTION(execMakeRocketLauncherPreset); \
 	DECLARE_FUNCTION(execMakePistolPreset); \
 	DECLARE_FUNCTION(execMakeAutomaticRiflePreset); \
 	DECLARE_FUNCTION(execSetRenegadeTeamId); \

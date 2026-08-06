@@ -11,7 +11,6 @@
 #include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSoldierCombat/Intermediate/Build/Win64/UnrealEditor/Inc/RenegadeSoldierCombat/UHT/RenegadeWeaponProfile.gen.cpp"
 #include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSoldierCombat/Intermediate/Build/Win64/x64/UnrealEditor/Development/RenegadeSoldierCombat/PerModuleInline.gen.cpp"
 #include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSoldierCombat/Source/RenegadeSoldierCombat/Private/RenegadeBuildingCombatComponent.cpp"
-#include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSoldierCombat/Source/RenegadeSoldierCombat/Private/RenegadeCombatBlueprintLibrary.cpp"
 #include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSoldierCombat/Source/RenegadeSoldierCombat/Private/RenegadeCombatRegistrySubsystem.cpp"
 #include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSoldierCombat/Source/RenegadeSoldierCombat/Private/RenegadeSoldierCombatModule.cpp"
 #include "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSoldierCombat/Source/RenegadeSoldierCombat/Private/RenegadeSoldierSpawnPoint.cpp"

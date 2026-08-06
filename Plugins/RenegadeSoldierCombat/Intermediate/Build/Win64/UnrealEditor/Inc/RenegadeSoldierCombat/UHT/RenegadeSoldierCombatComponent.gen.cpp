@@ -64,6 +64,8 @@ RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldi
 RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadePlayerWeaponChangedSignature__DelegateSignature(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeReloadSignature__DelegateSignature(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeRespawnTransformSelectedSignature__DelegateSignature(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeRocketImpactedSignature__DelegateSignature(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeRocketLaunchedSignature__DelegateSignature(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeShotFiredSignature__DelegateSignature(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeSimpleSignature__DelegateSignature(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UClass* Z_Construct_UClass_URenegadeSoldierCombatComponent(ETypeConstructPhase);
@@ -283,6 +285,104 @@ UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeShotFired
 }
 #undef UHT_STATICS
 // ********** End Delegate FRenegadeShotFiredSignature *********************************************
+
+// ********** Begin Delegate FRenegadeRocketLaunchedSignature **************************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeRocketLaunchedSignature__DelegateSignature_Statics
+struct UHT_STATICS
+{
+	struct _Script_RenegadeSoldierCombat_eventRenegadeRocketLaunchedSignature_Parms
+	{
+		FVector LaunchLocation;
+		FVector ImpactLocation;
+		float FlightSeconds;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Delegate FRenegadeRocketLaunchedSignature constinit property declarations ******
+	static const UECodeGen_Private::FStructPropertyParams NewProp_LaunchLocation;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_ImpactLocation;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_FlightSeconds;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Delegate FRenegadeRocketLaunchedSignature constinit property declarations ********
+	static const UECodeGen_Private::FDelegateFunctionParams FuncParams;
+};
+
+// ********** Begin Delegate FRenegadeRocketLaunchedSignature Property Definitions *****************
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_LaunchLocation = { "LaunchLocation", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadeRocketLaunchedSignature_Parms, LaunchLocation), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ImpactLocation = { "ImpactLocation", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadeRocketLaunchedSignature_Parms, ImpactLocation), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_FlightSeconds = { "FlightSeconds", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadeRocketLaunchedSignature_Parms, FlightSeconds), METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LaunchLocation,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ImpactLocation,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_FlightSeconds,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Delegate FRenegadeRocketLaunchedSignature Property Definitions *******************
+const UECodeGen_Private::FDelegateFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat, nullptr, "RenegadeRocketLaunchedSignature__DelegateSignature", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::_Script_RenegadeSoldierCombat_eventRenegadeRocketLaunchedSignature_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00130000, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::_Script_RenegadeSoldierCombat_eventRenegadeRocketLaunchedSignature_Parms) < MAX_uint16);
+UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeRocketLaunchedSignature__DelegateSignature(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUDelegateFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+// ********** End Delegate FRenegadeRocketLaunchedSignature ****************************************
+
+// ********** Begin Delegate FRenegadeRocketImpactedSignature **************************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeRocketImpactedSignature__DelegateSignature_Statics
+struct UHT_STATICS
+{
+	struct _Script_RenegadeSoldierCombat_eventRenegadeRocketImpactedSignature_Parms
+	{
+		FVector ImpactLocation;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Delegate FRenegadeRocketImpactedSignature constinit property declarations ******
+	static const UECodeGen_Private::FStructPropertyParams NewProp_ImpactLocation;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Delegate FRenegadeRocketImpactedSignature constinit property declarations ********
+	static const UECodeGen_Private::FDelegateFunctionParams FuncParams;
+};
+
+// ********** Begin Delegate FRenegadeRocketImpactedSignature Property Definitions *****************
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ImpactLocation = { "ImpactLocation", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadeRocketImpactedSignature_Parms, ImpactLocation), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ImpactLocation,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Delegate FRenegadeRocketImpactedSignature Property Definitions *******************
+const UECodeGen_Private::FDelegateFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat, nullptr, "RenegadeRocketImpactedSignature__DelegateSignature", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::_Script_RenegadeSoldierCombat_eventRenegadeRocketImpactedSignature_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00130000, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::_Script_RenegadeSoldierCombat_eventRenegadeRocketImpactedSignature_Parms) < MAX_uint16);
+UFunction* Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeRocketImpactedSignature__DelegateSignature(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUDelegateFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+// ********** End Delegate FRenegadeRocketImpactedSignature ****************************************
 
 // ********** Begin Delegate FRenegadeReloadSignature **********************************************
 #ifdef UHT_STATICS
@@ -688,9 +788,9 @@ struct UHT_STATICS
 
 // ********** Begin Delegate FRenegadePlayerWeaponChangedSignature Property Definitions ************
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_PreviousWeapon_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_PreviousWeapon = { "PreviousWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadePlayerWeaponChangedSignature_Parms, PreviousWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 97c31fa49296a536fe8bf99449a670a446c2d282
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_PreviousWeapon = { "PreviousWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadePlayerWeaponChangedSignature_Parms, PreviousWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 3d3c6554bcaa42767edc1195d01cd72bd763897b
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_NewWeapon_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_NewWeapon = { "NewWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadePlayerWeaponChangedSignature_Parms, NewWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 97c31fa49296a536fe8bf99449a670a446c2d282
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_NewWeapon = { "NewWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadePlayerWeaponChangedSignature_Parms, NewWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 3d3c6554bcaa42767edc1195d01cd72bd763897b
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PreviousWeapon_Underlying,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PreviousWeapon,
@@ -744,7 +844,7 @@ struct UHT_STATICS
 
 // ********** Begin Delegate FRenegadePlayerAmmoChangedSignature Property Definitions **************
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_WeaponSlot_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_WeaponSlot = { "WeaponSlot", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadePlayerAmmoChangedSignature_Parms, WeaponSlot), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 97c31fa49296a536fe8bf99449a670a446c2d282
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_WeaponSlot = { "WeaponSlot", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadePlayerAmmoChangedSignature_Parms, WeaponSlot), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 3d3c6554bcaa42767edc1195d01cd72bd763897b
 const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_PreviousAmmo = { "PreviousAmmo", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadePlayerAmmoChangedSignature_Parms, PreviousAmmo), METADATA_PARAMS(0, nullptr) };
 const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_NewAmmo = { "NewAmmo", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(_Script_RenegadeSoldierCombat_eventRenegadePlayerAmmoChangedSignature_Parms, NewAmmo), METADATA_PARAMS(0, nullptr) };
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
@@ -1194,6 +1294,44 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execClearPlayerAimCameraCompone
 }
 // ********** End Class URenegadeSoldierCombatComponent Function ClearPlayerAimCameraComponent *****
 
+// ********** Begin Class URenegadeSoldierCombatComponent Function ClearRocketLauncherMuzzleComponent 
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_ClearRocketLauncherMuzzleComponent_Statics
+struct UHT_STATICS
+{
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Rocket Launcher|Muzzle" },
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function ClearRocketLauncherMuzzleComponent constinit property declarations ****
+// ********** End Function ClearRocketLauncherMuzzleComponent constinit property declarations ******
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "ClearRocketLauncherMuzzleComponent", nullptr, 0, 0, RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_ClearRocketLauncherMuzzleComponent(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execClearRocketLauncherMuzzleComponent)
+{
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->ClearRocketLauncherMuzzleComponent();
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function ClearRocketLauncherMuzzleComponent 
+
 // ********** Begin Class URenegadeSoldierCombatComponent Function ClearRuntimeRespawnTransform ****
 #ifdef UHT_STATICS
 #error UHT_STATICS already defined
@@ -1351,7 +1489,7 @@ struct UHT_STATICS
 };
 
 // ********** Begin Function GetActiveWeaponSettings Property Definitions **************************
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetActiveWeaponSettings_Parms, ReturnValue), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(0, nullptr) }; // b91f7b15a362e3bc7250f20a0a118b3219e06b08
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetActiveWeaponSettings_Parms, ReturnValue), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(0, nullptr) }; // 5774b3e4c1655e645c606c633fde01bd93833e15
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ReturnValue,
 };
@@ -1974,7 +2112,7 @@ struct UHT_STATICS
 
 // ********** Begin Function GetPlayerWeaponAmmo Property Definitions ******************************
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_WeaponSlot_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_WeaponSlot = { "WeaponSlot", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetPlayerWeaponAmmo_Parms, WeaponSlot), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 97c31fa49296a536fe8bf99449a670a446c2d282
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_WeaponSlot = { "WeaponSlot", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetPlayerWeaponAmmo_Parms, WeaponSlot), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 3d3c6554bcaa42767edc1195d01cd72bd763897b
 const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetPlayerWeaponAmmo_Parms, ReturnValue), METADATA_PARAMS(0, nullptr) };
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_WeaponSlot_Underlying,
@@ -2035,8 +2173,8 @@ struct UHT_STATICS
 
 // ********** Begin Function GetPlayerWeaponSettings Property Definitions **************************
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_WeaponSlot_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_WeaponSlot = { "WeaponSlot", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetPlayerWeaponSettings_Parms, WeaponSlot), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 97c31fa49296a536fe8bf99449a670a446c2d282
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetPlayerWeaponSettings_Parms, ReturnValue), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(0, nullptr) }; // b91f7b15a362e3bc7250f20a0a118b3219e06b08
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_WeaponSlot = { "WeaponSlot", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetPlayerWeaponSettings_Parms, WeaponSlot), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 3d3c6554bcaa42767edc1195d01cd72bd763897b
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetPlayerWeaponSettings_Parms, ReturnValue), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(0, nullptr) }; // 5774b3e4c1655e645c606c633fde01bd93833e15
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_WeaponSlot_Underlying,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_WeaponSlot,
@@ -2127,6 +2265,115 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execGetResolvedRagdollMesh)
 	P_NATIVE_END;
 }
 // ********** End Class URenegadeSoldierCombatComponent Function GetResolvedRagdollMesh ************
+
+// ********** Begin Class URenegadeSoldierCombatComponent Function GetRocketLauncherMuzzleComponent 
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetRocketLauncherMuzzleComponent_Statics
+struct UHT_STATICS
+{
+	struct RenegadeSoldierCombatComponent_eventGetRocketLauncherMuzzleComponent_Parms
+	{
+		USceneComponent* ReturnValue;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Rocket Launcher|Muzzle" },
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ReturnValue_MetaData[] = {
+		{ "EditInline", "true" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function GetRocketLauncherMuzzleComponent constinit property declarations ******
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_ReturnValue;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function GetRocketLauncherMuzzleComponent constinit property declarations ********
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function GetRocketLauncherMuzzleComponent Property Definitions *****************
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000080588, UECodeGen_Private::EPropertyGenFlags::Object, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetRocketLauncherMuzzleComponent_Parms, ReturnValue), Z_Construct_UClass_USceneComponent, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ReturnValue_MetaData), NewProp_ReturnValue_MetaData) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ReturnValue,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function GetRocketLauncherMuzzleComponent Property Definitions *******************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "GetRocketLauncherMuzzleComponent", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::RenegadeSoldierCombatComponent_eventGetRocketLauncherMuzzleComponent_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x54020401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::RenegadeSoldierCombatComponent_eventGetRocketLauncherMuzzleComponent_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetRocketLauncherMuzzleComponent(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execGetRocketLauncherMuzzleComponent)
+{
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	*(USceneComponent**)Z_Param__Result=P_THIS->GetRocketLauncherMuzzleComponent();
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function GetRocketLauncherMuzzleComponent **
+
+// ********** Begin Class URenegadeSoldierCombatComponent Function GetRocketLauncherMuzzleLocation *
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetRocketLauncherMuzzleLocation_Statics
+struct UHT_STATICS
+{
+	struct RenegadeSoldierCombatComponent_eventGetRocketLauncherMuzzleLocation_Parms
+	{
+		FVector ReturnValue;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Rocket Launcher|Muzzle" },
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function GetRocketLauncherMuzzleLocation constinit property declarations *******
+	static const UECodeGen_Private::FStructPropertyParams NewProp_ReturnValue;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function GetRocketLauncherMuzzleLocation constinit property declarations *********
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function GetRocketLauncherMuzzleLocation Property Definitions ******************
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetRocketLauncherMuzzleLocation_Parms, ReturnValue), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ReturnValue,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function GetRocketLauncherMuzzleLocation Property Definitions ********************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "GetRocketLauncherMuzzleLocation", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::RenegadeSoldierCombatComponent_eventGetRocketLauncherMuzzleLocation_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x54820401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::RenegadeSoldierCombatComponent_eventGetRocketLauncherMuzzleLocation_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetRocketLauncherMuzzleLocation(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execGetRocketLauncherMuzzleLocation)
+{
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	*(FVector*)Z_Param__Result=P_THIS->GetRocketLauncherMuzzleLocation();
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function GetRocketLauncherMuzzleLocation ***
 
 // ********** Begin Class URenegadeSoldierCombatComponent Function HandleOwnerAnyDamage ************
 #ifdef UHT_STATICS
@@ -3235,6 +3482,79 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execMulticastReloadStarted)
 }
 // ********** End Class URenegadeSoldierCombatComponent Function MulticastReloadStarted ************
 
+// ********** Begin Class URenegadeSoldierCombatComponent Function MulticastRocketLaunched *********
+struct RenegadeSoldierCombatComponent_eventMulticastRocketLaunched_Parms
+{
+	FVector_NetQuantize LaunchLocation;
+	FVector_NetQuantize ImpactLocation;
+	float FlightSeconds;
+};
+static FName NAME_URenegadeSoldierCombatComponent_MulticastRocketLaunched = FName(TEXT("MulticastRocketLaunched"));
+void URenegadeSoldierCombatComponent::MulticastRocketLaunched(FVector_NetQuantize LaunchLocation, FVector_NetQuantize ImpactLocation, float FlightSeconds)
+{
+	RenegadeSoldierCombatComponent_eventMulticastRocketLaunched_Parms Parms;
+	Parms.LaunchLocation=LaunchLocation;
+	Parms.ImpactLocation=ImpactLocation;
+	Parms.FlightSeconds=FlightSeconds;
+	UFunction* Func = FindFunctionChecked(NAME_URenegadeSoldierCombatComponent_MulticastRocketLaunched);
+	ProcessEvent(Func,&Parms);
+}
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_MulticastRocketLaunched_Statics
+struct UHT_STATICS
+{
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function MulticastRocketLaunched constinit property declarations ***************
+	static const UECodeGen_Private::FStructPropertyParams NewProp_LaunchLocation;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_ImpactLocation;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_FlightSeconds;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function MulticastRocketLaunched constinit property declarations *****************
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function MulticastRocketLaunched Property Definitions **************************
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_LaunchLocation = { "LaunchLocation", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventMulticastRocketLaunched_Parms, LaunchLocation), Z_Construct_UScriptStruct_FVector_NetQuantize, METADATA_PARAMS(0, nullptr) }; // 360b775a5cdccbf04648aaedc65b3c6a0a2c5ffc
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ImpactLocation = { "ImpactLocation", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventMulticastRocketLaunched_Parms, ImpactLocation), Z_Construct_UScriptStruct_FVector_NetQuantize, METADATA_PARAMS(0, nullptr) }; // 360b775a5cdccbf04648aaedc65b3c6a0a2c5ffc
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_FlightSeconds = { "FlightSeconds", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventMulticastRocketLaunched_Parms, FlightSeconds), METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LaunchLocation,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ImpactLocation,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_FlightSeconds,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function MulticastRocketLaunched Property Definitions ****************************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "MulticastRocketLaunched", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<RenegadeSoldierCombatComponent_eventMulticastRocketLaunched_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00084CC0, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(RenegadeSoldierCombatComponent_eventMulticastRocketLaunched_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_MulticastRocketLaunched(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execMulticastRocketLaunched)
+{
+	P_GET_STRUCT(FVector_NetQuantize,Z_Param_LaunchLocation);
+	P_GET_STRUCT(FVector_NetQuantize,Z_Param_ImpactLocation);
+	P_GET_PROPERTY(FFloatProperty,Z_Param_FlightSeconds);
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->MulticastRocketLaunched_Implementation(Z_Param_LaunchLocation,Z_Param_ImpactLocation,Z_Param_FlightSeconds);
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function MulticastRocketLaunched ***********
+
 // ********** Begin Class URenegadeSoldierCombatComponent Function MulticastShotFired **************
 struct RenegadeSoldierCombatComponent_eventMulticastShotFired_Parms
 {
@@ -3365,7 +3685,7 @@ struct UHT_STATICS
 
 // ********** Begin Function OnRep_ActivePlayerWeapon Property Definitions *************************
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_PreviousWeapon_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_PreviousWeapon = { "PreviousWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventOnRep_ActivePlayerWeapon_Parms, PreviousWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 97c31fa49296a536fe8bf99449a670a446c2d282
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_PreviousWeapon = { "PreviousWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventOnRep_ActivePlayerWeapon_Parms, PreviousWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 3d3c6554bcaa42767edc1195d01cd72bd763897b
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PreviousWeapon_Underlying,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PreviousWeapon,
@@ -3684,6 +4004,59 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execOnRep_PlayerAiming)
 }
 // ********** End Class URenegadeSoldierCombatComponent Function OnRep_PlayerAiming ****************
 
+// ********** Begin Class URenegadeSoldierCombatComponent Function OnRep_RocketLauncherAmmo ********
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_RocketLauncherAmmo_Statics
+struct UHT_STATICS
+{
+	struct RenegadeSoldierCombatComponent_eventOnRep_RocketLauncherAmmo_Parms
+	{
+		int32 PreviousAmmo;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function OnRep_RocketLauncherAmmo constinit property declarations **************
+	static const UECodeGen_Private::FIntPropertyParams NewProp_PreviousAmmo;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function OnRep_RocketLauncherAmmo constinit property declarations ****************
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function OnRep_RocketLauncherAmmo Property Definitions *************************
+const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_PreviousAmmo = { "PreviousAmmo", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventOnRep_RocketLauncherAmmo_Parms, PreviousAmmo), METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PreviousAmmo,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function OnRep_RocketLauncherAmmo Property Definitions ***************************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "OnRep_RocketLauncherAmmo", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::RenegadeSoldierCombatComponent_eventOnRep_RocketLauncherAmmo_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00080401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::RenegadeSoldierCombatComponent_eventOnRep_RocketLauncherAmmo_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_RocketLauncherAmmo(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execOnRep_RocketLauncherAmmo)
+{
+	P_GET_PROPERTY(FIntProperty,Z_Param_PreviousAmmo);
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->OnRep_RocketLauncherAmmo(Z_Param_PreviousAmmo);
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function OnRep_RocketLauncherAmmo **********
+
 // ********** Begin Class URenegadeSoldierCombatComponent Function OnRep_TeamId ********************
 #ifdef UHT_STATICS
 #error UHT_STATICS already defined
@@ -3878,6 +4251,50 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execPlayerFirePistol)
 	P_NATIVE_END;
 }
 // ********** End Class URenegadeSoldierCombatComponent Function PlayerFirePistol ******************
+
+// ********** Begin Class URenegadeSoldierCombatComponent Function PlayerFireRocketLauncher ********
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerFireRocketLauncher_Statics
+struct UHT_STATICS
+{
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Player Combat|Input" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Selects the player rocket-launcher slot and launches exactly one replicated rocket from the configured launcher muzzle. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Selects the player rocket-launcher slot and launches exactly one replicated rocket from the configured launcher muzzle." },
+#endif
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function PlayerFireRocketLauncher constinit property declarations **************
+// ********** End Function PlayerFireRocketLauncher constinit property declarations ****************
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "PlayerFireRocketLauncher", nullptr, 0, 0, RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerFireRocketLauncher(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execPlayerFireRocketLauncher)
+{
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->PlayerFireRocketLauncher();
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function PlayerFireRocketLauncher **********
 
 // ********** Begin Class URenegadeSoldierCombatComponent Function PlayerLockOnToTarget ************
 #ifdef UHT_STATICS
@@ -4712,6 +5129,66 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execPreviewGroundBloodAtLocatio
 }
 // ********** End Class URenegadeSoldierCombatComponent Function PreviewGroundBloodAtLocation ******
 
+// ********** Begin Class URenegadeSoldierCombatComponent Function PreviewRocketLauncherVisual *****
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_PreviewRocketLauncherVisual_Statics
+struct UHT_STATICS
+{
+	struct RenegadeSoldierCombatComponent_eventPreviewRocketLauncherVisual_Parms
+	{
+		FVector ImpactLocation;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Rocket Launcher|Visual" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Local cosmetic preview using the active rocket-launcher settings. No damage is applied. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Local cosmetic preview using the active rocket-launcher settings. No damage is applied." },
+#endif
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function PreviewRocketLauncherVisual constinit property declarations ***********
+	static const UECodeGen_Private::FStructPropertyParams NewProp_ImpactLocation;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function PreviewRocketLauncherVisual constinit property declarations *************
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function PreviewRocketLauncherVisual Property Definitions **********************
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ImpactLocation = { "ImpactLocation", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventPreviewRocketLauncherVisual_Parms, ImpactLocation), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ImpactLocation,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function PreviewRocketLauncherVisual Property Definitions ************************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "PreviewRocketLauncherVisual", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::RenegadeSoldierCombatComponent_eventPreviewRocketLauncherVisual_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04820401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::RenegadeSoldierCombatComponent_eventPreviewRocketLauncherVisual_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_PreviewRocketLauncherVisual(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execPreviewRocketLauncherVisual)
+{
+	P_GET_STRUCT(FVector,Z_Param_ImpactLocation);
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->PreviewRocketLauncherVisual(Z_Param_ImpactLocation);
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function PreviewRocketLauncherVisual *******
+
 // ********** Begin Class URenegadeSoldierCombatComponent Function RefreshPlayerLockOnTarget *******
 #ifdef UHT_STATICS
 #error UHT_STATICS already defined
@@ -4998,6 +5475,44 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execSelectPlayerPistol)
 }
 // ********** End Class URenegadeSoldierCombatComponent Function SelectPlayerPistol ****************
 
+// ********** Begin Class URenegadeSoldierCombatComponent Function SelectPlayerRocketLauncher ******
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_SelectPlayerRocketLauncher_Statics
+struct UHT_STATICS
+{
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Player Combat|Weapons" },
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function SelectPlayerRocketLauncher constinit property declarations ************
+// ********** End Function SelectPlayerRocketLauncher constinit property declarations **************
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "SelectPlayerRocketLauncher", nullptr, 0, 0, RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_SelectPlayerRocketLauncher(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execSelectPlayerRocketLauncher)
+{
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->SelectPlayerRocketLauncher();
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function SelectPlayerRocketLauncher ********
+
 // ********** Begin Class URenegadeSoldierCombatComponent Function SelectPlayerWeapon **************
 #ifdef UHT_STATICS
 #error UHT_STATICS already defined
@@ -5026,7 +5541,7 @@ struct UHT_STATICS
 
 // ********** Begin Function SelectPlayerWeapon Property Definitions *******************************
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_NewWeapon_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_NewWeapon = { "NewWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventSelectPlayerWeapon_Parms, NewWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 97c31fa49296a536fe8bf99449a670a446c2d282
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_NewWeapon = { "NewWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventSelectPlayerWeapon_Parms, NewWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 3d3c6554bcaa42767edc1195d01cd72bd763897b
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_NewWeapon_Underlying,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_NewWeapon,
@@ -5090,7 +5605,7 @@ struct UHT_STATICS
 
 // ********** Begin Function ServerRequestPlayerReload Property Definitions ************************
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_RequestedWeapon_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_RequestedWeapon = { "RequestedWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventServerRequestPlayerReload_Parms, RequestedWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 97c31fa49296a536fe8bf99449a670a446c2d282
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_RequestedWeapon = { "RequestedWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventServerRequestPlayerReload_Parms, RequestedWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 3d3c6554bcaa42767edc1195d01cd72bd763897b
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RequestedWeapon_Underlying,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RequestedWeapon,
@@ -5118,6 +5633,89 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execServerRequestPlayerReload)
 	P_NATIVE_END;
 }
 // ********** End Class URenegadeSoldierCombatComponent Function ServerRequestPlayerReload *********
+
+// ********** Begin Class URenegadeSoldierCombatComponent Function ServerRequestPlayerRocketShot ***
+struct RenegadeSoldierCombatComponent_eventServerRequestPlayerRocketShot_Parms
+{
+	FVector_NetQuantize ClientViewLocation;
+	FVector_NetQuantizeNormal ClientViewDirection;
+	bool bClientAiming;
+};
+static FName NAME_URenegadeSoldierCombatComponent_ServerRequestPlayerRocketShot = FName(TEXT("ServerRequestPlayerRocketShot"));
+void URenegadeSoldierCombatComponent::ServerRequestPlayerRocketShot(FVector_NetQuantize ClientViewLocation, FVector_NetQuantizeNormal ClientViewDirection, bool bClientAiming)
+{
+	RenegadeSoldierCombatComponent_eventServerRequestPlayerRocketShot_Parms Parms;
+	Parms.ClientViewLocation=ClientViewLocation;
+	Parms.ClientViewDirection=ClientViewDirection;
+	Parms.bClientAiming=bClientAiming ? true : false;
+	UFunction* Func = FindFunctionChecked(NAME_URenegadeSoldierCombatComponent_ServerRequestPlayerRocketShot);
+	ProcessEvent(Func,&Parms);
+}
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_ServerRequestPlayerRocketShot_Statics
+struct UHT_STATICS
+{
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Rockets are low-frequency and visually important, so their owning-client request is reliable. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Rockets are low-frequency and visually important, so their owning-client request is reliable." },
+#endif
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function ServerRequestPlayerRocketShot constinit property declarations *********
+	static const UECodeGen_Private::FStructPropertyParams NewProp_ClientViewLocation;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_ClientViewDirection;
+	static void NewProp_bClientAiming_SetBit(void* Obj)
+	{
+		((RenegadeSoldierCombatComponent_eventServerRequestPlayerRocketShot_Parms*)Obj)->bClientAiming = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bClientAiming;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function ServerRequestPlayerRocketShot constinit property declarations ***********
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function ServerRequestPlayerRocketShot Property Definitions ********************
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ClientViewLocation = { "ClientViewLocation", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventServerRequestPlayerRocketShot_Parms, ClientViewLocation), Z_Construct_UScriptStruct_FVector_NetQuantize, METADATA_PARAMS(0, nullptr) }; // 360b775a5cdccbf04648aaedc65b3c6a0a2c5ffc
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ClientViewDirection = { "ClientViewDirection", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventServerRequestPlayerRocketShot_Parms, ClientViewDirection), Z_Construct_UScriptStruct_FVector_NetQuantizeNormal, METADATA_PARAMS(0, nullptr) }; // b72fc0c9329e7384dd3617558ef2e117846163f4
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bClientAiming = { "bClientAiming", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(RenegadeSoldierCombatComponent_eventServerRequestPlayerRocketShot_Parms), &UHT_STATICS::NewProp_bClientAiming_SetBit, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ClientViewLocation,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ClientViewDirection,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bClientAiming,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function ServerRequestPlayerRocketShot Property Definitions **********************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "ServerRequestPlayerRocketShot", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<RenegadeSoldierCombatComponent_eventServerRequestPlayerRocketShot_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x00280CC0, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(RenegadeSoldierCombatComponent_eventServerRequestPlayerRocketShot_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_ServerRequestPlayerRocketShot(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execServerRequestPlayerRocketShot)
+{
+	P_GET_STRUCT(FVector_NetQuantize,Z_Param_ClientViewLocation);
+	P_GET_STRUCT(FVector_NetQuantizeNormal,Z_Param_ClientViewDirection);
+	P_GET_UBOOL(Z_Param_bClientAiming);
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->ServerRequestPlayerRocketShot_Implementation(Z_Param_ClientViewLocation,Z_Param_ClientViewDirection,Z_Param_bClientAiming);
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function ServerRequestPlayerRocketShot *****
 
 // ********** Begin Class URenegadeSoldierCombatComponent Function ServerRequestPlayerShot *********
 struct RenegadeSoldierCombatComponent_eventServerRequestPlayerShot_Parms
@@ -5169,7 +5767,7 @@ struct UHT_STATICS
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ClientViewLocation = { "ClientViewLocation", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventServerRequestPlayerShot_Parms, ClientViewLocation), Z_Construct_UScriptStruct_FVector_NetQuantize, METADATA_PARAMS(0, nullptr) }; // 360b775a5cdccbf04648aaedc65b3c6a0a2c5ffc
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ClientViewDirection = { "ClientViewDirection", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventServerRequestPlayerShot_Parms, ClientViewDirection), Z_Construct_UScriptStruct_FVector_NetQuantizeNormal, METADATA_PARAMS(0, nullptr) }; // b72fc0c9329e7384dd3617558ef2e117846163f4
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_RequestedWeapon_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_RequestedWeapon = { "RequestedWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventServerRequestPlayerShot_Parms, RequestedWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 97c31fa49296a536fe8bf99449a670a446c2d282
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_RequestedWeapon = { "RequestedWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventServerRequestPlayerShot_Parms, RequestedWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 3d3c6554bcaa42767edc1195d01cd72bd763897b
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bClientAiming = { "bClientAiming", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(RenegadeSoldierCombatComponent_eventServerRequestPlayerShot_Parms), &UHT_STATICS::NewProp_bClientAiming_SetBit, METADATA_PARAMS(0, nullptr) };
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ClientViewLocation,
@@ -5240,7 +5838,7 @@ struct UHT_STATICS
 
 // ********** Begin Function ServerSelectPlayerWeapon Property Definitions *************************
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_NewWeapon_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_NewWeapon = { "NewWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventServerSelectPlayerWeapon_Parms, NewWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 97c31fa49296a536fe8bf99449a670a446c2d282
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_NewWeapon = { "NewWeapon", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventServerSelectPlayerWeapon_Parms, NewWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(0, nullptr) }; // 3d3c6554bcaa42767edc1195d01cd72bd763897b
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_NewWeapon_Underlying,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_NewWeapon,
@@ -5880,6 +6478,69 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execSetPlayerLockOnIndicatorTex
 }
 // ********** End Class URenegadeSoldierCombatComponent Function SetPlayerLockOnIndicatorTexture ***
 
+// ********** Begin Class URenegadeSoldierCombatComponent Function SetRocketLauncherMuzzleComponent 
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_SetRocketLauncherMuzzleComponent_Statics
+struct UHT_STATICS
+{
+	struct RenegadeSoldierCombatComponent_eventSetRocketLauncherMuzzleComponent_Parms
+	{
+		USceneComponent* NewMuzzleComponent;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Rocket Launcher|Muzzle" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Assigns the rocket-launcher muzzle Scene Component at runtime. It must belong to the same soldier actor. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Assigns the rocket-launcher muzzle Scene Component at runtime. It must belong to the same soldier actor." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_NewMuzzleComponent_MetaData[] = {
+		{ "EditInline", "true" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function SetRocketLauncherMuzzleComponent constinit property declarations ******
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_NewMuzzleComponent;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function SetRocketLauncherMuzzleComponent constinit property declarations ********
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function SetRocketLauncherMuzzleComponent Property Definitions *****************
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_NewMuzzleComponent = { "NewMuzzleComponent", nullptr, (EPropertyFlags)0x0010000000080080, UECodeGen_Private::EPropertyGenFlags::Object, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventSetRocketLauncherMuzzleComponent_Parms, NewMuzzleComponent), Z_Construct_UClass_USceneComponent, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_NewMuzzleComponent_MetaData), NewProp_NewMuzzleComponent_MetaData) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_NewMuzzleComponent,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function SetRocketLauncherMuzzleComponent Property Definitions *******************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "SetRocketLauncherMuzzleComponent", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::RenegadeSoldierCombatComponent_eventSetRocketLauncherMuzzleComponent_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::RenegadeSoldierCombatComponent_eventSetRocketLauncherMuzzleComponent_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_SetRocketLauncherMuzzleComponent(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execSetRocketLauncherMuzzleComponent)
+{
+	P_GET_OBJECT(USceneComponent,Z_Param_NewMuzzleComponent);
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->SetRocketLauncherMuzzleComponent(Z_Param_NewMuzzleComponent);
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function SetRocketLauncherMuzzleComponent **
+
 // ********** Begin Class URenegadeSoldierCombatComponent Function SetRuntimeRespawnTransform ******
 #ifdef UHT_STATICS
 #error UHT_STATICS already defined
@@ -6317,12 +6978,22 @@ struct UHT_STATICS
 		{ "EditCondition", "bUsePlayerWeaponProfiles" },
 		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_PlayerRocketLauncherProfile_MetaData[] = {
+		{ "Category", "Renegade NXT|Player Combat|Weapons" },
+		{ "EditCondition", "bUsePlayerWeaponProfiles" },
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_InlinePlayerAutomaticRifleSettings_MetaData[] = {
 		{ "Category", "Renegade NXT|Player Combat|Weapons" },
 		{ "EditCondition", "!bUsePlayerWeaponProfiles" },
 		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_InlinePlayerPistolSettings_MetaData[] = {
+		{ "Category", "Renegade NXT|Player Combat|Weapons" },
+		{ "EditCondition", "!bUsePlayerWeaponProfiles" },
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_InlinePlayerRocketLauncherSettings_MetaData[] = {
 		{ "Category", "Renegade NXT|Player Combat|Weapons" },
 		{ "EditCondition", "!bUsePlayerWeaponProfiles" },
 		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
@@ -6425,6 +7096,38 @@ struct UHT_STATICS
 		{ "ToolTip", "Optional tag fallback used when Bullet Visual Spawn Component is not assigned." },
 #endif
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketLauncherMuzzleComponent_MetaData[] = {
+		{ "AllowedClasses", "/Script/Engine.SceneComponent" },
+		{ "Category", "Renegade NXT|Rocket Launcher|Muzzle" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Exact Scene Component used as the authoritative and visual rocket-launch point. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Exact Scene Component used as the authoritative and visual rocket-launch point." },
+#endif
+		{ "UseComponentPicker", "" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketLauncherMuzzleRelativeOffset_MetaData[] = {
+		{ "Category", "Renegade NXT|Rocket Launcher|Muzzle" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Local-space offset from Rocket Launcher Muzzle Component. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Local-space offset from Rocket Launcher Muzzle Component." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketLauncherMuzzleComponentTag_MetaData[] = {
+		{ "Category", "Renegade NXT|Rocket Launcher|Muzzle" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Optional component-tag fallback when no exact rocket muzzle component is assigned. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Optional component-tag fallback when no exact rocket muzzle component is assigned." },
+#endif
+	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_CurrentHealth_MetaData[] = {
 		{ "Category", "Renegade NXT|Runtime" },
 		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
@@ -6450,6 +7153,10 @@ struct UHT_STATICS
 		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_CurrentPistolAmmo_MetaData[] = {
+		{ "Category", "Renegade NXT|Player Combat|Runtime" },
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_CurrentRocketLauncherAmmo_MetaData[] = {
 		{ "Category", "Renegade NXT|Player Combat|Runtime" },
 		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
 	};
@@ -6482,6 +7189,26 @@ struct UHT_STATICS
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_OnShotFired_MetaData[] = {
 		{ "Category", "Renegade NXT|Events" },
 		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_OnRocketLaunched_MetaData[] = {
+		{ "Category", "Renegade NXT|Rocket Launcher|Events" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Cosmetic launch event fired on every listening machine when a replicated rocket begins travel. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Cosmetic launch event fired on every listening machine when a replicated rocket begins travel." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_OnRocketImpacted_MetaData[] = {
+		{ "Category", "Renegade NXT|Rocket Launcher|Events" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Cosmetic impact event fired when the locally simulated rocket reaches the authoritative impact point. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Cosmetic impact event fired when the locally simulated rocket reaches the authoritative impact point." },
+#endif
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_OnReloadStarted_MetaData[] = {
 		{ "Category", "Renegade NXT|Events" },
@@ -6578,6 +7305,16 @@ struct UHT_STATICS
 		{ "ToolTip", "Optional runtime Blueprint override for the visual bullet origin." },
 #endif
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RuntimeRocketLauncherMuzzleComponent_MetaData[] = {
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Optional runtime Blueprint override for the rocket-launcher muzzle. */" },
+#endif
+		{ "EditInline", "true" },
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Optional runtime Blueprint override for the rocket-launcher muzzle." },
+#endif
+	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RuntimePlayerAimCameraComponent_MetaData[] = {
 #if !UE_BUILD_SHIPPING
 		{ "Comment", "/** Optional runtime Blueprint override for the local aim-zoom camera. */" },
@@ -6606,6 +7343,16 @@ struct UHT_STATICS
 		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
 #if !UE_BUILD_SHIPPING
 		{ "ToolTip", "Per-soldier component pool; normally only one or two entries are active at a time." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketVisualComponents_MetaData[] = {
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Pooled local rocket meshes. Flight and impact effect actors remain optional. */" },
+#endif
+		{ "EditInline", "true" },
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Pooled local rocket meshes. Flight and impact effect actors remain optional." },
 #endif
 	};
 #endif // WITH_METADATA
@@ -6640,8 +7387,10 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FBoolPropertyParams NewProp_bUsePlayerWeaponProfiles;
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_PlayerAutomaticRifleProfile;
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_PlayerPistolProfile;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_PlayerRocketLauncherProfile;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_InlinePlayerAutomaticRifleSettings;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_InlinePlayerPistolSettings;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_InlinePlayerRocketLauncherSettings;
 	static void NewProp_bRegisterAsCombatTarget_SetBit(void* Obj)
 	{
 		((URenegadeSoldierCombatComponent*)Obj)->bRegisterAsCombatTarget = 1;
@@ -6672,6 +7421,9 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FStructPropertyParams NewProp_BulletVisualSpawnComponent;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_BulletVisualSpawnRelativeOffset;
 	static const UECodeGen_Private::FNamePropertyParams NewProp_BulletVisualSpawnComponentTag;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_RocketLauncherMuzzleComponent;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_RocketLauncherMuzzleRelativeOffset;
+	static const UECodeGen_Private::FNamePropertyParams NewProp_RocketLauncherMuzzleComponentTag;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_CurrentHealth;
 	static void NewProp_bIsDead_SetBit(void* Obj)
 	{
@@ -6684,6 +7436,7 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FEnumPropertyParams NewProp_ActivePlayerWeapon;
 	static const UECodeGen_Private::FIntPropertyParams NewProp_CurrentAutomaticRifleAmmo;
 	static const UECodeGen_Private::FIntPropertyParams NewProp_CurrentPistolAmmo;
+	static const UECodeGen_Private::FIntPropertyParams NewProp_CurrentRocketLauncherAmmo;
 	static void NewProp_bIsPlayerAiming_SetBit(void* Obj)
 	{
 		((URenegadeSoldierCombatComponent*)Obj)->bIsPlayerAiming = 1;
@@ -6694,6 +7447,8 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnCombatStarted;
 	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnCombatEnded;
 	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnShotFired;
+	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnRocketLaunched;
+	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnRocketImpacted;
 	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnReloadStarted;
 	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnReloadFinished;
 	static const UECodeGen_Private::FMulticastDelegatePropertyParams NewProp_OnHealthChanged;
@@ -6715,10 +7470,13 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_OwnerCapsule;
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_OwnerMovement;
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_RuntimeBulletVisualSpawnComponent;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_RuntimeRocketLauncherMuzzleComponent;
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_RuntimePlayerAimCameraComponent;
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_PlayerLockOnIndicatorComponent;
 	static const UECodeGen_Private::FObjectPropertyParams NewProp_BulletVisualComponents_Inner;
 	static const UECodeGen_Private::FArrayPropertyParams NewProp_BulletVisualComponents;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_RocketVisualComponents_Inner;
+	static const UECodeGen_Private::FArrayPropertyParams NewProp_RocketVisualComponents;
 	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
 // ********** End Class URenegadeSoldierCombatComponent constinit property declarations ************
 	static constexpr UE::CodeGen::FClassNativeFunction Funcs[] = {
@@ -6727,6 +7485,7 @@ struct UHT_STATICS
 		{ .NameUTF8 = UTF8TEXT("ClearCombatTarget"), .Pointer = &URenegadeSoldierCombatComponent::execClearCombatTarget },
 		{ .NameUTF8 = UTF8TEXT("ClearCustomRespawnTransforms"), .Pointer = &URenegadeSoldierCombatComponent::execClearCustomRespawnTransforms },
 		{ .NameUTF8 = UTF8TEXT("ClearPlayerAimCameraComponent"), .Pointer = &URenegadeSoldierCombatComponent::execClearPlayerAimCameraComponent },
+		{ .NameUTF8 = UTF8TEXT("ClearRocketLauncherMuzzleComponent"), .Pointer = &URenegadeSoldierCombatComponent::execClearRocketLauncherMuzzleComponent },
 		{ .NameUTF8 = UTF8TEXT("ClearRuntimeRespawnTransform"), .Pointer = &URenegadeSoldierCombatComponent::execClearRuntimeRespawnTransform },
 		{ .NameUTF8 = UTF8TEXT("ForceKill"), .Pointer = &URenegadeSoldierCombatComponent::execForceKill },
 		{ .NameUTF8 = UTF8TEXT("ForceTargetRefresh"), .Pointer = &URenegadeSoldierCombatComponent::execForceTargetRefresh },
@@ -6744,6 +7503,8 @@ struct UHT_STATICS
 		{ .NameUTF8 = UTF8TEXT("GetPlayerWeaponAmmo"), .Pointer = &URenegadeSoldierCombatComponent::execGetPlayerWeaponAmmo },
 		{ .NameUTF8 = UTF8TEXT("GetPlayerWeaponSettings"), .Pointer = &URenegadeSoldierCombatComponent::execGetPlayerWeaponSettings },
 		{ .NameUTF8 = UTF8TEXT("GetResolvedRagdollMesh"), .Pointer = &URenegadeSoldierCombatComponent::execGetResolvedRagdollMesh },
+		{ .NameUTF8 = UTF8TEXT("GetRocketLauncherMuzzleComponent"), .Pointer = &URenegadeSoldierCombatComponent::execGetRocketLauncherMuzzleComponent },
+		{ .NameUTF8 = UTF8TEXT("GetRocketLauncherMuzzleLocation"), .Pointer = &URenegadeSoldierCombatComponent::execGetRocketLauncherMuzzleLocation },
 		{ .NameUTF8 = UTF8TEXT("HandleOwnerAnyDamage"), .Pointer = &URenegadeSoldierCombatComponent::execHandleOwnerAnyDamage },
 		{ .NameUTF8 = UTF8TEXT("HasRuntimeRespawnTransform"), .Pointer = &URenegadeSoldierCombatComponent::execHasRuntimeRespawnTransform },
 		{ .NameUTF8 = UTF8TEXT("Heal"), .Pointer = &URenegadeSoldierCombatComponent::execHeal },
@@ -6763,6 +7524,7 @@ struct UHT_STATICS
 		{ .NameUTF8 = UTF8TEXT("MulticastFinishRespawn"), .Pointer = &URenegadeSoldierCombatComponent::execMulticastFinishRespawn },
 		{ .NameUTF8 = UTF8TEXT("MulticastReloadFinished"), .Pointer = &URenegadeSoldierCombatComponent::execMulticastReloadFinished },
 		{ .NameUTF8 = UTF8TEXT("MulticastReloadStarted"), .Pointer = &URenegadeSoldierCombatComponent::execMulticastReloadStarted },
+		{ .NameUTF8 = UTF8TEXT("MulticastRocketLaunched"), .Pointer = &URenegadeSoldierCombatComponent::execMulticastRocketLaunched },
 		{ .NameUTF8 = UTF8TEXT("MulticastShotFired"), .Pointer = &URenegadeSoldierCombatComponent::execMulticastShotFired },
 		{ .NameUTF8 = UTF8TEXT("OnRep_ActivePlayerWeapon"), .Pointer = &URenegadeSoldierCombatComponent::execOnRep_ActivePlayerWeapon },
 		{ .NameUTF8 = UTF8TEXT("OnRep_AutomaticRifleAmmo"), .Pointer = &URenegadeSoldierCombatComponent::execOnRep_AutomaticRifleAmmo },
@@ -6771,10 +7533,12 @@ struct UHT_STATICS
 		{ .NameUTF8 = UTF8TEXT("OnRep_Dead"), .Pointer = &URenegadeSoldierCombatComponent::execOnRep_Dead },
 		{ .NameUTF8 = UTF8TEXT("OnRep_PistolAmmo"), .Pointer = &URenegadeSoldierCombatComponent::execOnRep_PistolAmmo },
 		{ .NameUTF8 = UTF8TEXT("OnRep_PlayerAiming"), .Pointer = &URenegadeSoldierCombatComponent::execOnRep_PlayerAiming },
+		{ .NameUTF8 = UTF8TEXT("OnRep_RocketLauncherAmmo"), .Pointer = &URenegadeSoldierCombatComponent::execOnRep_RocketLauncherAmmo },
 		{ .NameUTF8 = UTF8TEXT("OnRep_TeamId"), .Pointer = &URenegadeSoldierCombatComponent::execOnRep_TeamId },
 		{ .NameUTF8 = UTF8TEXT("PlayerAddLockOnAimInput"), .Pointer = &URenegadeSoldierCombatComponent::execPlayerAddLockOnAimInput },
 		{ .NameUTF8 = UTF8TEXT("PlayerFireOnce"), .Pointer = &URenegadeSoldierCombatComponent::execPlayerFireOnce },
 		{ .NameUTF8 = UTF8TEXT("PlayerFirePistol"), .Pointer = &URenegadeSoldierCombatComponent::execPlayerFirePistol },
+		{ .NameUTF8 = UTF8TEXT("PlayerFireRocketLauncher"), .Pointer = &URenegadeSoldierCombatComponent::execPlayerFireRocketLauncher },
 		{ .NameUTF8 = UTF8TEXT("PlayerLockOnToTarget"), .Pointer = &URenegadeSoldierCombatComponent::execPlayerLockOnToTarget },
 		{ .NameUTF8 = UTF8TEXT("PlayerReload"), .Pointer = &URenegadeSoldierCombatComponent::execPlayerReload },
 		{ .NameUTF8 = UTF8TEXT("PlayerSetAiming"), .Pointer = &URenegadeSoldierCombatComponent::execPlayerSetAiming },
@@ -6791,14 +7555,17 @@ struct UHT_STATICS
 		{ .NameUTF8 = UTF8TEXT("PreviewBulletMeshFromConfiguredSpawn"), .Pointer = &URenegadeSoldierCombatComponent::execPreviewBulletMeshFromConfiguredSpawn },
 		{ .NameUTF8 = UTF8TEXT("PreviewBulletMeshVisual"), .Pointer = &URenegadeSoldierCombatComponent::execPreviewBulletMeshVisual },
 		{ .NameUTF8 = UTF8TEXT("PreviewGroundBloodAtLocation"), .Pointer = &URenegadeSoldierCombatComponent::execPreviewGroundBloodAtLocation },
+		{ .NameUTF8 = UTF8TEXT("PreviewRocketLauncherVisual"), .Pointer = &URenegadeSoldierCombatComponent::execPreviewRocketLauncherVisual },
 		{ .NameUTF8 = UTF8TEXT("RefreshPlayerLockOnTarget"), .Pointer = &URenegadeSoldierCombatComponent::execRefreshPlayerLockOnTarget },
 		{ .NameUTF8 = UTF8TEXT("ResetPlayerLockOnAimOffset"), .Pointer = &URenegadeSoldierCombatComponent::execResetPlayerLockOnAimOffset },
 		{ .NameUTF8 = UTF8TEXT("RespawnNow"), .Pointer = &URenegadeSoldierCombatComponent::execRespawnNow },
 		{ .NameUTF8 = UTF8TEXT("RestorePlayerAimPresentation"), .Pointer = &URenegadeSoldierCombatComponent::execRestorePlayerAimPresentation },
 		{ .NameUTF8 = UTF8TEXT("SelectPlayerAutomaticRifle"), .Pointer = &URenegadeSoldierCombatComponent::execSelectPlayerAutomaticRifle },
 		{ .NameUTF8 = UTF8TEXT("SelectPlayerPistol"), .Pointer = &URenegadeSoldierCombatComponent::execSelectPlayerPistol },
+		{ .NameUTF8 = UTF8TEXT("SelectPlayerRocketLauncher"), .Pointer = &URenegadeSoldierCombatComponent::execSelectPlayerRocketLauncher },
 		{ .NameUTF8 = UTF8TEXT("SelectPlayerWeapon"), .Pointer = &URenegadeSoldierCombatComponent::execSelectPlayerWeapon },
 		{ .NameUTF8 = UTF8TEXT("ServerRequestPlayerReload"), .Pointer = &URenegadeSoldierCombatComponent::execServerRequestPlayerReload },
+		{ .NameUTF8 = UTF8TEXT("ServerRequestPlayerRocketShot"), .Pointer = &URenegadeSoldierCombatComponent::execServerRequestPlayerRocketShot },
 		{ .NameUTF8 = UTF8TEXT("ServerRequestPlayerShot"), .Pointer = &URenegadeSoldierCombatComponent::execServerRequestPlayerShot },
 		{ .NameUTF8 = UTF8TEXT("ServerSelectPlayerWeapon"), .Pointer = &URenegadeSoldierCombatComponent::execServerSelectPlayerWeapon },
 		{ .NameUTF8 = UTF8TEXT("ServerSetPlayerAiming"), .Pointer = &URenegadeSoldierCombatComponent::execServerSetPlayerAiming },
@@ -6811,6 +7578,7 @@ struct UHT_STATICS
 		{ .NameUTF8 = UTF8TEXT("SetPlayerAimCameraComponent"), .Pointer = &URenegadeSoldierCombatComponent::execSetPlayerAimCameraComponent },
 		{ .NameUTF8 = UTF8TEXT("SetPlayerLockOnIndicatorColor"), .Pointer = &URenegadeSoldierCombatComponent::execSetPlayerLockOnIndicatorColor },
 		{ .NameUTF8 = UTF8TEXT("SetPlayerLockOnIndicatorTexture"), .Pointer = &URenegadeSoldierCombatComponent::execSetPlayerLockOnIndicatorTexture },
+		{ .NameUTF8 = UTF8TEXT("SetRocketLauncherMuzzleComponent"), .Pointer = &URenegadeSoldierCombatComponent::execSetRocketLauncherMuzzleComponent },
 		{ .NameUTF8 = UTF8TEXT("SetRuntimeRespawnTransform"), .Pointer = &URenegadeSoldierCombatComponent::execSetRuntimeRespawnTransform },
 		{ .NameUTF8 = UTF8TEXT("SetTeamId"), .Pointer = &URenegadeSoldierCombatComponent::execSetTeamId },
 		{ .NameUTF8 = UTF8TEXT("SnapPlayerCharacterToAimForward"), .Pointer = &URenegadeSoldierCombatComponent::execSnapPlayerCharacterToAimForward },
@@ -6825,10 +7593,11 @@ struct UHT_STATICS
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ClearCombatTarget, "ClearCombatTarget" }, // 53ad295c3b208cbd58a633f0cf71dafe9a005691
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ClearCustomRespawnTransforms, "ClearCustomRespawnTransforms" }, // 424a9503c85b7822aad34084d6110fe16ae98741
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ClearPlayerAimCameraComponent, "ClearPlayerAimCameraComponent" }, // 24ee92e57963902914ee5f64819548eb625ee73c
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ClearRocketLauncherMuzzleComponent, "ClearRocketLauncherMuzzleComponent" }, // 16171f4f190faf8685128e3d28fb975146635055
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ClearRuntimeRespawnTransform, "ClearRuntimeRespawnTransform" }, // f1f1935f8f28a8bb60eba4b40918159daae7eb97
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ForceKill, "ForceKill" }, // 850f9b6b9cbccb8365a994c5c90c0347ba2b21ca
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ForceTargetRefresh, "ForceTargetRefresh" }, // a20fc1421e2f1b8d07ea8dd6069f21b67a5a9329
-		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetActiveWeaponSettings, "GetActiveWeaponSettings" }, // df760cdcf3bd8ec57043e39bc762026518b7bd10
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetActiveWeaponSettings, "GetActiveWeaponSettings" }, // 70d7b813deb03854591844a5af9fb115c261984b
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetBulletVisualSpawnComponent, "GetBulletVisualSpawnComponent" }, // beb228d6a4360c01379431e697303e1f3adf7b2f
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetBulletVisualSpawnLocation, "GetBulletVisualSpawnLocation" }, // 55c031e5caa2475de4884bfe12fc24ed32a6a268
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetHealthPercent, "GetHealthPercent" }, // 2f82521d095f98594e97cd44ad8af636eeb43833
@@ -6839,9 +7608,11 @@ struct UHT_STATICS
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerLockOnIndicatorColor, "GetPlayerLockOnIndicatorColor" }, // 3da81fb5f6d94c174605ffe69ee1913c698c0002
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerLockOnIndicatorTexture, "GetPlayerLockOnIndicatorTexture" }, // b539f4459e9419fdd8304a5dc7da78f55eb175a8
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerLockOnTarget, "GetPlayerLockOnTarget" }, // 758288606bc497049e9793e139a5f6ecdb09f39f
-		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerWeaponAmmo, "GetPlayerWeaponAmmo" }, // 08b4865e46eb6917400e4c8d3c8c00e080e94164
-		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerWeaponSettings, "GetPlayerWeaponSettings" }, // 13d60e7bad6c0d714dd03b28d829c73d7739969d
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerWeaponAmmo, "GetPlayerWeaponAmmo" }, // 11332cdb124b54404f0a18d9097c4a03eb37399d
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerWeaponSettings, "GetPlayerWeaponSettings" }, // 3a15313ee9b889abb442e0b6a8343585746c3d87
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetResolvedRagdollMesh, "GetResolvedRagdollMesh" }, // 36841be3c84129d2af62b92ad1af26f02df52d7c
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetRocketLauncherMuzzleComponent, "GetRocketLauncherMuzzleComponent" }, // 45cd0ee1b418f065b8a18ad2647dc5700a2d6c3d
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetRocketLauncherMuzzleLocation, "GetRocketLauncherMuzzleLocation" }, // e4443d0a100aa52b687d4af12b63492f590b5078
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_HandleOwnerAnyDamage, "HandleOwnerAnyDamage" }, // 181d257095ff7c253de0928943ba796f3c4c1208
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_HasRuntimeRespawnTransform, "HasRuntimeRespawnTransform" }, // 652910789d0689435841f25cd92547b450a3b856
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_Heal, "Heal" }, // 0933c5575c1d8edb7f6824cedb3082223a1bf21f
@@ -6861,18 +7632,21 @@ struct UHT_STATICS
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_MulticastFinishRespawn, "MulticastFinishRespawn" }, // aa44649ca8f680eadaf41bd87747c8aeaaeb562d
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_MulticastReloadFinished, "MulticastReloadFinished" }, // 2e0a8c14f03fc01afa4347b0df493f2eee2bb7ea
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_MulticastReloadStarted, "MulticastReloadStarted" }, // 1fb778da69012993da0b98bd8ad555030b1d2db4
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_MulticastRocketLaunched, "MulticastRocketLaunched" }, // ae3a2f05ee224bf8ab626b59371feacf3f72ccb0
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_MulticastShotFired, "MulticastShotFired" }, // a1221bef24020a3ce0f7ca63564eba40cbd857ba
-		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_ActivePlayerWeapon, "OnRep_ActivePlayerWeapon" }, // 952d3bd6d6d1e29fd8e827f203d84e6a09038d6e
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_ActivePlayerWeapon, "OnRep_ActivePlayerWeapon" }, // d87db41b2217e9a709662fb9ec493818dbd1383f
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_AutomaticRifleAmmo, "OnRep_AutomaticRifleAmmo" }, // 7ebc19772cdaa9e7c953fa182e95c78983195272
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_CurrentHealth, "OnRep_CurrentHealth" }, // ac86c90b607679f592261f0d0fc064dce8933ac9
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_CurrentTarget, "OnRep_CurrentTarget" }, // 0c0d72f44964e6d3a0bfaa55fca6b999d564618b
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_Dead, "OnRep_Dead" }, // d3c05d97e9e6b1e1ad24ed58279b7e41c46a32cb
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_PistolAmmo, "OnRep_PistolAmmo" }, // 048a3c34977f85c775e3a1491672d96613b742c1
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_PlayerAiming, "OnRep_PlayerAiming" }, // aec01c2243e6f0148a0bc222322fbf14388b5f58
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_RocketLauncherAmmo, "OnRep_RocketLauncherAmmo" }, // 17f0e6d9c215a8db71246f1f6aa116528b170037
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_TeamId, "OnRep_TeamId" }, // 7baede63230f963333df75a43c947d49e504247c
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerAddLockOnAimInput, "PlayerAddLockOnAimInput" }, // 0f0a50a0e283a5a2e9cd94acaf672b77af9d7c23
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerFireOnce, "PlayerFireOnce" }, // a558bcf94a876f227ef6232ffcd0ee7eebd75b34
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerFirePistol, "PlayerFirePistol" }, // 76465ebd2cf4d02fbe1b95e87a2d0abde0aea5d9
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerFireRocketLauncher, "PlayerFireRocketLauncher" }, // 3aaaf94306add3ef4be178205ee253ce47b934b0
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerLockOnToTarget, "PlayerLockOnToTarget" }, // b61343643461885589c1c28ee57cbb837761477d
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerReload, "PlayerReload" }, // 27fb1c10f12b12ae8a1e661b4781e3383972f126
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerSetAiming, "PlayerSetAiming" }, // cc0ece76c5542979574968e4b064d963bb29ef25
@@ -6889,16 +7663,19 @@ struct UHT_STATICS
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PreviewBulletMeshFromConfiguredSpawn, "PreviewBulletMeshFromConfiguredSpawn" }, // ad80e900cd9c17496c000972a764cb60ab7ce09d
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PreviewBulletMeshVisual, "PreviewBulletMeshVisual" }, // e0348e43d4a0d3dd00e7809ceb98e9ff5819558d
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PreviewGroundBloodAtLocation, "PreviewGroundBloodAtLocation" }, // c136db2553ccd1504d23b36903226faaf68a9759
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PreviewRocketLauncherVisual, "PreviewRocketLauncherVisual" }, // e68894a8440baf99bcdc4bb20fec29050fca269a
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_RefreshPlayerLockOnTarget, "RefreshPlayerLockOnTarget" }, // 0c17642f07e6dd34faf3e2be752bbc0be8e66709
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ResetPlayerLockOnAimOffset, "ResetPlayerLockOnAimOffset" }, // a0cf776cb6609a978789ad5b4368061721440433
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_RespawnNow, "RespawnNow" }, // eef0eb0339b955eb5ffaef1b1add0484439da5fe
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_RestorePlayerAimPresentation, "RestorePlayerAimPresentation" }, // d48087f42dd08f3321ded149f950e1aff7c8c1fc
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SelectPlayerAutomaticRifle, "SelectPlayerAutomaticRifle" }, // 178afdf7bc86455d9d37014242d04c1dbb0c6336
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SelectPlayerPistol, "SelectPlayerPistol" }, // 648ef3f6ce509ff112884c1dff7ae312c82c9e56
-		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SelectPlayerWeapon, "SelectPlayerWeapon" }, // 240c97afc3673a79befd1a79db05f016f8932e84
-		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ServerRequestPlayerReload, "ServerRequestPlayerReload" }, // 48e9288fd9eb3cb369e48a3a05d96363a87f51dd
-		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ServerRequestPlayerShot, "ServerRequestPlayerShot" }, // 6b6b588c49c4aacf58ca498788feb57337f2334b
-		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ServerSelectPlayerWeapon, "ServerSelectPlayerWeapon" }, // 36b6a82de574d6e46174cf42761eeecc72f74843
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SelectPlayerRocketLauncher, "SelectPlayerRocketLauncher" }, // 36bfed6fb896065778abe6e9bafcfa5533400bcf
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SelectPlayerWeapon, "SelectPlayerWeapon" }, // 74b12e66553bfedd27f11cd6a4fd6adc07d2ec01
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ServerRequestPlayerReload, "ServerRequestPlayerReload" }, // c4dc009d099b9d67259f284a773609db2fdce312
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ServerRequestPlayerRocketShot, "ServerRequestPlayerRocketShot" }, // 202f924b1993f7ead693274913ebe0fb56215951
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ServerRequestPlayerShot, "ServerRequestPlayerShot" }, // 7c24808179cc1c9c5b8396801d8d1f110758e203
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ServerSelectPlayerWeapon, "ServerSelectPlayerWeapon" }, // e0d0947aaeb97066ddb0439dde344eb88737e794
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ServerSetPlayerAiming, "ServerSetPlayerAiming" }, // 45c8842ed91e8f3956e4def536f7a18cdef7c68c
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SetBuiltInPlayerInputEnabled, "SetBuiltInPlayerInputEnabled" }, // ed2e99fd1b9d2ce330692a40b12b3be191ea847c
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SetBulletVisualSpawnComponent, "SetBulletVisualSpawnComponent" }, // 358818dff0069453b676cefe7c5c3210952f2fcf
@@ -6909,6 +7686,7 @@ struct UHT_STATICS
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SetPlayerAimCameraComponent, "SetPlayerAimCameraComponent" }, // fdecfe513913e2756c0bedb142bb07ded26a73f0
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SetPlayerLockOnIndicatorColor, "SetPlayerLockOnIndicatorColor" }, // 94baba07a26024d21aa3b0bfa60634b93216cf0e
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SetPlayerLockOnIndicatorTexture, "SetPlayerLockOnIndicatorTexture" }, // 0fee842fcc91cddcc213e212f08224543346b7b2
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SetRocketLauncherMuzzleComponent, "SetRocketLauncherMuzzleComponent" }, // 77870fa60f44735d700fe205a1648ef59c96110d
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SetRuntimeRespawnTransform, "SetRuntimeRespawnTransform" }, // 66020b5a9ac3272c497e758c7b53ec7bda396e4d
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SetTeamId, "SetTeamId" }, // 85fd3037caf0398fdf986e41434059535e00bddc
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SnapPlayerCharacterToAimForward, "SnapPlayerCharacterToAimForward" }, // a5e6ec108ffff2d79f88a1de1de939744899a570
@@ -6929,7 +7707,7 @@ const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bDifferentNonN
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAutoCombatEnabled = { "bAutoCombatEnabled", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeSoldierCombatComponent), &UHT_STATICS::NewProp_bAutoCombatEnabled_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAutoCombatEnabled_MetaData), NewProp_bAutoCombatEnabled_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bPlayerControlledCombat = { "bPlayerControlledCombat", nullptr, (EPropertyFlags)0x0010000000000025, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeSoldierCombatComponent), &UHT_STATICS::NewProp_bPlayerControlledCombat_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bPlayerControlledCombat_MetaData), NewProp_bPlayerControlledCombat_MetaData) };
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerCombat = { "PlayerCombat", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerCombat), Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerCombat_MetaData), NewProp_PlayerCombat_MetaData) }; // c6d9f506f10c93d8ecea55d4eb7a1253bc056cee
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerInput = { "PlayerInput", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerInput), Z_Construct_UScriptStruct_FRenegadePlayerInputSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerInput_MetaData), NewProp_PlayerInput_MetaData) }; // 58574a0eea27322dc1ff83bc7d328f1f69d8d106
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerInput = { "PlayerInput", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerInput), Z_Construct_UScriptStruct_FRenegadePlayerInputSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerInput_MetaData), NewProp_PlayerInput_MetaData) }; // fc843d5e41b50d2ee0343f225e7ee52a82e1aaaf
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerAimPresentation = { "PlayerAimPresentation", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerAimPresentation), Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerAimPresentation_MetaData), NewProp_PlayerAimPresentation_MetaData) }; // a30814c671056417cb47a77cda3347d0e6d77de1
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerLockOn = { "PlayerLockOn", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerLockOn), Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerLockOn_MetaData), NewProp_PlayerLockOn_MetaData) }; // e3acd254023a39a6ea607b65fc2752d107c54f04
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerAimCameraComponent = { "PlayerAimCameraComponent", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerAimCameraComponent), Z_Construct_UScriptStruct_FComponentReference, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerAimCameraComponent_MetaData), NewProp_PlayerAimCameraComponent_MetaData) }; // 9b9ae5abd01cfb2cb2ece10137db004a3044215c
@@ -6937,8 +7715,10 @@ const UECodeGen_Private::FNamePropertyParams UHT_STATICS::NewProp_PlayerAimCamer
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUsePlayerWeaponProfiles = { "bUsePlayerWeaponProfiles", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeSoldierCombatComponent), &UHT_STATICS::NewProp_bUsePlayerWeaponProfiles_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUsePlayerWeaponProfiles_MetaData), NewProp_bUsePlayerWeaponProfiles_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_PlayerAutomaticRifleProfile = { "PlayerAutomaticRifleProfile", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerAutomaticRifleProfile), Z_Construct_UClass_URenegadeWeaponProfile, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerAutomaticRifleProfile_MetaData), NewProp_PlayerAutomaticRifleProfile_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_PlayerPistolProfile = { "PlayerPistolProfile", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerPistolProfile), Z_Construct_UClass_URenegadeWeaponProfile, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerPistolProfile_MetaData), NewProp_PlayerPistolProfile_MetaData) };
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_InlinePlayerAutomaticRifleSettings = { "InlinePlayerAutomaticRifleSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, InlinePlayerAutomaticRifleSettings), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_InlinePlayerAutomaticRifleSettings_MetaData), NewProp_InlinePlayerAutomaticRifleSettings_MetaData) }; // b91f7b15a362e3bc7250f20a0a118b3219e06b08
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_InlinePlayerPistolSettings = { "InlinePlayerPistolSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, InlinePlayerPistolSettings), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_InlinePlayerPistolSettings_MetaData), NewProp_InlinePlayerPistolSettings_MetaData) }; // b91f7b15a362e3bc7250f20a0a118b3219e06b08
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_PlayerRocketLauncherProfile = { "PlayerRocketLauncherProfile", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerRocketLauncherProfile), Z_Construct_UClass_URenegadeWeaponProfile, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerRocketLauncherProfile_MetaData), NewProp_PlayerRocketLauncherProfile_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_InlinePlayerAutomaticRifleSettings = { "InlinePlayerAutomaticRifleSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, InlinePlayerAutomaticRifleSettings), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_InlinePlayerAutomaticRifleSettings_MetaData), NewProp_InlinePlayerAutomaticRifleSettings_MetaData) }; // 5774b3e4c1655e645c606c633fde01bd93833e15
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_InlinePlayerPistolSettings = { "InlinePlayerPistolSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, InlinePlayerPistolSettings), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_InlinePlayerPistolSettings_MetaData), NewProp_InlinePlayerPistolSettings_MetaData) }; // 5774b3e4c1655e645c606c633fde01bd93833e15
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_InlinePlayerRocketLauncherSettings = { "InlinePlayerRocketLauncherSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, InlinePlayerRocketLauncherSettings), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_InlinePlayerRocketLauncherSettings_MetaData), NewProp_InlinePlayerRocketLauncherSettings_MetaData) }; // 5774b3e4c1655e645c606c633fde01bd93833e15
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bRegisterAsCombatTarget = { "bRegisterAsCombatTarget", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeSoldierCombatComponent), &UHT_STATICS::NewProp_bRegisterAsCombatTarget_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bRegisterAsCombatTarget_MetaData), NewProp_bRegisterAsCombatTarget_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAutoStartOnBeginPlay = { "bAutoStartOnBeginPlay", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeSoldierCombatComponent), &UHT_STATICS::NewProp_bAutoStartOnBeginPlay_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAutoStartOnBeginPlay_MetaData), NewProp_bAutoStartOnBeginPlay_MetaData) };
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_Targeting = { "Targeting", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, Targeting), Z_Construct_UScriptStruct_FRenegadeTargetingSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_Targeting_MetaData), NewProp_Targeting_MetaData) }; // fca2ce23be53eda2dc5173a3bdcc485e701e5beb
@@ -6947,26 +7727,32 @@ const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bLockCombatRot
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_CombatTargetRotationSpeedDegrees = { "CombatTargetRotationSpeedDegrees", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, CombatTargetRotationSpeedDegrees), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CombatTargetRotationSpeedDegrees_MetaData), NewProp_CombatTargetRotationSpeedDegrees_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUseWeaponProfile = { "bUseWeaponProfile", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeSoldierCombatComponent), &UHT_STATICS::NewProp_bUseWeaponProfile_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUseWeaponProfile_MetaData), NewProp_bUseWeaponProfile_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_WeaponProfile = { "WeaponProfile", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, WeaponProfile), Z_Construct_UClass_URenegadeWeaponProfile, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_WeaponProfile_MetaData), NewProp_WeaponProfile_MetaData) };
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_InlineWeaponSettings = { "InlineWeaponSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, InlineWeaponSettings), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_InlineWeaponSettings_MetaData), NewProp_InlineWeaponSettings_MetaData) }; // b91f7b15a362e3bc7250f20a0a118b3219e06b08
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_InlineWeaponSettings = { "InlineWeaponSettings", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, InlineWeaponSettings), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_InlineWeaponSettings_MetaData), NewProp_InlineWeaponSettings_MetaData) }; // 5774b3e4c1655e645c606c633fde01bd93833e15
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_HealthAndRespawn = { "HealthAndRespawn", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, HealthAndRespawn), Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_HealthAndRespawn_MetaData), NewProp_HealthAndRespawn_MetaData) }; // 6a6e72877f7afdd3780be1063523fafd654bab01
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_CombatVisuals = { "CombatVisuals", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, CombatVisuals), Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CombatVisuals_MetaData), NewProp_CombatVisuals_MetaData) }; // 2f52513d94db74ffb2e48c3b9974236043130c83
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_BulletVisualSpawnComponent = { "BulletVisualSpawnComponent", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, BulletVisualSpawnComponent), Z_Construct_UScriptStruct_FComponentReference, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletVisualSpawnComponent_MetaData), NewProp_BulletVisualSpawnComponent_MetaData) }; // 9b9ae5abd01cfb2cb2ece10137db004a3044215c
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_BulletVisualSpawnRelativeOffset = { "BulletVisualSpawnRelativeOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, BulletVisualSpawnRelativeOffset), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletVisualSpawnRelativeOffset_MetaData), NewProp_BulletVisualSpawnRelativeOffset_MetaData) };
 const UECodeGen_Private::FNamePropertyParams UHT_STATICS::NewProp_BulletVisualSpawnComponentTag = { "BulletVisualSpawnComponentTag", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Name, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, BulletVisualSpawnComponentTag), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletVisualSpawnComponentTag_MetaData), NewProp_BulletVisualSpawnComponentTag_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_RocketLauncherMuzzleComponent = { "RocketLauncherMuzzleComponent", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, RocketLauncherMuzzleComponent), Z_Construct_UScriptStruct_FComponentReference, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketLauncherMuzzleComponent_MetaData), NewProp_RocketLauncherMuzzleComponent_MetaData) }; // 9b9ae5abd01cfb2cb2ece10137db004a3044215c
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_RocketLauncherMuzzleRelativeOffset = { "RocketLauncherMuzzleRelativeOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, RocketLauncherMuzzleRelativeOffset), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketLauncherMuzzleRelativeOffset_MetaData), NewProp_RocketLauncherMuzzleRelativeOffset_MetaData) };
+const UECodeGen_Private::FNamePropertyParams UHT_STATICS::NewProp_RocketLauncherMuzzleComponentTag = { "RocketLauncherMuzzleComponentTag", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Name, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, RocketLauncherMuzzleComponentTag), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketLauncherMuzzleComponentTag_MetaData), NewProp_RocketLauncherMuzzleComponentTag_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_CurrentHealth = { "CurrentHealth", "OnRep_CurrentHealth", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, CurrentHealth), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CurrentHealth_MetaData), NewProp_CurrentHealth_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bIsDead = { "bIsDead", "OnRep_Dead", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeSoldierCombatComponent), &UHT_STATICS::NewProp_bIsDead_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bIsDead_MetaData), NewProp_bIsDead_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_CurrentTarget = { "CurrentTarget", "OnRep_CurrentTarget", (EPropertyFlags)0x0114000100000034, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, CurrentTarget), Z_Construct_UClass_AActor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CurrentTarget_MetaData), NewProp_CurrentTarget_MetaData) };
 const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_CurrentMagazineAmmo = { "CurrentMagazineAmmo", nullptr, (EPropertyFlags)0x0010000000000034, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, CurrentMagazineAmmo), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CurrentMagazineAmmo_MetaData), NewProp_CurrentMagazineAmmo_MetaData) };
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_ActivePlayerWeapon_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_ActivePlayerWeapon = { "ActivePlayerWeapon", "OnRep_ActivePlayerWeapon", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, ActivePlayerWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ActivePlayerWeapon_MetaData), NewProp_ActivePlayerWeapon_MetaData) }; // 97c31fa49296a536fe8bf99449a670a446c2d282
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_ActivePlayerWeapon = { "ActivePlayerWeapon", "OnRep_ActivePlayerWeapon", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, ActivePlayerWeapon), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ActivePlayerWeapon_MetaData), NewProp_ActivePlayerWeapon_MetaData) }; // 3d3c6554bcaa42767edc1195d01cd72bd763897b
 const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_CurrentAutomaticRifleAmmo = { "CurrentAutomaticRifleAmmo", "OnRep_AutomaticRifleAmmo", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, CurrentAutomaticRifleAmmo), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CurrentAutomaticRifleAmmo_MetaData), NewProp_CurrentAutomaticRifleAmmo_MetaData) };
 const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_CurrentPistolAmmo = { "CurrentPistolAmmo", "OnRep_PistolAmmo", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, CurrentPistolAmmo), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CurrentPistolAmmo_MetaData), NewProp_CurrentPistolAmmo_MetaData) };
+const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_CurrentRocketLauncherAmmo = { "CurrentRocketLauncherAmmo", "OnRep_RocketLauncherAmmo", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, CurrentRocketLauncherAmmo), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CurrentRocketLauncherAmmo_MetaData), NewProp_CurrentRocketLauncherAmmo_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bIsPlayerAiming = { "bIsPlayerAiming", "OnRep_PlayerAiming", (EPropertyFlags)0x0010000100000034, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeSoldierCombatComponent), &UHT_STATICS::NewProp_bIsPlayerAiming_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bIsPlayerAiming_MetaData), NewProp_bIsPlayerAiming_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_PlayerLockOnTarget = { "PlayerLockOnTarget", nullptr, (EPropertyFlags)0x0114000000002014, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerLockOnTarget), Z_Construct_UClass_AActor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerLockOnTarget_MetaData), NewProp_PlayerLockOnTarget_MetaData) };
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnTargetChanged = { "OnTargetChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnTargetChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeTargetChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnTargetChanged_MetaData), NewProp_OnTargetChanged_MetaData) }; // b571e1eca28629b1b2d61a6133248f685b1f40d4
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnCombatStarted = { "OnCombatStarted", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnCombatStarted), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeCombatStartedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnCombatStarted_MetaData), NewProp_OnCombatStarted_MetaData) }; // 64dc7839f181e5b8732183015534bf20262d2c3c
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnCombatEnded = { "OnCombatEnded", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnCombatEnded), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeCombatEndedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnCombatEnded_MetaData), NewProp_OnCombatEnded_MetaData) }; // fb77aa189c75ab1c6f849d4d459f8a6632772ab1
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnShotFired = { "OnShotFired", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnShotFired), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeShotFiredSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnShotFired_MetaData), NewProp_OnShotFired_MetaData) }; // 4482a1334368de87c8e11b0fdec2757d803b242e
+const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnRocketLaunched = { "OnRocketLaunched", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnRocketLaunched), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeRocketLaunchedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnRocketLaunched_MetaData), NewProp_OnRocketLaunched_MetaData) }; // f822e4fe54d8fdd480ac3b2ecfb04f3783e77915
+const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnRocketImpacted = { "OnRocketImpacted", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnRocketImpacted), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeRocketImpactedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnRocketImpacted_MetaData), NewProp_OnRocketImpacted_MetaData) }; // 80b04fba5c3997c7201597a543b83f818df3cc72
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnReloadStarted = { "OnReloadStarted", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnReloadStarted), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeReloadSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnReloadStarted_MetaData), NewProp_OnReloadStarted_MetaData) }; // 87e2f88bbde94b3c70e3219f948a1bfdb4f1f497
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnReloadFinished = { "OnReloadFinished", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnReloadFinished), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeReloadSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnReloadFinished_MetaData), NewProp_OnReloadFinished_MetaData) }; // 87e2f88bbde94b3c70e3219f948a1bfdb4f1f497
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnHealthChanged = { "OnHealthChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnHealthChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeHealthChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnHealthChanged_MetaData), NewProp_OnHealthChanged_MetaData) }; // 9acbb4fe658eff1a8946b6dfa600817140308844
@@ -6974,8 +7760,8 @@ const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_O
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnRagdollStarted = { "OnRagdollStarted", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnRagdollStarted), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeSimpleSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnRagdollStarted_MetaData), NewProp_OnRagdollStarted_MetaData) }; // a8f4fb926a58c2dca9dd23d3539f783ef0cecd4a
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnRespawned = { "OnRespawned", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnRespawned), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeSimpleSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnRespawned_MetaData), NewProp_OnRespawned_MetaData) }; // a8f4fb926a58c2dca9dd23d3539f783ef0cecd4a
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnGroundBloodSpawned = { "OnGroundBloodSpawned", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnGroundBloodSpawned), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadeGroundBloodSpawnedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnGroundBloodSpawned_MetaData), NewProp_OnGroundBloodSpawned_MetaData) }; // 78c98b2b66667072b72d9f5d6871c3cc6a2e9877
-const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnPlayerWeaponChanged = { "OnPlayerWeaponChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnPlayerWeaponChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadePlayerWeaponChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnPlayerWeaponChanged_MetaData), NewProp_OnPlayerWeaponChanged_MetaData) }; // 04e82005b57eeca6d50452efcb3a720a3c43cfd9
-const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnPlayerAmmoChanged = { "OnPlayerAmmoChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnPlayerAmmoChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadePlayerAmmoChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnPlayerAmmoChanged_MetaData), NewProp_OnPlayerAmmoChanged_MetaData) }; // 321a90e2acf248fd73464ed6ee30427d9525f2af
+const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnPlayerWeaponChanged = { "OnPlayerWeaponChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnPlayerWeaponChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadePlayerWeaponChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnPlayerWeaponChanged_MetaData), NewProp_OnPlayerWeaponChanged_MetaData) }; // 920f756fc1f27a5399e1ac2d0916bb23e511572f
+const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnPlayerAmmoChanged = { "OnPlayerAmmoChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnPlayerAmmoChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadePlayerAmmoChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnPlayerAmmoChanged_MetaData), NewProp_OnPlayerAmmoChanged_MetaData) }; // d248f52a1338c632089142a021c9ba0d79139bcc
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnPlayerAimChanged = { "OnPlayerAimChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnPlayerAimChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadePlayerAimChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnPlayerAimChanged_MetaData), NewProp_OnPlayerAimChanged_MetaData) }; // eb22dc63ced9e39f5751b41d159fcb392bfb96e5
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnPlayerLockOnTargetChanged = { "OnPlayerLockOnTargetChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnPlayerLockOnTargetChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadePlayerLockOnTargetChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnPlayerLockOnTargetChanged_MetaData), NewProp_OnPlayerLockOnTargetChanged_MetaData) }; // 852e83c1aaafd1d6d2a310202aada05e7286b992
 const UECodeGen_Private::FMulticastDelegatePropertyParams UHT_STATICS::NewProp_OnPlayerLockOnStateChanged = { "OnPlayerLockOnStateChanged", nullptr, (EPropertyFlags)0x0010000010080000, UECodeGen_Private::EPropertyGenFlags::InlineMulticastDelegate, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OnPlayerLockOnStateChanged), Z_Construct_UDelegateFunction_RenegadeSoldierCombat_RenegadePlayerLockOnStateChangedSignature__DelegateSignature, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OnPlayerLockOnStateChanged_MetaData), NewProp_OnPlayerLockOnStateChanged_MetaData) }; // 2c270548a2a81880313dda07af7569cf8baeb2a4
@@ -6988,10 +7774,13 @@ const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_OwnerMesh = 
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_OwnerCapsule = { "OwnerCapsule", nullptr, (EPropertyFlags)0x0144000000082008, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OwnerCapsule), Z_Construct_UClass_UCapsuleComponent, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OwnerCapsule_MetaData), NewProp_OwnerCapsule_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_OwnerMovement = { "OwnerMovement", nullptr, (EPropertyFlags)0x0144000000082008, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, OwnerMovement), Z_Construct_UClass_UCharacterMovementComponent, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OwnerMovement_MetaData), NewProp_OwnerMovement_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_RuntimeBulletVisualSpawnComponent = { "RuntimeBulletVisualSpawnComponent", nullptr, (EPropertyFlags)0x0144000000082008, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, RuntimeBulletVisualSpawnComponent), Z_Construct_UClass_USceneComponent, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RuntimeBulletVisualSpawnComponent_MetaData), NewProp_RuntimeBulletVisualSpawnComponent_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_RuntimeRocketLauncherMuzzleComponent = { "RuntimeRocketLauncherMuzzleComponent", nullptr, (EPropertyFlags)0x0144000000082008, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, RuntimeRocketLauncherMuzzleComponent), Z_Construct_UClass_USceneComponent, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RuntimeRocketLauncherMuzzleComponent_MetaData), NewProp_RuntimeRocketLauncherMuzzleComponent_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_RuntimePlayerAimCameraComponent = { "RuntimePlayerAimCameraComponent", nullptr, (EPropertyFlags)0x0144000000082008, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, RuntimePlayerAimCameraComponent), Z_Construct_UClass_UCameraComponent, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RuntimePlayerAimCameraComponent_MetaData), NewProp_RuntimePlayerAimCameraComponent_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_PlayerLockOnIndicatorComponent = { "PlayerLockOnIndicatorComponent", nullptr, (EPropertyFlags)0x0144000000082008, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerLockOnIndicatorComponent), Z_Construct_UClass_UWidgetComponent, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerLockOnIndicatorComponent_MetaData), NewProp_PlayerLockOnIndicatorComponent_MetaData) };
 const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_BulletVisualComponents_Inner = { "BulletVisualComponents", nullptr, (EPropertyFlags)0x0104000000080008, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, 0, Z_Construct_UClass_UStaticMeshComponent, METADATA_PARAMS(0, nullptr) };
 const UECodeGen_Private::FArrayPropertyParams UHT_STATICS::NewProp_BulletVisualComponents = { "BulletVisualComponents", nullptr, (EPropertyFlags)0x0144008000002008, UECodeGen_Private::EPropertyGenFlags::Array, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, BulletVisualComponents), EArrayPropertyFlags::None, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BulletVisualComponents_MetaData), NewProp_BulletVisualComponents_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_RocketVisualComponents_Inner = { "RocketVisualComponents", nullptr, (EPropertyFlags)0x0104000000080008, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, 0, Z_Construct_UClass_UStaticMeshComponent, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FArrayPropertyParams UHT_STATICS::NewProp_RocketVisualComponents = { "RocketVisualComponents", nullptr, (EPropertyFlags)0x0144008000002008, UECodeGen_Private::EPropertyGenFlags::Array, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, RocketVisualComponents), EArrayPropertyFlags::None, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketVisualComponents_MetaData), NewProp_RocketVisualComponents_MetaData) };
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TeamId,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bDifferentNonNeutralTeamsAreEnemies,
@@ -7006,8 +7795,10 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bUsePlayerWeaponProfiles,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PlayerAutomaticRifleProfile,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PlayerPistolProfile,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PlayerRocketLauncherProfile,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_InlinePlayerAutomaticRifleSettings,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_InlinePlayerPistolSettings,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_InlinePlayerRocketLauncherSettings,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bRegisterAsCombatTarget,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAutoStartOnBeginPlay,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_Targeting,
@@ -7022,6 +7813,9 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletVisualSpawnComponent,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletVisualSpawnRelativeOffset,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletVisualSpawnComponentTag,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketLauncherMuzzleComponent,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketLauncherMuzzleRelativeOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketLauncherMuzzleComponentTag,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CurrentHealth,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bIsDead,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CurrentTarget,
@@ -7030,12 +7824,15 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ActivePlayerWeapon,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CurrentAutomaticRifleAmmo,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CurrentPistolAmmo,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CurrentRocketLauncherAmmo,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bIsPlayerAiming,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PlayerLockOnTarget,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnTargetChanged,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnCombatStarted,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnCombatEnded,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnShotFired,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnRocketLaunched,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnRocketImpacted,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnReloadStarted,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnReloadFinished,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OnHealthChanged,
@@ -7057,10 +7854,13 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OwnerCapsule,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OwnerMovement,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RuntimeBulletVisualSpawnComponent,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RuntimeRocketLauncherMuzzleComponent,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RuntimePlayerAimCameraComponent,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PlayerLockOnIndicatorComponent,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletVisualComponents_Inner,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BulletVisualComponents,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketVisualComponents_Inner,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketVisualComponents,
 };
 static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
 // ********** End Class URenegadeSoldierCombatComponent Property Definitions ***********************
@@ -7135,6 +7935,7 @@ void URenegadeSoldierCombatComponent::ValidateGeneratedRepEnums(const TArray<str
 	static FName Name_ActivePlayerWeapon(TEXT("ActivePlayerWeapon"));
 	static FName Name_CurrentAutomaticRifleAmmo(TEXT("CurrentAutomaticRifleAmmo"));
 	static FName Name_CurrentPistolAmmo(TEXT("CurrentPistolAmmo"));
+	static FName Name_CurrentRocketLauncherAmmo(TEXT("CurrentRocketLauncherAmmo"));
 	static FName Name_bIsPlayerAiming(TEXT("bIsPlayerAiming"));
 	const bool bIsValid = true
 		&& Name_TeamId == ClassReps[(int32)ENetFields_Private::TeamId].Property->GetFName()
@@ -7147,6 +7948,7 @@ void URenegadeSoldierCombatComponent::ValidateGeneratedRepEnums(const TArray<str
 		&& Name_ActivePlayerWeapon == ClassReps[(int32)ENetFields_Private::ActivePlayerWeapon].Property->GetFName()
 		&& Name_CurrentAutomaticRifleAmmo == ClassReps[(int32)ENetFields_Private::CurrentAutomaticRifleAmmo].Property->GetFName()
 		&& Name_CurrentPistolAmmo == ClassReps[(int32)ENetFields_Private::CurrentPistolAmmo].Property->GetFName()
+		&& Name_CurrentRocketLauncherAmmo == ClassReps[(int32)ENetFields_Private::CurrentRocketLauncherAmmo].Property->GetFName()
 		&& Name_bIsPlayerAiming == ClassReps[(int32)ENetFields_Private::bIsPlayerAiming].Property->GetFName();
 	checkf(bIsValid, TEXT("UHT Generated Rep Indices do not match runtime populated Rep Indices for properties in URenegadeSoldierCombatComponent"));
 }
@@ -7164,10 +7966,10 @@ URenegadeSoldierCombatComponent::~URenegadeSoldierCombatComponent() {}
 struct UHT_STATICS
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
-		{ Z_Construct_UClass_URenegadeSoldierCombatComponent, TEXT("URenegadeSoldierCombatComponent"), &Z_Registration_Info_UClass_URenegadeSoldierCombatComponent, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeSoldierCombatComponent), 2248445558U) },
+		{ Z_Construct_UClass_URenegadeSoldierCombatComponent, TEXT("URenegadeSoldierCombatComponent"), &Z_Registration_Info_UClass_URenegadeSoldierCombatComponent, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeSoldierCombatComponent), 73951389U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h__Script_RenegadeSoldierCombat_174ff6da0ff195cd22e6febb78821f265c0e7eb7{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h__Script_RenegadeSoldierCombat_b9c68dee5183244035aec8c4d54974fe7e403406{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	UHT_STATICS::ClassInfo, UE_ARRAY_COUNT(UHT_STATICS::ClassInfo),
 	nullptr, 0,

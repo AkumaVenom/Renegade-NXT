@@ -1,4 +1,31 @@
+
+## Player rocket launcher (v1.6.1)
+
+- Configure the player Rocket Launcher profile or inline settings and assign the launcher muzzle Scene Component.
+- Call `Player Fire Rocket Launcher` and confirm it selects the launcher, consumes one rocket, launches from the muzzle, and begins reload.
+- Select the launcher separately and confirm generic `Player Start Fire` / `Player Fire Once` also launch exactly one rocket per press.
+- Confirm the camera/crosshair chooses the aim point while the physical rocket starts at the muzzle and cannot pass through nearby cover.
+- Confirm lock-on shot assistance can aim the player rocket at the locked target.
+- Confirm `Current Rocket Launcher Ammo`, `Current Magazine Ammo`, weapon-change events, ammo-change events, and reload events update correctly.
+- Test a remote LAN client and confirm the reliable request produces one server-authoritative rocket, one multicast visual per machine, delayed impact, and synchronized damage.
+
 # Testing Checklist
+
+## Rocket launcher soldiers — v1.6.0
+
+- [ ] Set the active Weapon Class to `Rocket Launcher` or assign a rocket Weapon Profile.
+- [ ] Assign an exact launcher muzzle Scene Component or tag one `RocketMuzzle`; verify `Get Rocket Launcher Muzzle Location`.
+- [ ] Use `Preview Rocket Launcher Visual` and confirm the mesh's +X/rotation offset faces the travel direction.
+- [ ] Fire at a wall beside the muzzle and confirm the authoritative muzzle trace prevents shooting through it.
+- [ ] Confirm damage is delayed until the visible rocket reaches the endpoint.
+- [ ] Confirm direct-hit damage, inner-radius full damage, outer-radius falloff, and no damage beyond the outer radius.
+- [ ] Place a target behind solid cover and verify explosion occlusion blocks non-direct splash damage.
+- [ ] With friendly fire disabled, confirm allied soldiers and buildings receive no splash damage.
+- [ ] Verify the AI refuses to fire and retreats inside `Minimum AI Firing Distance`.
+- [ ] Test target prediction against a moving soldier.
+- [ ] Fire at attached building geometry and confirm the owning building component takes damage.
+- [ ] Kill the firing soldier while a long-distance rocket is travelling and confirm the pending server impact still resolves.
+- [ ] In listen-server and LAN testing, confirm every machine sees one launch, travelling rocket, impact effect/sound, and synchronised health change.
 
 ## Player TPS lock-on (v1.5.1)
 

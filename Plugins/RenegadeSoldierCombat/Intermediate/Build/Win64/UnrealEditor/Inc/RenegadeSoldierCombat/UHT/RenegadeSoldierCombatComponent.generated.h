@@ -33,26 +33,31 @@ struct FVector_NetQuantize;
 struct FVector_NetQuantizeNormal;
 
 // ********** Begin Class URenegadeSoldierCombatComponent ******************************************
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_66_RPC_WRAPPERS_NO_PURE_DECLS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_92_RPC_WRAPPERS_NO_PURE_DECLS \
 	virtual void MulticastFinishRespawn_Implementation(FTransform RespawnTransform); \
 	virtual void MulticastBeginDeath_Implementation(AActor* Killer, FVector RagdollImpulse, FName HitBone); \
 	virtual void MulticastReloadFinished_Implementation(); \
 	virtual void MulticastReloadStarted_Implementation(); \
+	virtual void MulticastRocketLaunched_Implementation(FVector_NetQuantize LaunchLocation, FVector_NetQuantize ImpactLocation, float FlightSeconds); \
 	virtual void MulticastShotFired_Implementation(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult, bool bSpawnGroundBloodForHit, bool bDamagedCombatTarget); \
 	virtual void ServerSelectPlayerWeapon_Implementation(ERenegadePlayerWeaponSlot NewWeapon); \
 	virtual void ServerRequestPlayerReload_Implementation(ERenegadePlayerWeaponSlot RequestedWeapon); \
 	virtual void ServerSetPlayerAiming_Implementation(bool bNewAiming); \
+	virtual void ServerRequestPlayerRocketShot_Implementation(FVector_NetQuantize ClientViewLocation, FVector_NetQuantizeNormal ClientViewDirection, bool bClientAiming); \
 	virtual void ServerRequestPlayerShot_Implementation(FVector_NetQuantize ClientViewLocation, FVector_NetQuantizeNormal ClientViewDirection, ERenegadePlayerWeaponSlot RequestedWeapon, bool bClientAiming); \
 	DECLARE_FUNCTION(execMulticastFinishRespawn); \
 	DECLARE_FUNCTION(execMulticastBeginDeath); \
 	DECLARE_FUNCTION(execMulticastReloadFinished); \
 	DECLARE_FUNCTION(execMulticastReloadStarted); \
+	DECLARE_FUNCTION(execMulticastRocketLaunched); \
 	DECLARE_FUNCTION(execMulticastShotFired); \
 	DECLARE_FUNCTION(execServerSelectPlayerWeapon); \
 	DECLARE_FUNCTION(execServerRequestPlayerReload); \
 	DECLARE_FUNCTION(execServerSetPlayerAiming); \
+	DECLARE_FUNCTION(execServerRequestPlayerRocketShot); \
 	DECLARE_FUNCTION(execServerRequestPlayerShot); \
 	DECLARE_FUNCTION(execOnRep_PlayerAiming); \
+	DECLARE_FUNCTION(execOnRep_RocketLauncherAmmo); \
 	DECLARE_FUNCTION(execOnRep_PistolAmmo); \
 	DECLARE_FUNCTION(execOnRep_AutomaticRifleAmmo); \
 	DECLARE_FUNCTION(execOnRep_ActivePlayerWeapon); \
@@ -62,6 +67,11 @@ struct FVector_NetQuantizeNormal;
 	DECLARE_FUNCTION(execOnRep_TeamId); \
 	DECLARE_FUNCTION(execHandleOwnerAnyDamage); \
 	DECLARE_FUNCTION(execPreviewGroundBloodAtLocation); \
+	DECLARE_FUNCTION(execPreviewRocketLauncherVisual); \
+	DECLARE_FUNCTION(execGetRocketLauncherMuzzleLocation); \
+	DECLARE_FUNCTION(execGetRocketLauncherMuzzleComponent); \
+	DECLARE_FUNCTION(execClearRocketLauncherMuzzleComponent); \
+	DECLARE_FUNCTION(execSetRocketLauncherMuzzleComponent); \
 	DECLARE_FUNCTION(execPreviewBulletMeshFromConfiguredSpawn); \
 	DECLARE_FUNCTION(execPreviewBulletMeshVisual); \
 	DECLARE_FUNCTION(execGetBulletVisualSpawnLocation); \
@@ -116,9 +126,11 @@ struct FVector_NetQuantizeNormal;
 	DECLARE_FUNCTION(execIsPlayerFireHeld); \
 	DECLARE_FUNCTION(execGetPlayerWeaponAmmo); \
 	DECLARE_FUNCTION(execGetPlayerWeaponSettings); \
+	DECLARE_FUNCTION(execSelectPlayerRocketLauncher); \
 	DECLARE_FUNCTION(execSelectPlayerPistol); \
 	DECLARE_FUNCTION(execSelectPlayerAutomaticRifle); \
 	DECLARE_FUNCTION(execSelectPlayerWeapon); \
+	DECLARE_FUNCTION(execPlayerFireRocketLauncher); \
 	DECLARE_FUNCTION(execPlayerFirePistol); \
 	DECLARE_FUNCTION(execPlayerStopAutomaticRifleFire); \
 	DECLARE_FUNCTION(execPlayerStartAutomaticRifleFire); \
@@ -140,11 +152,11 @@ struct FVector_NetQuantizeNormal;
 	DECLARE_FUNCTION(execStartAutoCombat);
 
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_66_CALLBACK_WRAPPERS
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_92_CALLBACK_WRAPPERS
 struct Z_Construct_UClass_URenegadeSoldierCombatComponent_Statics;
 RENEGADESOLDIERCOMBAT_API UClass* Z_Construct_UClass_URenegadeSoldierCombatComponent(ETypeConstructPhase);
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_66_INCLASS_NO_PURE_DECLS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_92_INCLASS_NO_PURE_DECLS \
 private: \
 	friend struct ::Z_Construct_UClass_URenegadeSoldierCombatComponent_Statics; \
 	friend RENEGADESOLDIERCOMBAT_API UClass* ::Z_Construct_UClass_URenegadeSoldierCombatComponent(ETypeConstructPhase); \
@@ -164,12 +176,13 @@ public: \
 		ActivePlayerWeapon, \
 		CurrentAutomaticRifleAmmo, \
 		CurrentPistolAmmo, \
+		CurrentRocketLauncherAmmo, \
 		bIsPlayerAiming, \
 		NETFIELD_REP_END=bIsPlayerAiming	}; \
 	DECLARE_VALIDATE_GENERATED_REP_ENUMS(NO_API)
 
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_66_ENHANCED_CONSTRUCTORS \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_92_ENHANCED_CONSTRUCTORS \
 	/** Deleted move- and copy-constructors, should never be used */ \
 	URenegadeSoldierCombatComponent(URenegadeSoldierCombatComponent&&) = delete; \
 	URenegadeSoldierCombatComponent(const URenegadeSoldierCombatComponent&) = delete; \
@@ -179,14 +192,14 @@ public: \
 	NO_API virtual ~URenegadeSoldierCombatComponent();
 
 
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_63_PROLOG
-#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_66_GENERATED_BODY \
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_89_PROLOG
+#define FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_92_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_66_RPC_WRAPPERS_NO_PURE_DECLS \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_66_CALLBACK_WRAPPERS \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_66_INCLASS_NO_PURE_DECLS \
-	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_66_ENHANCED_CONSTRUCTORS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_92_RPC_WRAPPERS_NO_PURE_DECLS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_92_CALLBACK_WRAPPERS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_92_INCLASS_NO_PURE_DECLS \
+	FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h_92_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 

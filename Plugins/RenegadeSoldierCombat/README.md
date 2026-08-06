@@ -1,10 +1,10 @@
 # Renegade NXT Combat and Building Warfare
 
-> v1.5.6 fixes lock-on vertical adjustment: `Targeting > Aim Height Offset` now accepts negative values so the target point can be moved down from the configured aim bone.
+> v1.6.1 extends the polished rocket system to player combat with a dedicated replicated launcher slot, independent ammo/profile settings, camera and lock-on aiming, reliable client fire requests, built-in selection controls, and the same authoritative travelling explosion used by NPC rocket soldiers.
 
-**Current version: 1.4.4** — UE 5.8
+**Current version: 1.6.1** — UE 5.8
 
-A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manual player rifle/pistol combat, damageable team buildings, and automated base defences.
+A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manual player combat, rocket-launcher infantry, damageable team buildings, and automated base defences.
 
 ## Main features
 
@@ -14,6 +14,7 @@ A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manua
 - Team-perspective GDI EVA/Nod EVA building announcements for friendly and enemy under-attack, low-health, and destroyed events, serialized through one prioritized non-overlapping audio channel.
 - Replicated building low-health state with threshold, repair hysteresis, Blueprint event, and imminent-destruction warning.
 - Advanced Guard Tower dual traced rockets with selectable launch Scene Components, pooled rocket meshes, damage, sounds, range, cadence, spread, impact effects, and debug lines.
+- Dedicated infantry Rocket Launcher weapon class and Blueprint preset with predicted AI aim, minimum safe firing distance, one-round reload cadence, authoritative travel time, occluded radial splash damage, direct-hit bonus, and reliable multicast presentation.
 - Obelisk charge-and-fire sequence with selectable start component, separate charge/shoot sounds, server damage trace, Fab Niagara or classic Cascade beam support, automatic fallback order, automatic trace endpoint alignment, exposed XYZ/length/thickness scaling, rotation correction, deterministic visual lifetime cleanup, and debug lines.
 - Optional Power Plant dependency that disables and restores team defensive buildings.
 - One reusable Actor Component works on multiple Character Blueprint classes.
@@ -22,8 +23,8 @@ A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manua
 - Separate player rifle/pistol profiles, magazines, replicated active weapon, ammo values, and UI events.
 - Polished player aiming with camera-facing Character yaw, smooth FOV zoom, aim-state events/alpha, and server-validated muzzle-obstruction tracing.
 - Team-aware automatic target acquisition using a world combatant registry.
-- Automatic rifle, pistol, or custom weapon profiles.
-- Server-authoritative hitscan fire, point damage, range falloff, critical bones, bursts, magazines, and reloads.
+- Automatic rifle, pistol, rocket launcher, or custom weapon profiles.
+- Server-authoritative hitscan fire plus delayed travelling infantry rockets, point/radial damage, range falloff, critical bones, bursts, magazines, and reloads.
 - Blueprint events for muzzle particles, impacts, sounds, animations, reloads, death, and respawn.
 - Automatic pooled bullet-mesh visuals travelling from a selectable Scene Component (or muzzle fallback) to the authoritative trace end.
 - Automatic ground blood decals/effect actors when a combat soldier is successfully hit.
@@ -35,6 +36,34 @@ A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manua
 - Original, team spawn-point, custom transform, custom transform list, tagged actor, and runtime-override respawning.
 - Replicated health, target, team, ammo, death state, ragdoll/respawn RPCs, and shot cosmetic RPCs.
 
+
+
+
+## Player rocket launcher (v1.6.1)
+
+Player combat now includes a third `Rocket Launcher` slot alongside the Automatic Rifle and Pistol. Configure `Player Rocket Launcher Profile` or `Inline Player Rocket Launcher Settings`, then assign the component's `Rocket Launcher Muzzle Component` to a Scene Component at the player weapon barrel.
+
+Enhanced Input can call `Player Fire Rocket Launcher` for a one-node select-and-fire action, or call `Select Player Rocket Launcher` and reuse the generic `Player Start Fire` / `Player Fire Once` nodes. The built-in controls select it with keyboard `3` or gamepad D-Pad Right. `Current Rocket Launcher Ammo` replicates independently and reports through `On Player Ammo Changed`.
+
+The owning player's camera ray and optional lock-on shot assistance choose the intended aim point. The server validates the request, confirms the physical path from the launcher muzzle, consumes ammo, starts reload/cadence, and queues the delayed explosion. The launch remains a reliable multicast, while the dedicated low-frequency client rocket request is also reliable.
+
+## Rocket launcher soldiers (v1.6.0)
+
+Version 1.6.0 adds a dedicated `Rocket Launcher` weapon class for AI soldiers and optional player weapon profiles. Rockets are not disguised hitscan bullets: the server confirms the launch path, calculates travel time from the exposed projectile speed, and applies the explosion only when the rocket reaches the confirmed impact point. Connected clients receive a reliable launch multicast and simulate the same pooled rocket mesh, optional smoke/trail actor, muzzle effect, impact effect, and sounds.
+
+Quick AI setup:
+
+1. Duplicate a working rifle soldier Blueprint.
+2. Add a Scene Component at the launcher barrel, name or tag it `RocketMuzzle`, and select it in `Renegade NXT > Rocket Launcher > Muzzle`.
+3. Set the active Weapon Class to `Rocket Launcher`, or create a Weapon Profile from `Make Rocket Launcher Preset`.
+4. Assign the rocket mesh, optional material, mesh scale/rotation, launch and impact effects, and sounds under the weapon's `Rocket Launcher` settings.
+5. Tune `Damage Per Shot`, `Explosion Inner Radius`, `Explosion Outer Radius`, `Minimum Explosion Damage Multiplier`, `Direct Hit Damage Multiplier`, `Projectile Speed`, and `Minimum AI Firing Distance`.
+
+Rocket AI predicts a moving target's position, refuses to fire inside its configured safe distance, and uses the existing combat-movement system to retreat before firing. Explosion damage respects GDI/Nod hostility, friendly-fire settings, optional self damage, wall occlusion, registered soldiers, and damageable buildings. A directly struck soldier or building receives the direct-hit multiplier even when its Actor origin is outside the splash radius.
+
+Blueprints can call `Set Rocket Launcher Muzzle Component`, query the resolved muzzle/location, preview the travelling rocket without damage, and bind `On Rocket Launched` or `On Rocket Impacted` for additional presentation.
+
+See `Docs/Rocket_Launcher_Soldiers.md` for the full setup and validation checklist.
 
 ## Building warfare (v1.4.4)
 

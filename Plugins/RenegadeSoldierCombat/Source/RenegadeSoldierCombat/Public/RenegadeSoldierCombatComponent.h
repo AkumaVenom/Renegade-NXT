@@ -33,6 +33,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadeTargetChangedSignature, AA
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeCombatStartedSignature, AActor*, Target);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadeCombatEndedSignature, AActor*, PreviousTarget, FVector, ResumeFromLocation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FRenegadeShotFiredSignature, FVector, TraceStart, FVector, TraceEnd, bool, bBlockingHit, const FHitResult&, HitResult);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FRenegadeRocketLaunchedSignature, FVector, LaunchLocation, FVector, ImpactLocation, float, FlightSeconds);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeRocketImpactedSignature, FVector, ImpactLocation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRenegadeReloadSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FRenegadeHealthChangedSignature, float, PreviousHealth, float, NewHealth, AActor*, DamageCauser, AController*, InstigatedBy);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FRenegadeDeathSignature, AActor*, Killer, FVector, RagdollImpulse, FName, HitBone);
@@ -58,6 +60,30 @@ struct FRenegadeBulletVisualRuntimeState
     bool bActive = false;
     bool bSpawnBloodOnArrival = false;
     FHitResult PendingBloodHit;
+};
+
+
+struct FRenegadeRocketVisualRuntimeState
+{
+    FVector StartLocation = FVector::ZeroVector;
+    FVector VisualEndLocation = FVector::ZeroVector;
+    FVector ImpactLocation = FVector::ZeroVector;
+    FRotator TravelRotation = FRotator::ZeroRotator;
+    float ElapsedSeconds = 0.0f;
+    float DurationSeconds = 0.0f;
+    bool bActive = false;
+    FRenegadeWeaponSettings Weapon;
+    TWeakObjectPtr<AActor> FlightEffectActor;
+};
+
+struct FRenegadePendingRocketImpactRuntimeState
+{
+    FVector ImpactLocation = FVector::ZeroVector;
+    float ElapsedSeconds = 0.0f;
+    float DurationSeconds = 0.0f;
+    FRenegadeWeaponSettings Weapon;
+    TWeakObjectPtr<AActor> DirectHitActor;
+    FHitResult DirectHit;
 };
 
 UCLASS(ClassGroup=(RenegadeNXT), BlueprintType, Blueprintable, meta=(BlueprintSpawnableComponent))
@@ -121,11 +147,17 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Weapons", meta=(EditCondition="bUsePlayerWeaponProfiles"))
     TObjectPtr<URenegadeWeaponProfile> PlayerPistolProfile;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Weapons", meta=(EditCondition="bUsePlayerWeaponProfiles"))
+    TObjectPtr<URenegadeWeaponProfile> PlayerRocketLauncherProfile;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Weapons", meta=(EditCondition="!bUsePlayerWeaponProfiles"))
     FRenegadeWeaponSettings InlinePlayerAutomaticRifleSettings;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Weapons", meta=(EditCondition="!bUsePlayerWeaponProfiles"))
     FRenegadeWeaponSettings InlinePlayerPistolSettings;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Weapons", meta=(EditCondition="!bUsePlayerWeaponProfiles"))
+    FRenegadeWeaponSettings InlinePlayerRocketLauncherSettings;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Combat")
     bool bRegisterAsCombatTarget = true;
@@ -178,6 +210,19 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Combat Visuals|Bullet Spawn")
     FName BulletVisualSpawnComponentTag = NAME_None;
 
+
+    /** Exact Scene Component used as the authoritative and visual rocket-launch point. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Rocket Launcher|Muzzle", meta=(UseComponentPicker, AllowedClasses="/Script/Engine.SceneComponent"))
+    FComponentReference RocketLauncherMuzzleComponent;
+
+    /** Local-space offset from Rocket Launcher Muzzle Component. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Rocket Launcher|Muzzle")
+    FVector RocketLauncherMuzzleRelativeOffset = FVector::ZeroVector;
+
+    /** Optional component-tag fallback when no exact rocket muzzle component is assigned. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Rocket Launcher|Muzzle")
+    FName RocketLauncherMuzzleComponentTag = TEXT("RocketMuzzle");
+
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CurrentHealth, Category="Renegade NXT|Runtime")
     float CurrentHealth = 100.0f;
 
@@ -200,6 +245,9 @@ public:
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_PistolAmmo, Category="Renegade NXT|Player Combat|Runtime")
     int32 CurrentPistolAmmo = 0;
 
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_RocketLauncherAmmo, Category="Renegade NXT|Player Combat|Runtime")
+    int32 CurrentRocketLauncherAmmo = 0;
+
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_PlayerAiming, Category="Renegade NXT|Player Combat|Runtime")
     bool bIsPlayerAiming = false;
 
@@ -218,6 +266,15 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Events")
     FRenegadeShotFiredSignature OnShotFired;
+
+
+    /** Cosmetic launch event fired on every listening machine when a replicated rocket begins travel. */
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Rocket Launcher|Events")
+    FRenegadeRocketLaunchedSignature OnRocketLaunched;
+
+    /** Cosmetic impact event fired when the locally simulated rocket reaches the authoritative impact point. */
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Rocket Launcher|Events")
+    FRenegadeRocketImpactedSignature OnRocketImpacted;
 
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Events")
     FRenegadeReloadSignature OnReloadStarted;
@@ -333,6 +390,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
     void PlayerFirePistol();
 
+    /** Selects the player rocket-launcher slot and launches exactly one replicated rocket from the configured launcher muzzle. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
+    void PlayerFireRocketLauncher();
+
     UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Weapons")
     void SelectPlayerWeapon(ERenegadePlayerWeaponSlot NewWeapon);
 
@@ -341,6 +402,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Weapons")
     void SelectPlayerPistol();
+
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Weapons")
+    void SelectPlayerRocketLauncher();
 
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Weapons")
     FRenegadeWeaponSettings GetPlayerWeaponSettings(ERenegadePlayerWeaponSlot WeaponSlot) const;
@@ -542,6 +606,24 @@ public:
     UFUNCTION(BlueprintCallable, Category="Renegade NXT|Combat Visuals|Bullet Spawn")
     void PreviewBulletMeshFromConfiguredSpawn(FVector TraceEnd);
 
+
+    /** Assigns the rocket-launcher muzzle Scene Component at runtime. It must belong to the same soldier actor. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Rocket Launcher|Muzzle")
+    void SetRocketLauncherMuzzleComponent(USceneComponent* NewMuzzleComponent);
+
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Rocket Launcher|Muzzle")
+    void ClearRocketLauncherMuzzleComponent();
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Rocket Launcher|Muzzle")
+    USceneComponent* GetRocketLauncherMuzzleComponent() const;
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Rocket Launcher|Muzzle")
+    FVector GetRocketLauncherMuzzleLocation() const;
+
+    /** Local cosmetic preview using the active rocket-launcher settings. No damage is applied. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Rocket Launcher|Visual")
+    void PreviewRocketLauncherVisual(FVector ImpactLocation);
+
     /** Traces down and places the configured ground-blood effect locally. */
     UFUNCTION(BlueprintCallable, Category="Renegade NXT|Combat Visuals")
     bool PreviewGroundBloodAtLocation(FVector BulletImpactLocation);
@@ -575,10 +657,17 @@ protected:
     void OnRep_PistolAmmo(int32 PreviousAmmo);
 
     UFUNCTION()
+    void OnRep_RocketLauncherAmmo(int32 PreviousAmmo);
+
+    UFUNCTION()
     void OnRep_PlayerAiming(bool bPreviousAiming);
 
     UFUNCTION(Server, Unreliable)
     void ServerRequestPlayerShot(FVector_NetQuantize ClientViewLocation, FVector_NetQuantizeNormal ClientViewDirection, ERenegadePlayerWeaponSlot RequestedWeapon, bool bClientAiming);
+
+    /** Rockets are low-frequency and visually important, so their owning-client request is reliable. */
+    UFUNCTION(Server, Reliable)
+    void ServerRequestPlayerRocketShot(FVector_NetQuantize ClientViewLocation, FVector_NetQuantizeNormal ClientViewDirection, bool bClientAiming);
 
     UFUNCTION(Server, Reliable)
     void ServerSetPlayerAiming(bool bNewAiming);
@@ -591,6 +680,10 @@ protected:
 
     UFUNCTION(NetMulticast, Unreliable)
     void MulticastShotFired(FVector TraceStart, FVector TraceEnd, bool bBlockingHit, FHitResult HitResult, bool bSpawnGroundBloodForHit, bool bDamagedCombatTarget);
+
+
+    UFUNCTION(NetMulticast, Reliable)
+    void MulticastRocketLaunched(FVector_NetQuantize LaunchLocation, FVector_NetQuantize ImpactLocation, float FlightSeconds);
 
     UFUNCTION(NetMulticast, Reliable)
     void MulticastReloadStarted();
@@ -660,6 +753,25 @@ private:
     float GetBuiltInInputAxis(APlayerController* PlayerController, const FKey& Key) const;
     float ApplyGamepadDeadZone(float Value) const;
     bool ExecuteWeaponShot(const FRenegadeWeaponSettings& Weapon, const FVector& TraceStart, const FVector& BaseShotDirection, bool bUseMuzzleObstructionTrace);
+    bool ExecuteRocketLauncherShot(const FRenegadeWeaponSettings& Weapon, const FVector& TraceStart, const FVector& BaseShotDirection, bool bUseMuzzleObstructionTrace);
+    bool IsRocketLauncherWeapon(const FRenegadeWeaponSettings& Weapon) const;
+    bool WeaponUsesMagazine(const FRenegadeWeaponSettings& Weapon) const;
+    int32 GetEffectiveMagazineSize(const FRenegadeWeaponSettings& Weapon) const;
+    float GetEffectiveReloadSeconds(const FRenegadeWeaponSettings& Weapon) const;
+    float GetEffectiveRoundsPerMinute(const FRenegadeWeaponSettings& Weapon) const;
+    void QueuePendingRocketImpact(const FRenegadeWeaponSettings& Weapon, const FVector& ImpactLocation, float FlightSeconds, AActor* DirectHitActor, const FHitResult& DirectHit);
+    void UpdatePendingRocketImpacts(float DeltaTime);
+    void ApplyRocketExplosionDamage(const FRenegadeWeaponSettings& Weapon, const FVector& ImpactLocation, AActor* DirectHitActor, const FHitResult& DirectHit);
+    bool HasRocketExplosionLineOfSight(const FRenegadeWeaponSettings& Weapon, const FVector& ImpactLocation, AActor* DamageActor, const FVector& DamageLocation) const;
+    USceneComponent* ResolveRocketLauncherMuzzleComponent() const;
+    FVector ResolveRocketLauncherMuzzleLocation(const FVector& FallbackLocation) const;
+    int32 AcquireRocketVisualSlot(const FRenegadeWeaponSettings& Weapon);
+    void SpawnRocketLauncherVisual(const FRenegadeWeaponSettings& Weapon, const FVector& LaunchLocation, const FVector& ImpactLocation, float FlightSeconds);
+    void UpdateRocketLauncherVisuals(float DeltaTime);
+    void DeactivateRocketLauncherVisual(int32 VisualIndex, bool bSpawnImpactPresentation);
+    void StopAllRocketLauncherVisuals();
+    bool HasActiveRocketLauncherVisuals() const;
+    AActor* SpawnRocketCosmeticActor(TSubclassOf<AActor> ActorClass, const FVector& Location, const FRotator& Rotation, float LifeSeconds, bool bDisableCollision) const;
     void SetPlayerWeaponInternal(ERenegadePlayerWeaponSlot NewWeapon);
     void PauseLocalPlayerFireTimer();
     void StopLocalPlayerFireTimer();
@@ -722,6 +834,11 @@ private:
     UPROPERTY(Transient)
     TObjectPtr<USceneComponent> RuntimeBulletVisualSpawnComponent;
 
+
+    /** Optional runtime Blueprint override for the rocket-launcher muzzle. */
+    UPROPERTY(Transient)
+    TObjectPtr<USceneComponent> RuntimeRocketLauncherMuzzleComponent;
+
     /** Optional runtime Blueprint override for the local aim-zoom camera. */
     UPROPERTY(Transient)
     TObjectPtr<UCameraComponent> RuntimePlayerAimCameraComponent;
@@ -747,6 +864,13 @@ private:
     TArray<TObjectPtr<UStaticMeshComponent>> BulletVisualComponents;
 
     TArray<FRenegadeBulletVisualRuntimeState> BulletVisualStates;
+
+    /** Pooled local rocket meshes. Flight and impact effect actors remain optional. */
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UStaticMeshComponent>> RocketVisualComponents;
+
+    TArray<FRenegadeRocketVisualRuntimeState> RocketVisualStates;
+    TArray<FRenegadePendingRocketImpactRuntimeState> PendingRocketImpacts;
 
     FTimerHandle TargetRefreshTimer;
     FTimerHandle CombatMovementTimer;
@@ -804,6 +928,7 @@ private:
     bool bPreviousBuiltInReloadDown = false;
     bool bPreviousBuiltInSelectRifleDown = false;
     bool bPreviousBuiltInSelectPistolDown = false;
+    bool bPreviousBuiltInSelectRocketLauncherDown = false;
     bool bPreviousBuiltInLockOnDown = false;
     bool bPreviousBuiltInSwitchLeftDown = false;
     bool bPreviousBuiltInSwitchRightDown = false;

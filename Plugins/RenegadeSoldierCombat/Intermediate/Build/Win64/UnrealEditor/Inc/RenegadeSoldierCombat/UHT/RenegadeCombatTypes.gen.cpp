@@ -24,6 +24,7 @@ COREUOBJECT_API UClass* Z_Construct_UClass_UClass(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_AActor(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_UDamageType(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_UMaterialInterface(ETypeConstructPhase);
+ENGINE_API UClass* Z_Construct_UClass_USoundBase(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_UStaticMesh(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_UTexture2D(ETypeConstructPhase);
 // ********** End Cross Module References **********************************************************
@@ -43,6 +44,7 @@ RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlay
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerInputSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeRocketLauncherSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeTargetingSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeWeaponSettings(ETypeConstructPhase);
 // ********** End Same Module References ***********************************************************
@@ -69,11 +71,14 @@ struct UHT_STATICS
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
 		{ "Pistol.DisplayName", "Pistol" },
 		{ "Pistol.Name", "ERenegadeWeaponClass::Pistol" },
+		{ "RocketLauncher.DisplayName", "Rocket Launcher" },
+		{ "RocketLauncher.Name", "ERenegadeWeaponClass::RocketLauncher" },
 	};
 #endif // WITH_METADATA
 	static constexpr UECodeGen_Private::FEnumeratorParam Enumerators[] = {
 		{ "ERenegadeWeaponClass::AutomaticRifle", (int64)ERenegadeWeaponClass::AutomaticRifle },
 		{ "ERenegadeWeaponClass::Pistol", (int64)ERenegadeWeaponClass::Pistol },
+		{ "ERenegadeWeaponClass::RocketLauncher", (int64)ERenegadeWeaponClass::RocketLauncher },
 		{ "ERenegadeWeaponClass::Custom", (int64)ERenegadeWeaponClass::Custom },
 	};
 	static const UECodeGen_Private::FEnumParams EnumParams;
@@ -130,11 +135,14 @@ struct UHT_STATICS
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
 		{ "Pistol.DisplayName", "Pistol" },
 		{ "Pistol.Name", "ERenegadePlayerWeaponSlot::Pistol" },
+		{ "RocketLauncher.DisplayName", "Rocket Launcher" },
+		{ "RocketLauncher.Name", "ERenegadePlayerWeaponSlot::RocketLauncher" },
 	};
 #endif // WITH_METADATA
 	static constexpr UECodeGen_Private::FEnumeratorParam Enumerators[] = {
 		{ "ERenegadePlayerWeaponSlot::AutomaticRifle", (int64)ERenegadePlayerWeaponSlot::AutomaticRifle },
 		{ "ERenegadePlayerWeaponSlot::Pistol", (int64)ERenegadePlayerWeaponSlot::Pistol },
+		{ "ERenegadePlayerWeaponSlot::RocketLauncher", (int64)ERenegadePlayerWeaponSlot::RocketLauncher },
 	};
 	static const UECodeGen_Private::FEnumParams EnumParams;
 }; // struct UHT_STATICS 
@@ -372,6 +380,439 @@ UEnum* Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnLocationSelection
 #undef UHT_STATICS
 // ********** End Enum ERenegadeRespawnLocationSelection *******************************************
 
+// ********** Begin ScriptStruct FRenegadeRocketLauncherSettings ***********************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UScriptStruct_FRenegadeRocketLauncherSettings_Statics
+struct UHT_STATICS
+{
+	static inline consteval int32 GetStructSize() { return DataSizeOf<FRenegadeRocketLauncherSettings>(); }
+	static inline consteval int16 GetStructAlignment() { return alignof(FRenegadeRocketLauncherSettings); }
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "BlueprintType", "true" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bOverrideStandardMagazineAndCadence_MetaData[] = {
+		{ "Category", "Rocket Launcher|Cadence" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Uses dedicated one-round launcher cadence values instead of the generic magazine and fire-rate fields. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Uses dedicated one-round launcher cadence values instead of the generic magazine and fire-rate fields." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MagazineSize_MetaData[] = {
+		{ "Category", "Rocket Launcher|Cadence" },
+		{ "ClampMin", "1" },
+		{ "EditCondition", "bOverrideStandardMagazineAndCadence" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ReloadSeconds_MetaData[] = {
+		{ "Category", "Rocket Launcher|Cadence" },
+		{ "ClampMin", "0.01" },
+		{ "EditCondition", "bOverrideStandardMagazineAndCadence" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RoundsPerMinute_MetaData[] = {
+		{ "Category", "Rocket Launcher|Cadence" },
+		{ "ClampMin", "1.0" },
+		{ "EditCondition", "bOverrideStandardMagazineAndCadence" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MinimumAIFiringDistance_MetaData[] = {
+		{ "Category", "Rocket Launcher|AI" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** AI will retreat rather than launch explosive rockets inside this distance. Player/manual firing is not blocked. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "AI will retreat rather than launch explosive rockets inside this distance. Player/manual firing is not blocked." },
+#endif
+		{ "Units", "cm" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bPredictTargetMovement_MetaData[] = {
+		{ "Category", "Rocket Launcher|AI" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Leads moving targets using the estimated straight-line rocket flight time. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Leads moving targets using the estimated straight-line rocket flight time." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MaximumTargetLeadSeconds_MetaData[] = {
+		{ "Category", "Rocket Launcher|AI" },
+		{ "ClampMax", "3.0" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bPredictTargetMovement" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ProjectileSpeed_MetaData[] = {
+		{ "Category", "Rocket Launcher|Flight" },
+		{ "ClampMin", "100.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Authoritative and cosmetic straight-line travel speed in centimetres per second. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Authoritative and cosmetic straight-line travel speed in centimetres per second." },
+#endif
+		{ "Units", "cm/s" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MaximumFlightSeconds_MetaData[] = {
+		{ "Category", "Rocket Launcher|Flight" },
+		{ "ClampMin", "0.05" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Safety cap for extremely long visual/server flight times. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Safety cap for extremely long visual/server flight times." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ExplosionInnerRadius_MetaData[] = {
+		{ "Category", "Rocket Launcher|Explosion" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** DamagePerShot is the maximum explosion damage inside this radius. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "DamagePerShot is the maximum explosion damage inside this radius." },
+#endif
+		{ "Units", "cm" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ExplosionOuterRadius_MetaData[] = {
+		{ "Category", "Rocket Launcher|Explosion" },
+		{ "ClampMin", "1.0" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+		{ "Units", "cm" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MinimumExplosionDamageMultiplier_MetaData[] = {
+		{ "Category", "Rocket Launcher|Explosion" },
+		{ "ClampMax", "1.0" },
+		{ "ClampMin", "0.0" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_DirectHitDamageMultiplier_MetaData[] = {
+		{ "Category", "Rocket Launcher|Explosion" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Additional multiplier for the actor directly struck by the rocket trace. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Additional multiplier for the actor directly struck by the rocket trace." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bUseExplosionOcclusion_MetaData[] = {
+		{ "Category", "Rocket Launcher|Explosion" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Prevents explosion damage through walls and solid cover. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Prevents explosion damage through walls and solid cover." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_ExplosionOcclusionTraceChannel_MetaData[] = {
+		{ "Category", "Rocket Launcher|Explosion" },
+		{ "EditCondition", "bUseExplosionOcclusion" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAllowSelfDamage_MetaData[] = {
+		{ "Category", "Rocket Launcher|Explosion" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Allows the launcher owner to receive its own splash damage. Team damage still follows Weapon > Allow Friendly Fire. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Allows the launcher owner to receive its own splash damage. Team damage still follows Weapon > Allow Friendly Fire." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketMesh_MetaData[] = {
+		{ "Category", "Rocket Launcher|Visual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketMaterialOverride_MetaData[] = {
+		{ "Category", "Rocket Launcher|Visual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketMeshScale_MetaData[] = {
+		{ "Category", "Rocket Launcher|Visual" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketMeshRotationOffset_MetaData[] = {
+		{ "Category", "Rocket Launcher|Visual" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Added after orienting local X toward the travel direction. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Added after orienting local X toward the travel direction." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketVisualMuzzleForwardOffset_MetaData[] = {
+		{ "Category", "Rocket Launcher|Visual" },
+		{ "ClampMin", "0.0" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+		{ "Units", "cm" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketVisualImpactStopShortDistance_MetaData[] = {
+		{ "Category", "Rocket Launcher|Visual" },
+		{ "ClampMin", "0.0" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+		{ "Units", "cm" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketVisualPoolSize_MetaData[] = {
+		{ "Category", "Rocket Launcher|Visual|Performance" },
+		{ "ClampMax", "12" },
+		{ "ClampMin", "1" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bRocketVisualCastsShadow_MetaData[] = {
+		{ "Category", "Rocket Launcher|Visual|Performance" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketFlightEffectActorClass_MetaData[] = {
+		{ "Category", "Rocket Launcher|Effects" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Optional local cosmetic Blueprint actor moved with the rocket, suitable for Niagara smoke/trail systems. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Optional local cosmetic Blueprint actor moved with the rocket, suitable for Niagara smoke/trail systems." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketMuzzleEffectActorClass_MetaData[] = {
+		{ "Category", "Rocket Launcher|Effects" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketMuzzleEffectLifeSeconds_MetaData[] = {
+		{ "Category", "Rocket Launcher|Effects" },
+		{ "ClampMin", "0.0" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketImpactEffectActorClass_MetaData[] = {
+		{ "Category", "Rocket Launcher|Effects" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketImpactEffectLifeSeconds_MetaData[] = {
+		{ "Category", "Rocket Launcher|Effects" },
+		{ "ClampMin", "0.0" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketFireSound_MetaData[] = {
+		{ "Category", "Rocket Launcher|Audio" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketFireVolumeMultiplier_MetaData[] = {
+		{ "Category", "Rocket Launcher|Audio" },
+		{ "ClampMin", "0.0" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketImpactSound_MetaData[] = {
+		{ "Category", "Rocket Launcher|Audio" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketImpactVolumeMultiplier_MetaData[] = {
+		{ "Category", "Rocket Launcher|Audio" },
+		{ "ClampMin", "0.0" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bDrawDebugRocket_MetaData[] = {
+		{ "Category", "Rocket Launcher|Debug" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_DebugDrawDuration_MetaData[] = {
+		{ "Category", "Rocket Launcher|Debug" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bDrawDebugRocket" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+#endif // WITH_METADATA
+
+// ********** Begin ScriptStruct FRenegadeRocketLauncherSettings constinit property declarations ***
+	static void NewProp_bOverrideStandardMagazineAndCadence_SetBit(void* Obj)
+	{
+		((FRenegadeRocketLauncherSettings*)Obj)->bOverrideStandardMagazineAndCadence = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bOverrideStandardMagazineAndCadence;
+	static const UECodeGen_Private::FIntPropertyParams NewProp_MagazineSize;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_ReloadSeconds;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_RoundsPerMinute;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MinimumAIFiringDistance;
+	static void NewProp_bPredictTargetMovement_SetBit(void* Obj)
+	{
+		((FRenegadeRocketLauncherSettings*)Obj)->bPredictTargetMovement = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bPredictTargetMovement;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MaximumTargetLeadSeconds;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_ProjectileSpeed;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MaximumFlightSeconds;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_ExplosionInnerRadius;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_ExplosionOuterRadius;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MinimumExplosionDamageMultiplier;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_DirectHitDamageMultiplier;
+	static void NewProp_bUseExplosionOcclusion_SetBit(void* Obj)
+	{
+		((FRenegadeRocketLauncherSettings*)Obj)->bUseExplosionOcclusion = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bUseExplosionOcclusion;
+	static const UECodeGen_Private::FBytePropertyParams NewProp_ExplosionOcclusionTraceChannel;
+	static void NewProp_bAllowSelfDamage_SetBit(void* Obj)
+	{
+		((FRenegadeRocketLauncherSettings*)Obj)->bAllowSelfDamage = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bAllowSelfDamage;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_RocketMesh;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_RocketMaterialOverride;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_RocketMeshScale;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_RocketMeshRotationOffset;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_RocketVisualMuzzleForwardOffset;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_RocketVisualImpactStopShortDistance;
+	static const UECodeGen_Private::FIntPropertyParams NewProp_RocketVisualPoolSize;
+	static void NewProp_bRocketVisualCastsShadow_SetBit(void* Obj)
+	{
+		((FRenegadeRocketLauncherSettings*)Obj)->bRocketVisualCastsShadow = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bRocketVisualCastsShadow;
+	static const UECodeGen_Private::FClassPropertyParams NewProp_RocketFlightEffectActorClass;
+	static const UECodeGen_Private::FClassPropertyParams NewProp_RocketMuzzleEffectActorClass;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_RocketMuzzleEffectLifeSeconds;
+	static const UECodeGen_Private::FClassPropertyParams NewProp_RocketImpactEffectActorClass;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_RocketImpactEffectLifeSeconds;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_RocketFireSound;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_RocketFireVolumeMultiplier;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_RocketImpactSound;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_RocketImpactVolumeMultiplier;
+	static void NewProp_bDrawDebugRocket_SetBit(void* Obj)
+	{
+		((FRenegadeRocketLauncherSettings*)Obj)->bDrawDebugRocket = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bDrawDebugRocket;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_DebugDrawDuration;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End ScriptStruct FRenegadeRocketLauncherSettings constinit property declarations *****
+	static void* NewStructOps()
+	{
+		return (UScriptStruct::ICppStructOps*)new UScriptStruct::TCppStructOps<FRenegadeRocketLauncherSettings>();
+	}
+	static const UECodeGen_Private::FStructParams StructParams;
+}; // struct UHT_STATICS
+
+// ********** Begin ScriptStruct FRenegadeRocketLauncherSettings Property Definitions **************
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bOverrideStandardMagazineAndCadence = { "bOverrideStandardMagazineAndCadence", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeRocketLauncherSettings), &UHT_STATICS::NewProp_bOverrideStandardMagazineAndCadence_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bOverrideStandardMagazineAndCadence_MetaData), NewProp_bOverrideStandardMagazineAndCadence_MetaData) };
+const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_MagazineSize = { "MagazineSize", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, MagazineSize), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MagazineSize_MetaData), NewProp_MagazineSize_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_ReloadSeconds = { "ReloadSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, ReloadSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ReloadSeconds_MetaData), NewProp_ReloadSeconds_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RoundsPerMinute = { "RoundsPerMinute", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RoundsPerMinute), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RoundsPerMinute_MetaData), NewProp_RoundsPerMinute_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MinimumAIFiringDistance = { "MinimumAIFiringDistance", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, MinimumAIFiringDistance), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MinimumAIFiringDistance_MetaData), NewProp_MinimumAIFiringDistance_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bPredictTargetMovement = { "bPredictTargetMovement", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeRocketLauncherSettings), &UHT_STATICS::NewProp_bPredictTargetMovement_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bPredictTargetMovement_MetaData), NewProp_bPredictTargetMovement_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumTargetLeadSeconds = { "MaximumTargetLeadSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, MaximumTargetLeadSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumTargetLeadSeconds_MetaData), NewProp_MaximumTargetLeadSeconds_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_ProjectileSpeed = { "ProjectileSpeed", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, ProjectileSpeed), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ProjectileSpeed_MetaData), NewProp_ProjectileSpeed_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumFlightSeconds = { "MaximumFlightSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, MaximumFlightSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumFlightSeconds_MetaData), NewProp_MaximumFlightSeconds_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_ExplosionInnerRadius = { "ExplosionInnerRadius", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, ExplosionInnerRadius), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ExplosionInnerRadius_MetaData), NewProp_ExplosionInnerRadius_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_ExplosionOuterRadius = { "ExplosionOuterRadius", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, ExplosionOuterRadius), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ExplosionOuterRadius_MetaData), NewProp_ExplosionOuterRadius_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MinimumExplosionDamageMultiplier = { "MinimumExplosionDamageMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, MinimumExplosionDamageMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MinimumExplosionDamageMultiplier_MetaData), NewProp_MinimumExplosionDamageMultiplier_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_DirectHitDamageMultiplier = { "DirectHitDamageMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, DirectHitDamageMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DirectHitDamageMultiplier_MetaData), NewProp_DirectHitDamageMultiplier_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUseExplosionOcclusion = { "bUseExplosionOcclusion", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeRocketLauncherSettings), &UHT_STATICS::NewProp_bUseExplosionOcclusion_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUseExplosionOcclusion_MetaData), NewProp_bUseExplosionOcclusion_MetaData) };
+const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_ExplosionOcclusionTraceChannel = { "ExplosionOcclusionTraceChannel", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, ExplosionOcclusionTraceChannel), Z_Construct_UEnum_Engine_ECollisionChannel, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_ExplosionOcclusionTraceChannel_MetaData), NewProp_ExplosionOcclusionTraceChannel_MetaData) }; // 3aff698625c18cc2ccaa87a587b2eac8c50cdec7
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAllowSelfDamage = { "bAllowSelfDamage", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeRocketLauncherSettings), &UHT_STATICS::NewProp_bAllowSelfDamage_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAllowSelfDamage_MetaData), NewProp_bAllowSelfDamage_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_RocketMesh = { "RocketMesh", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketMesh), Z_Construct_UClass_UStaticMesh, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketMesh_MetaData), NewProp_RocketMesh_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_RocketMaterialOverride = { "RocketMaterialOverride", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketMaterialOverride), Z_Construct_UClass_UMaterialInterface, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketMaterialOverride_MetaData), NewProp_RocketMaterialOverride_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_RocketMeshScale = { "RocketMeshScale", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketMeshScale), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketMeshScale_MetaData), NewProp_RocketMeshScale_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_RocketMeshRotationOffset = { "RocketMeshRotationOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketMeshRotationOffset), Z_Construct_UScriptStruct_FRotator, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketMeshRotationOffset_MetaData), NewProp_RocketMeshRotationOffset_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RocketVisualMuzzleForwardOffset = { "RocketVisualMuzzleForwardOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketVisualMuzzleForwardOffset), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketVisualMuzzleForwardOffset_MetaData), NewProp_RocketVisualMuzzleForwardOffset_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RocketVisualImpactStopShortDistance = { "RocketVisualImpactStopShortDistance", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketVisualImpactStopShortDistance), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketVisualImpactStopShortDistance_MetaData), NewProp_RocketVisualImpactStopShortDistance_MetaData) };
+const UECodeGen_Private::FIntPropertyParams UHT_STATICS::NewProp_RocketVisualPoolSize = { "RocketVisualPoolSize", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Int, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketVisualPoolSize), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketVisualPoolSize_MetaData), NewProp_RocketVisualPoolSize_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bRocketVisualCastsShadow = { "bRocketVisualCastsShadow", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeRocketLauncherSettings), &UHT_STATICS::NewProp_bRocketVisualCastsShadow_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bRocketVisualCastsShadow_MetaData), NewProp_bRocketVisualCastsShadow_MetaData) };
+const UECodeGen_Private::FClassPropertyParams UHT_STATICS::NewProp_RocketFlightEffectActorClass = { "RocketFlightEffectActorClass", nullptr, (EPropertyFlags)0x0014000000000005, UECodeGen_Private::EPropertyGenFlags::Class, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketFlightEffectActorClass), Z_Construct_UClass_UClass, Z_Construct_UClass_AActor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketFlightEffectActorClass_MetaData), NewProp_RocketFlightEffectActorClass_MetaData) };
+const UECodeGen_Private::FClassPropertyParams UHT_STATICS::NewProp_RocketMuzzleEffectActorClass = { "RocketMuzzleEffectActorClass", nullptr, (EPropertyFlags)0x0014000000000005, UECodeGen_Private::EPropertyGenFlags::Class, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketMuzzleEffectActorClass), Z_Construct_UClass_UClass, Z_Construct_UClass_AActor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketMuzzleEffectActorClass_MetaData), NewProp_RocketMuzzleEffectActorClass_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RocketMuzzleEffectLifeSeconds = { "RocketMuzzleEffectLifeSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketMuzzleEffectLifeSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketMuzzleEffectLifeSeconds_MetaData), NewProp_RocketMuzzleEffectLifeSeconds_MetaData) };
+const UECodeGen_Private::FClassPropertyParams UHT_STATICS::NewProp_RocketImpactEffectActorClass = { "RocketImpactEffectActorClass", nullptr, (EPropertyFlags)0x0014000000000005, UECodeGen_Private::EPropertyGenFlags::Class, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketImpactEffectActorClass), Z_Construct_UClass_UClass, Z_Construct_UClass_AActor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketImpactEffectActorClass_MetaData), NewProp_RocketImpactEffectActorClass_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RocketImpactEffectLifeSeconds = { "RocketImpactEffectLifeSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketImpactEffectLifeSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketImpactEffectLifeSeconds_MetaData), NewProp_RocketImpactEffectLifeSeconds_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_RocketFireSound = { "RocketFireSound", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketFireSound), Z_Construct_UClass_USoundBase, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketFireSound_MetaData), NewProp_RocketFireSound_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RocketFireVolumeMultiplier = { "RocketFireVolumeMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketFireVolumeMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketFireVolumeMultiplier_MetaData), NewProp_RocketFireVolumeMultiplier_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_RocketImpactSound = { "RocketImpactSound", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketImpactSound), Z_Construct_UClass_USoundBase, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketImpactSound_MetaData), NewProp_RocketImpactSound_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RocketImpactVolumeMultiplier = { "RocketImpactVolumeMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, RocketImpactVolumeMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketImpactVolumeMultiplier_MetaData), NewProp_RocketImpactVolumeMultiplier_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bDrawDebugRocket = { "bDrawDebugRocket", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeRocketLauncherSettings), &UHT_STATICS::NewProp_bDrawDebugRocket_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bDrawDebugRocket_MetaData), NewProp_bDrawDebugRocket_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_DebugDrawDuration = { "DebugDrawDuration", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeRocketLauncherSettings, DebugDrawDuration), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DebugDrawDuration_MetaData), NewProp_DebugDrawDuration_MetaData) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bOverrideStandardMagazineAndCadence,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MagazineSize,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ReloadSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RoundsPerMinute,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MinimumAIFiringDistance,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bPredictTargetMovement,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumTargetLeadSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ProjectileSpeed,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumFlightSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ExplosionInnerRadius,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ExplosionOuterRadius,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MinimumExplosionDamageMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DirectHitDamageMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bUseExplosionOcclusion,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ExplosionOcclusionTraceChannel,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAllowSelfDamage,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketMesh,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketMaterialOverride,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketMeshScale,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketMeshRotationOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketVisualMuzzleForwardOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketVisualImpactStopShortDistance,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketVisualPoolSize,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bRocketVisualCastsShadow,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketFlightEffectActorClass,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketMuzzleEffectActorClass,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketMuzzleEffectLifeSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketImpactEffectActorClass,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketImpactEffectLifeSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketFireSound,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketFireVolumeMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketImpactSound,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketImpactVolumeMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bDrawDebugRocket,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DebugDrawDuration,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End ScriptStruct FRenegadeRocketLauncherSettings Property Definitions ****************
+const UECodeGen_Private::FStructParams UHT_STATICS::StructParams = {
+	(FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat,
+	nullptr,
+	&NewStructOps,
+	"RenegadeRocketLauncherSettings",
+	UHT_STATICS::PropPointers,
+	UE_ARRAY_COUNT(UHT_STATICS::PropPointers),
+	DataSizeOf<FRenegadeRocketLauncherSettings>(),
+	alignof(FRenegadeRocketLauncherSettings),
+	RF_Public|RF_Transient|RF_MarkAsNative,
+	EStructFlags(0x00000201),
+	METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)
+};
+static FStructRegistrationInfo Z_Registration_Info_UScriptStruct_FRenegadeRocketLauncherSettings;
+UScriptStruct* Z_Construct_UScriptStruct_FRenegadeRocketLauncherSettings(ETypeConstructPhase Phase)
+{
+	if (Phase == ETypeConstructPhase::Outer)
+	{
+		if (!Z_Registration_Info_UScriptStruct_FRenegadeRocketLauncherSettings.OuterSingleton)
+		{
+			Z_Registration_Info_UScriptStruct_FRenegadeRocketLauncherSettings.OuterSingleton = GetStaticStruct(Z_Construct_UScriptStruct_FRenegadeRocketLauncherSettings, (UObject*)Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase::Outer), TEXT("RenegadeRocketLauncherSettings"));
+		}
+		return Z_Registration_Info_UScriptStruct_FRenegadeRocketLauncherSettings.OuterSingleton;
+	}
+	if (!Z_Registration_Info_UScriptStruct_FRenegadeRocketLauncherSettings.InnerSingleton)
+	{
+		UECodeGen_Private::ConstructUScriptStruct(Z_Registration_Info_UScriptStruct_FRenegadeRocketLauncherSettings.InnerSingleton, UHT_STATICS::StructParams);
+	}
+	return CastChecked<UScriptStruct>(Z_Registration_Info_UScriptStruct_FRenegadeRocketLauncherSettings.InnerSingleton);
+}
+#undef UHT_STATICS
+// ********** End ScriptStruct FRenegadeRocketLauncherSettings *************************************
+
 // ********** Begin ScriptStruct FRenegadeWeaponSettings *******************************************
 #ifdef UHT_STATICS
 #error UHT_STATICS already defined
@@ -515,6 +956,16 @@ struct UHT_STATICS
 		{ "Category", "Weapon|Damage" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RocketLauncher_MetaData[] = {
+		{ "Category", "Weapon|Rocket Launcher" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Dedicated projectile, explosion, cadence, visual and audio configuration used when Weapon Class is Rocket Launcher. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Dedicated projectile, explosion, cadence, visual and audio configuration used when Weapon Class is Rocket Launcher." },
+#endif
+	};
 #endif // WITH_METADATA
 
 // ********** Begin ScriptStruct FRenegadeWeaponSettings constinit property declarations ***********
@@ -556,6 +1007,7 @@ struct UHT_STATICS
 	}
 	static const UECodeGen_Private::FBoolPropertyParams NewProp_bAllowFriendlyFire;
 	static const UECodeGen_Private::FClassPropertyParams NewProp_DamageTypeClass;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_RocketLauncher;
 	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
 // ********** End ScriptStruct FRenegadeWeaponSettings constinit property declarations *************
 	static void* NewStructOps()
@@ -567,7 +1019,7 @@ struct UHT_STATICS
 
 // ********** Begin ScriptStruct FRenegadeWeaponSettings Property Definitions **********************
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_WeaponClass_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
-const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_WeaponClass = { "WeaponClass", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, WeaponClass), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeWeaponClass, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_WeaponClass_MetaData), NewProp_WeaponClass_MetaData) }; // 23d92e3c9604d70896630bbe764e8668a94c5927
+const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_WeaponClass = { "WeaponClass", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, WeaponClass), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeWeaponClass, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_WeaponClass_MetaData), NewProp_WeaponClass_MetaData) }; // 8c9b1d84dfcd8bff6b41096b99ac2e5234ce6489
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_DamagePerShot = { "DamagePerShot", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, DamagePerShot), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DamagePerShot_MetaData), NewProp_DamagePerShot_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumRange = { "MaximumRange", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, MaximumRange), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumRange_MetaData), NewProp_MaximumRange_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RoundsPerMinute = { "RoundsPerMinute", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, RoundsPerMinute), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RoundsPerMinute_MetaData), NewProp_RoundsPerMinute_MetaData) };
@@ -592,6 +1044,7 @@ const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUseCombatTarg
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_CombatTargetObjectType = { "CombatTargetObjectType", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, CombatTargetObjectType), Z_Construct_UEnum_Engine_ECollisionChannel, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CombatTargetObjectType_MetaData), NewProp_CombatTargetObjectType_MetaData) }; // 3aff698625c18cc2ccaa87a587b2eac8c50cdec7
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAllowFriendlyFire = { "bAllowFriendlyFire", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeWeaponSettings), &UHT_STATICS::NewProp_bAllowFriendlyFire_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAllowFriendlyFire_MetaData), NewProp_bAllowFriendlyFire_MetaData) };
 const UECodeGen_Private::FClassPropertyParams UHT_STATICS::NewProp_DamageTypeClass = { "DamageTypeClass", nullptr, (EPropertyFlags)0x0014000000000005, UECodeGen_Private::EPropertyGenFlags::Class, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, DamageTypeClass), Z_Construct_UClass_UClass, Z_Construct_UClass_UDamageType, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_DamageTypeClass_MetaData), NewProp_DamageTypeClass_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_RocketLauncher = { "RocketLauncher", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeWeaponSettings, RocketLauncher), Z_Construct_UScriptStruct_FRenegadeRocketLauncherSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RocketLauncher_MetaData), NewProp_RocketLauncher_MetaData) }; // ab4601422132ff9d708f9936ed754a7cf44fbbce
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_WeaponClass_Underlying,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_WeaponClass,
@@ -619,6 +1072,7 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CombatTargetObjectType,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAllowFriendlyFire,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_DamageTypeClass,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RocketLauncher,
 };
 static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
 // ********** End ScriptStruct FRenegadeWeaponSettings Property Definitions ************************
@@ -2454,6 +2908,11 @@ struct UHT_STATICS
 		{ "EditCondition", "bEnableBuiltInInput" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_KeyboardMouseSelectRocketLauncherKey_MetaData[] = {
+		{ "Category", "Built-In Input|Keyboard and Mouse" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MouseLookXAxis_MetaData[] = {
 		{ "Category", "Built-In Input|Keyboard and Mouse|Look" },
 		{ "EditCondition", "bEnableBuiltInInput && bEnableBuiltInLookInput" },
@@ -2502,6 +2961,11 @@ struct UHT_STATICS
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadSelectPistolKey_MetaData[] = {
+		{ "Category", "Built-In Input|Gamepad" },
+		{ "EditCondition", "bEnableBuiltInInput" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadSelectRocketLauncherKey_MetaData[] = {
 		{ "Category", "Built-In Input|Gamepad" },
 		{ "EditCondition", "bEnableBuiltInInput" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
@@ -2603,6 +3067,7 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseReloadKey;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseSelectRifleKey;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseSelectPistolKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseSelectRocketLauncherKey;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_MouseLookXAxis;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_MouseLookYAxis;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_MouseYawSensitivity;
@@ -2617,6 +3082,7 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadReloadKey;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadSelectRifleKey;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadSelectPistolKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadSelectRocketLauncherKey;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_GamepadButtonThreshold;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadLookXAxis;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadLookYAxis;
@@ -2651,6 +3117,7 @@ const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMous
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseReloadKey = { "KeyboardMouseReloadKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, KeyboardMouseReloadKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseReloadKey_MetaData), NewProp_KeyboardMouseReloadKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseSelectRifleKey = { "KeyboardMouseSelectRifleKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, KeyboardMouseSelectRifleKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseSelectRifleKey_MetaData), NewProp_KeyboardMouseSelectRifleKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseSelectPistolKey = { "KeyboardMouseSelectPistolKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, KeyboardMouseSelectPistolKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseSelectPistolKey_MetaData), NewProp_KeyboardMouseSelectPistolKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseSelectRocketLauncherKey = { "KeyboardMouseSelectRocketLauncherKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, KeyboardMouseSelectRocketLauncherKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseSelectRocketLauncherKey_MetaData), NewProp_KeyboardMouseSelectRocketLauncherKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_MouseLookXAxis = { "MouseLookXAxis", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, MouseLookXAxis), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MouseLookXAxis_MetaData), NewProp_MouseLookXAxis_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_MouseLookYAxis = { "MouseLookYAxis", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, MouseLookYAxis), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MouseLookYAxis_MetaData), NewProp_MouseLookYAxis_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MouseYawSensitivity = { "MouseYawSensitivity", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, MouseYawSensitivity), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MouseYawSensitivity_MetaData), NewProp_MouseYawSensitivity_MetaData) };
@@ -2661,6 +3128,7 @@ const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadAimKe
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadReloadKey = { "GamepadReloadKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadReloadKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadReloadKey_MetaData), NewProp_GamepadReloadKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadSelectRifleKey = { "GamepadSelectRifleKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadSelectRifleKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadSelectRifleKey_MetaData), NewProp_GamepadSelectRifleKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadSelectPistolKey = { "GamepadSelectPistolKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadSelectPistolKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadSelectPistolKey_MetaData), NewProp_GamepadSelectPistolKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadSelectRocketLauncherKey = { "GamepadSelectRocketLauncherKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadSelectRocketLauncherKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadSelectRocketLauncherKey_MetaData), NewProp_GamepadSelectRocketLauncherKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_GamepadButtonThreshold = { "GamepadButtonThreshold", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadButtonThreshold), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadButtonThreshold_MetaData), NewProp_GamepadButtonThreshold_MetaData) };
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadLookXAxis = { "GamepadLookXAxis", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadLookXAxis), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadLookXAxis_MetaData), NewProp_GamepadLookXAxis_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadLookYAxis = { "GamepadLookYAxis", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerInputSettings, GamepadLookYAxis), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadLookYAxis_MetaData), NewProp_GamepadLookYAxis_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
@@ -2682,6 +3150,7 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseReloadKey,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseSelectRifleKey,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseSelectPistolKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseSelectRocketLauncherKey,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MouseLookXAxis,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MouseLookYAxis,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MouseYawSensitivity,
@@ -2692,6 +3161,7 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadReloadKey,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadSelectRifleKey,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadSelectPistolKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadSelectRocketLauncherKey,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadButtonThreshold,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadLookXAxis,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadLookYAxis,
@@ -3646,25 +4116,26 @@ UScriptStruct* Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings(ETypeCon
 struct UHT_STATICS
 {
 	static constexpr FEnumRegisterCompiledInInfo EnumInfo[] = {
-		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeWeaponClass, TEXT("ERenegadeWeaponClass"), &ZRIE_ERenegadeWeaponClass, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 601435708U) },
-		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, TEXT("ERenegadePlayerWeaponSlot"), &ZRIE_ERenegadePlayerWeaponSlot, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 2546147236U) },
+		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeWeaponClass, TEXT("ERenegadeWeaponClass"), &ZRIE_ERenegadeWeaponClass, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 2358975876U) },
+		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadePlayerWeaponSlot, TEXT("ERenegadePlayerWeaponSlot"), &ZRIE_ERenegadePlayerWeaponSlot, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 1027368276U) },
 		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeCombatMoveType, TEXT("ERenegadeCombatMoveType"), &ZRIE_ERenegadeCombatMoveType, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 1476638583U) },
 		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnTransformMode, TEXT("ERenegadeRespawnTransformMode"), &ZRIE_ERenegadeRespawnTransformMode, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 4229992342U) },
 		{ Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeRespawnLocationSelection, TEXT("ERenegadeRespawnLocationSelection"), &ZRIE_ERenegadeRespawnLocationSelection, CONSTRUCT_RELOAD_VERSION_INFO(FEnumReloadVersionInfo, 2611796624U) },
 	};
 	static constexpr FStructRegisterCompiledInInfo ScriptStructInfo[] = {
-		{ Z_Construct_UScriptStruct_FRenegadeWeaponSettings, Z_Construct_UScriptStruct_FRenegadeWeaponSettings_Statics::NewStructOps, TEXT("RenegadeWeaponSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeWeaponSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeWeaponSettings), 3105848085U) },
+		{ Z_Construct_UScriptStruct_FRenegadeRocketLauncherSettings, Z_Construct_UScriptStruct_FRenegadeRocketLauncherSettings_Statics::NewStructOps, TEXT("RenegadeRocketLauncherSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeRocketLauncherSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeRocketLauncherSettings), 2873491778U) },
+		{ Z_Construct_UScriptStruct_FRenegadeWeaponSettings, Z_Construct_UScriptStruct_FRenegadeWeaponSettings_Statics::NewStructOps, TEXT("RenegadeWeaponSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeWeaponSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeWeaponSettings), 1467266020U) },
 		{ Z_Construct_UScriptStruct_FRenegadeTargetingSettings, Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics::NewStructOps, TEXT("RenegadeTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeTargetingSettings), 4238528035U) },
 		{ Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings, Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings_Statics::NewStructOps, TEXT("RenegadeCombatMovementSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatMovementSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatMovementSettings), 3050183974U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings, Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings_Statics::NewStructOps, TEXT("RenegadePlayerCombatSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerCombatSettings), 3336172806U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings, Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings_Statics::NewStructOps, TEXT("RenegadePlayerAimPresentationSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerAimPresentationSettings), 2735215814U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings, Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings_Statics::NewStructOps, TEXT("RenegadePlayerLockOnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerLockOnSettings), 3819754068U) },
-		{ Z_Construct_UScriptStruct_FRenegadePlayerInputSettings, Z_Construct_UScriptStruct_FRenegadePlayerInputSettings_Statics::NewStructOps, TEXT("RenegadePlayerInputSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerInputSettings), 1482115598U) },
+		{ Z_Construct_UScriptStruct_FRenegadePlayerInputSettings, Z_Construct_UScriptStruct_FRenegadePlayerInputSettings_Statics::NewStructOps, TEXT("RenegadePlayerInputSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerInputSettings), 4236524894U) },
 		{ Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings, Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings_Statics::NewStructOps, TEXT("RenegadeCombatVisualSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatVisualSettings), 793923901U) },
 		{ Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings, Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics::NewStructOps, TEXT("RenegadeHealthRespawnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeHealthRespawnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeHealthRespawnSettings), 1785623175U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_1a9b9d740c2648a676d5419272952e390d127d68{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_db92f980781794e6e86ba456c1e57f1b0d0f8628{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	nullptr, 0,
 	UHT_STATICS::ScriptStructInfo, UE_ARRAY_COUNT(UHT_STATICS::ScriptStructInfo),

@@ -11,12 +11,14 @@ class UDamageType;
 class UMaterialInterface;
 class UStaticMesh;
 class UTexture2D;
+class USoundBase;
 
 UENUM(BlueprintType)
 enum class ERenegadeWeaponClass : uint8
 {
     AutomaticRifle UMETA(DisplayName="Automatic Rifle"),
     Pistol UMETA(DisplayName="Pistol"),
+    RocketLauncher UMETA(DisplayName="Rocket Launcher"),
     Custom UMETA(DisplayName="Custom")
 };
 
@@ -24,7 +26,8 @@ UENUM(BlueprintType)
 enum class ERenegadePlayerWeaponSlot : uint8
 {
     AutomaticRifle UMETA(DisplayName="Automatic Rifle"),
-    Pistol UMETA(DisplayName="Pistol")
+    Pistol UMETA(DisplayName="Pistol"),
+    RocketLauncher UMETA(DisplayName="Rocket Launcher")
 };
 
 UENUM(BlueprintType)
@@ -55,6 +58,128 @@ enum class ERenegadeRespawnLocationSelection : uint8
     First UMETA(DisplayName="First Location"),
     Random UMETA(DisplayName="Random Location"),
     Sequential UMETA(DisplayName="Sequential Locations")
+};
+
+USTRUCT(BlueprintType)
+struct RENEGADESOLDIERCOMBAT_API FRenegadeRocketLauncherSettings
+{
+    GENERATED_BODY()
+
+    /** Uses dedicated one-round launcher cadence values instead of the generic magazine and fire-rate fields. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Cadence")
+    bool bOverrideStandardMagazineAndCadence = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Cadence", meta=(ClampMin="1", EditCondition="bOverrideStandardMagazineAndCadence"))
+    int32 MagazineSize = 1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Cadence", meta=(ClampMin="0.01", EditCondition="bOverrideStandardMagazineAndCadence"))
+    float ReloadSeconds = 2.75f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Cadence", meta=(ClampMin="1.0", EditCondition="bOverrideStandardMagazineAndCadence"))
+    float RoundsPerMinute = 38.0f;
+
+    /** AI will retreat rather than launch explosive rockets inside this distance. Player/manual firing is not blocked. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|AI", meta=(ClampMin="0.0", Units="cm"))
+    float MinimumAIFiringDistance = 650.0f;
+
+    /** Leads moving targets using the estimated straight-line rocket flight time. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|AI")
+    bool bPredictTargetMovement = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|AI", meta=(ClampMin="0.0", ClampMax="3.0", EditCondition="bPredictTargetMovement"))
+    float MaximumTargetLeadSeconds = 0.75f;
+
+    /** Authoritative and cosmetic straight-line travel speed in centimetres per second. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Flight", meta=(ClampMin="100.0", Units="cm/s"))
+    float ProjectileSpeed = 4200.0f;
+
+    /** Safety cap for extremely long visual/server flight times. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Flight", meta=(ClampMin="0.05"))
+    float MaximumFlightSeconds = 5.0f;
+
+    /** DamagePerShot is the maximum explosion damage inside this radius. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Explosion", meta=(ClampMin="0.0", Units="cm"))
+    float ExplosionInnerRadius = 160.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Explosion", meta=(ClampMin="1.0", Units="cm"))
+    float ExplosionOuterRadius = 475.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Explosion", meta=(ClampMin="0.0", ClampMax="1.0"))
+    float MinimumExplosionDamageMultiplier = 0.20f;
+
+    /** Additional multiplier for the actor directly struck by the rocket trace. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Explosion", meta=(ClampMin="0.0"))
+    float DirectHitDamageMultiplier = 1.20f;
+
+    /** Prevents explosion damage through walls and solid cover. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Explosion")
+    bool bUseExplosionOcclusion = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Explosion", meta=(EditCondition="bUseExplosionOcclusion"))
+    TEnumAsByte<ECollisionChannel> ExplosionOcclusionTraceChannel = ECC_Visibility;
+
+    /** Allows the launcher owner to receive its own splash damage. Team damage still follows Weapon > Allow Friendly Fire. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Explosion")
+    bool bAllowSelfDamage = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Visual")
+    TObjectPtr<UStaticMesh> RocketMesh = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Visual")
+    TObjectPtr<UMaterialInterface> RocketMaterialOverride = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Visual")
+    FVector RocketMeshScale = FVector(1.0f);
+
+    /** Added after orienting local X toward the travel direction. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Visual")
+    FRotator RocketMeshRotationOffset = FRotator::ZeroRotator;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Visual", meta=(ClampMin="0.0", Units="cm"))
+    float RocketVisualMuzzleForwardOffset = 12.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Visual", meta=(ClampMin="0.0", Units="cm"))
+    float RocketVisualImpactStopShortDistance = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Visual|Performance", meta=(ClampMin="1", ClampMax="12"))
+    int32 RocketVisualPoolSize = 3;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Visual|Performance")
+    bool bRocketVisualCastsShadow = false;
+
+    /** Optional local cosmetic Blueprint actor moved with the rocket, suitable for Niagara smoke/trail systems. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Effects")
+    TSubclassOf<AActor> RocketFlightEffectActorClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Effects")
+    TSubclassOf<AActor> RocketMuzzleEffectActorClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Effects", meta=(ClampMin="0.0"))
+    float RocketMuzzleEffectLifeSeconds = 2.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Effects")
+    TSubclassOf<AActor> RocketImpactEffectActorClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Effects", meta=(ClampMin="0.0"))
+    float RocketImpactEffectLifeSeconds = 5.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Audio")
+    TObjectPtr<USoundBase> RocketFireSound = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Audio", meta=(ClampMin="0.0"))
+    float RocketFireVolumeMultiplier = 1.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Audio")
+    TObjectPtr<USoundBase> RocketImpactSound = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Audio", meta=(ClampMin="0.0"))
+    float RocketImpactVolumeMultiplier = 1.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Debug")
+    bool bDrawDebugRocket = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rocket Launcher|Debug", meta=(ClampMin="0.0", EditCondition="bDrawDebugRocket"))
+    float DebugDrawDuration = 2.0f;
 };
 
 USTRUCT(BlueprintType)
@@ -135,6 +260,10 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadeWeaponSettings
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon|Damage")
     TSubclassOf<UDamageType> DamageTypeClass;
+
+    /** Dedicated projectile, explosion, cadence, visual and audio configuration used when Weapon Class is Rocket Launcher. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon|Rocket Launcher")
+    FRenegadeRocketLauncherSettings RocketLauncher;
 };
 
 USTRUCT(BlueprintType)
@@ -586,6 +715,9 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadePlayerInputSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Built-In Input|Keyboard and Mouse", meta=(EditCondition="bEnableBuiltInInput"))
     FKey KeyboardMouseSelectPistolKey = EKeys::Two;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Built-In Input|Keyboard and Mouse", meta=(EditCondition="bEnableBuiltInInput"))
+    FKey KeyboardMouseSelectRocketLauncherKey = EKeys::Three;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Built-In Input|Keyboard and Mouse|Look", meta=(EditCondition="bEnableBuiltInInput && bEnableBuiltInLookInput"))
     FKey MouseLookXAxis = EKeys::MouseX;
 
@@ -615,6 +747,9 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadePlayerInputSettings
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Built-In Input|Gamepad", meta=(EditCondition="bEnableBuiltInInput"))
     FKey GamepadSelectPistolKey = EKeys::Gamepad_DPad_Down;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Built-In Input|Gamepad", meta=(EditCondition="bEnableBuiltInInput"))
+    FKey GamepadSelectRocketLauncherKey = EKeys::Gamepad_DPad_Right;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Built-In Input|Gamepad", meta=(ClampMin="0.01", ClampMax="1.0", EditCondition="bEnableBuiltInInput"))
     float GamepadButtonThreshold = 0.45f;

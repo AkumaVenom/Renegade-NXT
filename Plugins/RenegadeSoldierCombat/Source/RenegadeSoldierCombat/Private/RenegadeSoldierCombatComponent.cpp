@@ -37,6 +37,7 @@
 #include "RenegadeCombatRegistrySubsystem.h"
 #include "RenegadeSoldierSpawnPoint.h"
 #include "RenegadeWeaponProfile.h"
+#include "Sound/SoundBase.h"
 
 namespace RenegadeCombatPrivate
 {
@@ -48,7 +49,8 @@ namespace RenegadeCombatPrivate
     static bool IsValidPlayerWeaponSlot(const ERenegadePlayerWeaponSlot WeaponSlot)
     {
         return WeaponSlot == ERenegadePlayerWeaponSlot::AutomaticRifle
-            || WeaponSlot == ERenegadePlayerWeaponSlot::Pistol;
+            || WeaponSlot == ERenegadePlayerWeaponSlot::Pistol
+            || WeaponSlot == ERenegadePlayerWeaponSlot::RocketLauncher;
     }
 
     /** Ignore the owning pawn and every actor attached to it so weapon/armour child actors cannot block the muzzle trace. */
@@ -268,6 +270,25 @@ URenegadeSoldierCombatComponent::URenegadeSoldierCombatComponent()
     InlinePlayerPistolSettings.MovingSpreadPenaltyDegrees = 0.8f;
     InlinePlayerPistolSettings.MagazineSize = 12;
     InlinePlayerPistolSettings.ReloadSeconds = 1.55f;
+
+    InlinePlayerRocketLauncherSettings.WeaponClass = ERenegadeWeaponClass::RocketLauncher;
+    InlinePlayerRocketLauncherSettings.DamagePerShot = 125.0f;
+    InlinePlayerRocketLauncherSettings.MaximumRange = 6000.0f;
+    InlinePlayerRocketLauncherSettings.RoundsPerMinute = 38.0f;
+    InlinePlayerRocketLauncherSettings.MinimumBurstShots = 1;
+    InlinePlayerRocketLauncherSettings.MaximumBurstShots = 1;
+    InlinePlayerRocketLauncherSettings.MinimumBurstPause = 0.0f;
+    InlinePlayerRocketLauncherSettings.MaximumBurstPause = 0.0f;
+    InlinePlayerRocketLauncherSettings.HipFireSpreadDegrees = 0.65f;
+    InlinePlayerRocketLauncherSettings.MovingSpreadPenaltyDegrees = 0.65f;
+    InlinePlayerRocketLauncherSettings.CriticalHitMultiplier = 1.0f;
+    InlinePlayerRocketLauncherSettings.CriticalBones.Reset();
+    InlinePlayerRocketLauncherSettings.MinimumLongRangeDamageMultiplier = 1.0f;
+    InlinePlayerRocketLauncherSettings.DamageFalloffStartFraction = 1.0f;
+    InlinePlayerRocketLauncherSettings.bUseMagazine = true;
+    InlinePlayerRocketLauncherSettings.MagazineSize = 1;
+    InlinePlayerRocketLauncherSettings.ReloadSeconds = 2.75f;
+    InlinePlayerRocketLauncherSettings.RocketLauncher = FRenegadeRocketLauncherSettings();
 }
 
 void URenegadeSoldierCombatComponent::PostLoad()
@@ -332,7 +353,7 @@ void URenegadeSoldierCombatComponent::BeginPlay()
         else
         {
             const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
-            CurrentMagazineAmmo = Weapon.bUseMagazine ? FMath::Max(1, Weapon.MagazineSize) : 0;
+            CurrentMagazineAmmo = WeaponUsesMagazine(Weapon) ? GetEffectiveMagazineSize(Weapon) : 0;
         }
 
         if (AActor* Owner = GetOwner())
@@ -369,6 +390,8 @@ void URenegadeSoldierCombatComponent::EndPlay(const EEndPlayReason::Type EndPlay
     DestroyLockOnIndicator();
     StopLocalPlayerFireTimer();
     StopAllBulletMeshVisuals();
+    StopAllRocketLauncherVisuals();
+    PendingRocketImpacts.Reset();
 
     for (UStaticMeshComponent* BulletComponent : BulletVisualComponents)
     {
@@ -379,6 +402,16 @@ void URenegadeSoldierCombatComponent::EndPlay(const EEndPlayReason::Type EndPlay
     }
     BulletVisualComponents.Reset();
     BulletVisualStates.Reset();
+
+    for (UStaticMeshComponent* RocketComponent : RocketVisualComponents)
+    {
+        if (IsValid(RocketComponent))
+        {
+            RocketComponent->DestroyComponent();
+        }
+    }
+    RocketVisualComponents.Reset();
+    RocketVisualStates.Reset();
     SetComponentTickEnabled(false);
 
     if (AActor* Owner = GetOwner())
@@ -409,8 +442,15 @@ void URenegadeSoldierCombatComponent::TickComponent(float DeltaTime, ELevelTick 
     // Player aim presentation owns camera zoom and camera-facing Character yaw while aiming.
     UpdatePlayerAimPresentation(DeltaTime);
 
-    // Cosmetic bullet components run on clients and on the listen-server view.
+    // Cosmetic bullet and rocket components run on clients and on the listen-server view.
     UpdateBulletMeshVisuals(DeltaTime);
+    UpdateRocketLauncherVisuals(DeltaTime);
+
+    if (HasAuthority())
+    {
+        // Rocket explosion damage is delayed until the replicated projectile reaches its endpoint.
+        UpdatePendingRocketImpacts(DeltaTime);
+    }
 
     if (HasAuthority())
     {
@@ -441,6 +481,7 @@ void URenegadeSoldierCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetim
     DOREPLIFETIME(URenegadeSoldierCombatComponent, ActivePlayerWeapon);
     DOREPLIFETIME(URenegadeSoldierCombatComponent, CurrentAutomaticRifleAmmo);
     DOREPLIFETIME(URenegadeSoldierCombatComponent, CurrentPistolAmmo);
+    DOREPLIFETIME(URenegadeSoldierCombatComponent, CurrentRocketLauncherAmmo);
     DOREPLIFETIME(URenegadeSoldierCombatComponent, bIsPlayerAiming);
 }
 
@@ -842,7 +883,7 @@ void URenegadeSoldierCombatComponent::RespawnNow()
     else
     {
         const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
-        CurrentMagazineAmmo = Weapon.bUseMagazine ? FMath::Max(1, Weapon.MagazineSize) : 0;
+        CurrentMagazineAmmo = WeaponUsesMagazine(Weapon) ? GetEffectiveMagazineSize(Weapon) : 0;
     }
 
     MulticastFinishRespawn(RespawnTransform);
@@ -1000,38 +1041,106 @@ FRenegadeWeaponSettings URenegadeSoldierCombatComponent::GetActiveWeaponSettings
     return InlineWeaponSettings;
 }
 
+bool URenegadeSoldierCombatComponent::IsRocketLauncherWeapon(const FRenegadeWeaponSettings& Weapon) const
+{
+    return Weapon.WeaponClass == ERenegadeWeaponClass::RocketLauncher;
+}
+
+bool URenegadeSoldierCombatComponent::WeaponUsesMagazine(const FRenegadeWeaponSettings& Weapon) const
+{
+    return IsRocketLauncherWeapon(Weapon) && Weapon.RocketLauncher.bOverrideStandardMagazineAndCadence
+        ? true
+        : Weapon.bUseMagazine;
+}
+
+int32 URenegadeSoldierCombatComponent::GetEffectiveMagazineSize(const FRenegadeWeaponSettings& Weapon) const
+{
+    return IsRocketLauncherWeapon(Weapon) && Weapon.RocketLauncher.bOverrideStandardMagazineAndCadence
+        ? FMath::Max(1, Weapon.RocketLauncher.MagazineSize)
+        : FMath::Max(1, Weapon.MagazineSize);
+}
+
+float URenegadeSoldierCombatComponent::GetEffectiveReloadSeconds(const FRenegadeWeaponSettings& Weapon) const
+{
+    return IsRocketLauncherWeapon(Weapon) && Weapon.RocketLauncher.bOverrideStandardMagazineAndCadence
+        ? FMath::Max(0.01f, Weapon.RocketLauncher.ReloadSeconds)
+        : FMath::Max(0.01f, Weapon.ReloadSeconds);
+}
+
+float URenegadeSoldierCombatComponent::GetEffectiveRoundsPerMinute(const FRenegadeWeaponSettings& Weapon) const
+{
+    return IsRocketLauncherWeapon(Weapon) && Weapon.RocketLauncher.bOverrideStandardMagazineAndCadence
+        ? FMath::Max(1.0f, Weapon.RocketLauncher.RoundsPerMinute)
+        : FMath::Max(1.0f, Weapon.RoundsPerMinute);
+}
+
 FRenegadeWeaponSettings URenegadeSoldierCombatComponent::GetPlayerWeaponSettings(ERenegadePlayerWeaponSlot WeaponSlot) const
 {
     if (bUsePlayerWeaponProfiles)
     {
-        if (WeaponSlot == ERenegadePlayerWeaponSlot::Pistol && IsValid(PlayerPistolProfile))
+        switch (WeaponSlot)
         {
-            return PlayerPistolProfile->Settings;
-        }
-
-        if (WeaponSlot == ERenegadePlayerWeaponSlot::AutomaticRifle && IsValid(PlayerAutomaticRifleProfile))
-        {
-            return PlayerAutomaticRifleProfile->Settings;
+        case ERenegadePlayerWeaponSlot::AutomaticRifle:
+            if (IsValid(PlayerAutomaticRifleProfile))
+            {
+                return PlayerAutomaticRifleProfile->Settings;
+            }
+            break;
+        case ERenegadePlayerWeaponSlot::Pistol:
+            if (IsValid(PlayerPistolProfile))
+            {
+                return PlayerPistolProfile->Settings;
+            }
+            break;
+        case ERenegadePlayerWeaponSlot::RocketLauncher:
+            if (IsValid(PlayerRocketLauncherProfile))
+            {
+                return PlayerRocketLauncherProfile->Settings;
+            }
+            break;
+        default:
+            break;
         }
     }
 
-    return WeaponSlot == ERenegadePlayerWeaponSlot::Pistol
-        ? InlinePlayerPistolSettings
-        : InlinePlayerAutomaticRifleSettings;
+    switch (WeaponSlot)
+    {
+    case ERenegadePlayerWeaponSlot::Pistol:
+        return InlinePlayerPistolSettings;
+    case ERenegadePlayerWeaponSlot::RocketLauncher:
+        return InlinePlayerRocketLauncherSettings;
+    case ERenegadePlayerWeaponSlot::AutomaticRifle:
+    default:
+        return InlinePlayerAutomaticRifleSettings;
+    }
 }
 
 int32 URenegadeSoldierCombatComponent::GetPlayerWeaponAmmo(ERenegadePlayerWeaponSlot WeaponSlot) const
 {
-    return WeaponSlot == ERenegadePlayerWeaponSlot::Pistol
-        ? CurrentPistolAmmo
-        : CurrentAutomaticRifleAmmo;
+    switch (WeaponSlot)
+    {
+    case ERenegadePlayerWeaponSlot::Pistol:
+        return CurrentPistolAmmo;
+    case ERenegadePlayerWeaponSlot::RocketLauncher:
+        return CurrentRocketLauncherAmmo;
+    case ERenegadePlayerWeaponSlot::AutomaticRifle:
+    default:
+        return CurrentAutomaticRifleAmmo;
+    }
 }
 
 int32& URenegadeSoldierCombatComponent::GetMutablePlayerAmmo(ERenegadePlayerWeaponSlot WeaponSlot)
 {
-    return WeaponSlot == ERenegadePlayerWeaponSlot::Pistol
-        ? CurrentPistolAmmo
-        : CurrentAutomaticRifleAmmo;
+    switch (WeaponSlot)
+    {
+    case ERenegadePlayerWeaponSlot::Pistol:
+        return CurrentPistolAmmo;
+    case ERenegadePlayerWeaponSlot::RocketLauncher:
+        return CurrentRocketLauncherAmmo;
+    case ERenegadePlayerWeaponSlot::AutomaticRifle:
+    default:
+        return CurrentAutomaticRifleAmmo;
+    }
 }
 
 void URenegadeSoldierCombatComponent::SetPlayerAmmo(ERenegadePlayerWeaponSlot WeaponSlot, int32 NewAmmo)
@@ -1055,15 +1164,21 @@ void URenegadeSoldierCombatComponent::InitializePlayerWeaponAmmo(bool bForceRefi
 {
     const FRenegadeWeaponSettings Rifle = GetPlayerWeaponSettings(ERenegadePlayerWeaponSlot::AutomaticRifle);
     const FRenegadeWeaponSettings Pistol = GetPlayerWeaponSettings(ERenegadePlayerWeaponSlot::Pistol);
+    const FRenegadeWeaponSettings RocketLauncher = GetPlayerWeaponSettings(ERenegadePlayerWeaponSlot::RocketLauncher);
 
     if (bForceRefill || CurrentAutomaticRifleAmmo < 0)
     {
-        SetPlayerAmmo(ERenegadePlayerWeaponSlot::AutomaticRifle, Rifle.bUseMagazine ? FMath::Max(1, Rifle.MagazineSize) : 0);
+        SetPlayerAmmo(ERenegadePlayerWeaponSlot::AutomaticRifle, WeaponUsesMagazine(Rifle) ? GetEffectiveMagazineSize(Rifle) : 0);
     }
 
     if (bForceRefill || CurrentPistolAmmo < 0)
     {
-        SetPlayerAmmo(ERenegadePlayerWeaponSlot::Pistol, Pistol.bUseMagazine ? FMath::Max(1, Pistol.MagazineSize) : 0);
+        SetPlayerAmmo(ERenegadePlayerWeaponSlot::Pistol, WeaponUsesMagazine(Pistol) ? GetEffectiveMagazineSize(Pistol) : 0);
+    }
+
+    if (bForceRefill || CurrentRocketLauncherAmmo < 0)
+    {
+        SetPlayerAmmo(ERenegadePlayerWeaponSlot::RocketLauncher, WeaponUsesMagazine(RocketLauncher) ? GetEffectiveMagazineSize(RocketLauncher) : 0);
     }
 }
 
@@ -1142,7 +1257,8 @@ void URenegadeSoldierCombatComponent::PlayerStartFire()
 
     const FRenegadeWeaponSettings Weapon = GetPlayerWeaponSettings(ActivePlayerWeapon);
     const bool bRepeat = ActivePlayerWeapon == ERenegadePlayerWeaponSlot::AutomaticRifle
-        && PlayerCombat.bAutomaticRifleFiresWhileHeld;
+        && PlayerCombat.bAutomaticRifleFiresWhileHeld
+        && !IsRocketLauncherWeapon(Weapon);
 
     // Preserve a held automatic-rifle request through a reload so firing can resume when the magazine is ready.
     bLocalPlayerFireHeld = bRepeat;
@@ -1156,7 +1272,7 @@ void URenegadeSoldierCombatComponent::PlayerStartFire()
 
     if (bRepeat && GetWorld())
     {
-        const float SecondsPerShot = 60.0f / FMath::Max(1.0f, Weapon.RoundsPerMinute);
+        const float SecondsPerShot = 60.0f / GetEffectiveRoundsPerMinute(Weapon);
         GetWorld()->GetTimerManager().SetTimer(
             LocalPlayerFireTimer,
             this,
@@ -1214,6 +1330,10 @@ void URenegadeSoldierCombatComponent::SubmitLocalPlayerShot()
     if (HasAuthority())
     {
         PerformPlayerShotServer(ViewLocation, ViewDirection, ActivePlayerWeapon, bIsPlayerAiming);
+    }
+    else if (ActivePlayerWeapon == ERenegadePlayerWeaponSlot::RocketLauncher)
+    {
+        ServerRequestPlayerRocketShot(ViewLocation, ViewDirection, bIsPlayerAiming);
     }
     else
     {
@@ -1843,6 +1963,7 @@ void URenegadeSoldierCombatComponent::ResetBuiltInPlayerInputState(bool bClearAi
     bPreviousBuiltInReloadDown = false;
     bPreviousBuiltInSelectRifleDown = false;
     bPreviousBuiltInSelectPistolDown = false;
+    bPreviousBuiltInSelectRocketLauncherDown = false;
     bPreviousBuiltInLockOnDown = false;
     bPreviousBuiltInSwitchLeftDown = false;
     bPreviousBuiltInSwitchRightDown = false;
@@ -1890,6 +2011,8 @@ void URenegadeSoldierCombatComponent::UpdateBuiltInPlayerInput(float DeltaTime)
         || IsBuiltInInputKeyDown(PlayerController, PlayerInput.GamepadSelectRifleKey);
     const bool bSelectPistolDown = IsBuiltInInputKeyDown(PlayerController, PlayerInput.KeyboardMouseSelectPistolKey)
         || IsBuiltInInputKeyDown(PlayerController, PlayerInput.GamepadSelectPistolKey);
+    const bool bSelectRocketLauncherDown = IsBuiltInInputKeyDown(PlayerController, PlayerInput.KeyboardMouseSelectRocketLauncherKey)
+        || IsBuiltInInputKeyDown(PlayerController, PlayerInput.GamepadSelectRocketLauncherKey);
 
     if (bSelectRifleDown && !bPreviousBuiltInSelectRifleDown)
     {
@@ -1900,6 +2023,11 @@ void URenegadeSoldierCombatComponent::UpdateBuiltInPlayerInput(float DeltaTime)
     {
         bBuiltInFireCommandActive = false;
         SelectPlayerPistol();
+    }
+    if (bSelectRocketLauncherDown && !bPreviousBuiltInSelectRocketLauncherDown)
+    {
+        bBuiltInFireCommandActive = false;
+        SelectPlayerRocketLauncher();
     }
 
     const bool bReloadDown = IsBuiltInInputKeyDown(PlayerController, PlayerInput.KeyboardMouseReloadKey)
@@ -2065,6 +2193,7 @@ void URenegadeSoldierCombatComponent::UpdateBuiltInPlayerInput(float DeltaTime)
     bPreviousBuiltInReloadDown = bReloadDown;
     bPreviousBuiltInSelectRifleDown = bSelectRifleDown;
     bPreviousBuiltInSelectPistolDown = bSelectPistolDown;
+    bPreviousBuiltInSelectRocketLauncherDown = bSelectRocketLauncherDown;
     bPreviousBuiltInLockOnDown = bLockOnDown;
     bPreviousBuiltInSwitchLeftDown = bSwitchLeftDown;
     bPreviousBuiltInSwitchRightDown = bSwitchRightDown;
@@ -2918,6 +3047,12 @@ void URenegadeSoldierCombatComponent::PlayerFirePistol()
     PlayerFireOnce();
 }
 
+void URenegadeSoldierCombatComponent::PlayerFireRocketLauncher()
+{
+    SelectPlayerWeapon(ERenegadePlayerWeaponSlot::RocketLauncher);
+    PlayerFireOnce();
+}
+
 void URenegadeSoldierCombatComponent::SelectPlayerWeapon(ERenegadePlayerWeaponSlot NewWeapon)
 {
     if (!RenegadeCombatPrivate::IsValidPlayerWeaponSlot(NewWeapon)
@@ -2953,6 +3088,11 @@ void URenegadeSoldierCombatComponent::SelectPlayerAutomaticRifle()
 void URenegadeSoldierCombatComponent::SelectPlayerPistol()
 {
     SelectPlayerWeapon(ERenegadePlayerWeaponSlot::Pistol);
+}
+
+void URenegadeSoldierCombatComponent::SelectPlayerRocketLauncher()
+{
+    SelectPlayerWeapon(ERenegadePlayerWeaponSlot::RocketLauncher);
 }
 
 void URenegadeSoldierCombatComponent::SetPlayerWeaponInternal(ERenegadePlayerWeaponSlot NewWeapon)
@@ -3007,6 +3147,18 @@ void URenegadeSoldierCombatComponent::ServerRequestPlayerShot_Implementation(
     PerformPlayerShotServer(ClientViewLocation, ClientViewDirection, RequestedWeapon, bClientAiming);
 }
 
+void URenegadeSoldierCombatComponent::ServerRequestPlayerRocketShot_Implementation(
+    FVector_NetQuantize ClientViewLocation,
+    FVector_NetQuantizeNormal ClientViewDirection,
+    bool bClientAiming)
+{
+    PerformPlayerShotServer(
+        ClientViewLocation,
+        ClientViewDirection,
+        ERenegadePlayerWeaponSlot::RocketLauncher,
+        bClientAiming);
+}
+
 void URenegadeSoldierCombatComponent::ServerSetPlayerAiming_Implementation(bool bNewAiming)
 {
     if (bPlayerControlledCombat)
@@ -3037,7 +3189,7 @@ void URenegadeSoldierCombatComponent::PerformPlayerShotServer(
     }
 
     const FRenegadeWeaponSettings Weapon = GetPlayerWeaponSettings(ActivePlayerWeapon);
-    if (Weapon.bUseMagazine && GetPlayerWeaponAmmo(ActivePlayerWeapon) <= 0)
+    if (WeaponUsesMagazine(Weapon) && GetPlayerWeaponAmmo(ActivePlayerWeapon) <= 0)
     {
         if (PlayerCombat.bAutoReloadWhenEmpty)
         {
@@ -3111,15 +3263,15 @@ void URenegadeSoldierCombatComponent::PerformPlayerShotServer(
         return;
     }
 
-    if (Weapon.bUseMagazine)
+    if (WeaponUsesMagazine(Weapon))
     {
         SetPlayerAmmo(ActivePlayerWeapon, GetPlayerWeaponAmmo(ActivePlayerWeapon) - 1);
     }
 
-    const float SecondsPerShot = 60.0f / FMath::Max(1.0f, Weapon.RoundsPerMinute);
+    const float SecondsPerShot = 60.0f / GetEffectiveRoundsPerMinute(Weapon);
     NextAllowedPlayerShotServerTime = Now + SecondsPerShot * FMath::Clamp(PlayerCombat.ServerFireRateTolerance, 0.80f, 1.0f);
 
-    if (Weapon.bUseMagazine && GetPlayerWeaponAmmo(ActivePlayerWeapon) <= 0 && PlayerCombat.bAutoReloadWhenEmpty)
+    if (WeaponUsesMagazine(Weapon) && GetPlayerWeaponAmmo(ActivePlayerWeapon) <= 0 && PlayerCombat.bAutoReloadWhenEmpty)
     {
         StartReload();
     }
@@ -3172,6 +3324,60 @@ void URenegadeSoldierCombatComponent::PreviewBulletMeshVisual(FVector TraceStart
 void URenegadeSoldierCombatComponent::PreviewBulletMeshFromConfiguredSpawn(FVector TraceEnd)
 {
     SpawnBulletMeshVisual(GetMuzzleLocation(), TraceEnd, nullptr);
+}
+
+
+void URenegadeSoldierCombatComponent::SetRocketLauncherMuzzleComponent(USceneComponent* NewMuzzleComponent)
+{
+    if (!IsValid(NewMuzzleComponent))
+    {
+        RuntimeRocketLauncherMuzzleComponent = nullptr;
+        return;
+    }
+
+    if (NewMuzzleComponent->GetOwner() != GetOwner())
+    {
+        UE_LOG(LogRenegadeSoldierCombat, Warning,
+            TEXT("%s rejected rocket-launcher muzzle component %s because it belongs to a different actor."),
+            *GetNameSafe(GetOwner()), *GetNameSafe(NewMuzzleComponent));
+        return;
+    }
+
+    RuntimeRocketLauncherMuzzleComponent = NewMuzzleComponent;
+}
+
+void URenegadeSoldierCombatComponent::ClearRocketLauncherMuzzleComponent()
+{
+    RuntimeRocketLauncherMuzzleComponent = nullptr;
+}
+
+USceneComponent* URenegadeSoldierCombatComponent::GetRocketLauncherMuzzleComponent() const
+{
+    return ResolveRocketLauncherMuzzleComponent();
+}
+
+FVector URenegadeSoldierCombatComponent::GetRocketLauncherMuzzleLocation() const
+{
+    return ResolveRocketLauncherMuzzleLocation(GetMuzzleLocation());
+}
+
+void URenegadeSoldierCombatComponent::PreviewRocketLauncherVisual(FVector ImpactLocation)
+{
+    const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
+    if (!IsRocketLauncherWeapon(Weapon))
+    {
+        UE_LOG(LogRenegadeSoldierCombat, Warning,
+            TEXT("%s cannot preview a rocket because its active Weapon Class is not Rocket Launcher."),
+            *GetNameSafe(GetOwner()));
+        return;
+    }
+
+    const FVector LaunchLocation = ResolveRocketLauncherMuzzleLocation(GetMuzzleLocation());
+    const float Distance = FVector::Distance(LaunchLocation, ImpactLocation);
+    const float FlightSeconds = FMath::Min(
+        FMath::Max(0.05f, Weapon.RocketLauncher.MaximumFlightSeconds),
+        Distance / FMath::Max(100.0f, Weapon.RocketLauncher.ProjectileSpeed));
+    SpawnRocketLauncherVisual(Weapon, LaunchLocation, ImpactLocation, FMath::Max(0.01f, FlightSeconds));
 }
 
 bool URenegadeSoldierCombatComponent::PreviewGroundBloodAtLocation(FVector BulletImpactLocation)
@@ -3286,6 +3492,15 @@ void URenegadeSoldierCombatComponent::OnRep_PistolAmmo(int32 PreviousAmmo)
         CurrentMagazineAmmo = CurrentPistolAmmo;
     }
     OnPlayerAmmoChanged.Broadcast(ERenegadePlayerWeaponSlot::Pistol, PreviousAmmo, CurrentPistolAmmo);
+}
+
+void URenegadeSoldierCombatComponent::OnRep_RocketLauncherAmmo(int32 PreviousAmmo)
+{
+    if (ActivePlayerWeapon == ERenegadePlayerWeaponSlot::RocketLauncher)
+    {
+        CurrentMagazineAmmo = CurrentRocketLauncherAmmo;
+    }
+    OnPlayerAmmoChanged.Broadcast(ERenegadePlayerWeaponSlot::RocketLauncher, PreviousAmmo, CurrentRocketLauncherAmmo);
 }
 
 void URenegadeSoldierCombatComponent::OnRep_PlayerAiming(bool bPreviousAiming)
@@ -3566,7 +3781,9 @@ void URenegadeSoldierCombatComponent::SetTargetInternal(AActor* NewTarget, bool 
         LastTargetSeenTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0f;
         LastKnownTargetLocation = NewTarget->GetActorLocation();
         const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
-        BurstShotsRemaining = FMath::RandRange(FMath::Max(1, Weapon.MinimumBurstShots), FMath::Max(FMath::Max(1, Weapon.MinimumBurstShots), Weapon.MaximumBurstShots));
+        BurstShotsRemaining = IsRocketLauncherWeapon(Weapon)
+            ? 1
+            : FMath::RandRange(FMath::Max(1, Weapon.MinimumBurstShots), FMath::Max(FMath::Max(1, Weapon.MinimumBurstShots), Weapon.MaximumBurstShots));
         ScheduleNextShot(0.05f + FMath::FRandRange(0.0f, 0.12f));
     }
     else if (UWorld* World = GetWorld())
@@ -3645,13 +3862,33 @@ void URenegadeSoldierCombatComponent::TryFireShot()
     }
 
     const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
-    const FVector TraceStart = GetMuzzleLocation();
-    const FVector AimLocation = GetAimLocation(CurrentTarget);
+    const FVector TraceStart = IsRocketLauncherWeapon(Weapon)
+        ? ResolveRocketLauncherMuzzleLocation(GetMuzzleLocation())
+        : GetMuzzleLocation();
+    FVector AimLocation = GetAimLocation(CurrentTarget);
+
+    if (IsRocketLauncherWeapon(Weapon) && Weapon.RocketLauncher.bPredictTargetMovement && IsValid(CurrentTarget))
+    {
+        const float InitialDistance = FVector::Distance(TraceStart, AimLocation);
+        const float EstimatedFlightSeconds = InitialDistance / FMath::Max(100.0f, Weapon.RocketLauncher.ProjectileSpeed);
+        const float LeadSeconds = FMath::Min(
+            FMath::Max(0.0f, Weapon.RocketLauncher.MaximumTargetLeadSeconds),
+            FMath::Max(0.0f, EstimatedFlightSeconds));
+        AimLocation += CurrentTarget->GetVelocity() * LeadSeconds;
+    }
+
     const float TargetDistance = FVector::Distance(TraceStart, AimLocation);
 
     if (TargetDistance > FMath::Max(1.0f, Weapon.MaximumRange))
     {
         ScheduleNextShot(0.15f);
+        return;
+    }
+
+    if (IsRocketLauncherWeapon(Weapon)
+        && TargetDistance < FMath::Max(0.0f, Weapon.RocketLauncher.MinimumAIFiringDistance))
+    {
+        ScheduleNextShot(0.12f);
         return;
     }
 
@@ -3661,7 +3898,7 @@ void URenegadeSoldierCombatComponent::TryFireShot()
         return;
     }
 
-    if (Weapon.bUseMagazine && CurrentMagazineAmmo <= 0)
+    if (WeaponUsesMagazine(Weapon) && CurrentMagazineAmmo <= 0)
     {
         StartReload();
         return;
@@ -3681,17 +3918,22 @@ void URenegadeSoldierCombatComponent::TryFireShot()
         return;
     }
 
-    if (Weapon.bUseMagazine)
+    if (WeaponUsesMagazine(Weapon))
     {
         CurrentMagazineAmmo = FMath::Max(0, CurrentMagazineAmmo - 1);
     }
 
     --BurstShotsRemaining;
-    const float SecondsPerShot = 60.0f / FMath::Max(1.0f, Weapon.RoundsPerMinute);
+    const float SecondsPerShot = 60.0f / GetEffectiveRoundsPerMinute(Weapon);
 
-    if (Weapon.bUseMagazine && CurrentMagazineAmmo <= 0)
+    if (WeaponUsesMagazine(Weapon) && CurrentMagazineAmmo <= 0)
     {
         StartReload();
+    }
+    else if (IsRocketLauncherWeapon(Weapon))
+    {
+        BurstShotsRemaining = 1;
+        ScheduleNextShot(SecondsPerShot);
     }
     else if (BurstShotsRemaining > 0)
     {
@@ -3706,12 +3948,381 @@ void URenegadeSoldierCombatComponent::TryFireShot()
     }
 }
 
+bool URenegadeSoldierCombatComponent::ExecuteRocketLauncherShot(
+    const FRenegadeWeaponSettings& Weapon,
+    const FVector& TraceStart,
+    const FVector& BaseShotDirection,
+    bool bUseMuzzleObstructionTrace)
+{
+    if (!HasAuthority() || !GetWorld() || !GetOwner())
+    {
+        return false;
+    }
+
+    const FVector ShotDirection = BaseShotDirection.GetSafeNormal();
+    if (ShotDirection.IsNearlyZero())
+    {
+        return false;
+    }
+
+    const float MaximumRange = FMath::Max(1.0f, Weapon.MaximumRange);
+    const FVector DesiredAimEnd = TraceStart + ShotDirection * MaximumRange;
+
+    FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(RenegadeRocketLauncherTrace), true, GetOwner());
+    QueryParams.bReturnPhysicalMaterial = true;
+    RenegadeCombatPrivate::AddOwnerHierarchyToTraceIgnore(GetOwner(), QueryParams);
+
+    FHitResult AimHit;
+    const bool bAimBlockingHit = RenegadeCombatPrivate::PerformWeaponTrace(
+        GetWorld(),
+        AimHit,
+        TraceStart,
+        DesiredAimEnd,
+        Weapon,
+        QueryParams);
+    const FVector CameraAimPoint = bAimBlockingHit ? AimHit.ImpactPoint : DesiredAimEnd;
+
+    const FVector LaunchLocation = ResolveRocketLauncherMuzzleLocation(GetMuzzleLocation());
+    FVector ConfirmedAimPoint = CameraAimPoint;
+    const FVector LaunchToAim = ConfirmedAimPoint - LaunchLocation;
+    const float LaunchAimDistance = LaunchToAim.Size();
+    if (LaunchAimDistance > MaximumRange && LaunchAimDistance > KINDA_SMALL_NUMBER)
+    {
+        ConfirmedAimPoint = LaunchLocation + (LaunchToAim / LaunchAimDistance) * MaximumRange;
+    }
+
+    FHitResult FinalHit;
+    const bool bFinalBlockingHit = RenegadeCombatPrivate::PerformWeaponTrace(
+        GetWorld(),
+        FinalHit,
+        LaunchLocation,
+        ConfirmedAimPoint,
+        Weapon,
+        QueryParams);
+    const FVector ImpactLocation = bFinalBlockingHit ? FinalHit.ImpactPoint : ConfirmedAimPoint;
+
+    AActor* RawHitActor = bFinalBlockingHit ? FinalHit.GetActor() : nullptr;
+    AActor* DirectHitActor = RawHitActor;
+    if (URenegadeSoldierCombatComponent* HitCombat = bFinalBlockingHit
+        ? RenegadeCombatPrivate::ResolveCombatComponentFromActorHierarchy(RawHitActor)
+        : nullptr)
+    {
+        DirectHitActor = HitCombat->GetOwner();
+    }
+    else if (URenegadeBuildingCombatComponent* HitBuilding = bFinalBlockingHit
+        ? RenegadeCombatPrivate::ResolveBuildingComponentFromActorHierarchy(RawHitActor)
+        : nullptr)
+    {
+        DirectHitActor = HitBuilding->GetOwner();
+    }
+
+    const float Distance = FVector::Distance(LaunchLocation, ImpactLocation);
+    const float FlightSeconds = FMath::Max(
+        0.01f,
+        FMath::Min(
+            FMath::Max(0.05f, Weapon.RocketLauncher.MaximumFlightSeconds),
+            Distance / FMath::Max(100.0f, Weapon.RocketLauncher.ProjectileSpeed)));
+
+    QueuePendingRocketImpact(Weapon, ImpactLocation, FlightSeconds, DirectHitActor, FinalHit);
+    MulticastRocketLaunched(LaunchLocation, ImpactLocation, FlightSeconds);
+
+    if (Weapon.RocketLauncher.bDrawDebugRocket)
+    {
+        DrawDebugLine(
+            GetWorld(),
+            LaunchLocation,
+            ImpactLocation,
+            bFinalBlockingHit ? FColor::Orange : FColor::Red,
+            false,
+            Weapon.RocketLauncher.DebugDrawDuration,
+            0,
+            2.0f);
+        DrawDebugPoint(
+            GetWorld(),
+            ImpactLocation,
+            14.0f,
+            bFinalBlockingHit ? FColor::Orange : FColor::Red,
+            false,
+            Weapon.RocketLauncher.DebugDrawDuration);
+    }
+
+    (void)bUseMuzzleObstructionTrace;
+    return true;
+}
+
+void URenegadeSoldierCombatComponent::QueuePendingRocketImpact(
+    const FRenegadeWeaponSettings& Weapon,
+    const FVector& ImpactLocation,
+    float FlightSeconds,
+    AActor* DirectHitActor,
+    const FHitResult& DirectHit)
+{
+    if (!HasAuthority())
+    {
+        return;
+    }
+
+    FRenegadePendingRocketImpactRuntimeState& State = PendingRocketImpacts.AddDefaulted_GetRef();
+    State.ImpactLocation = ImpactLocation;
+    State.ElapsedSeconds = 0.0f;
+    State.DurationSeconds = FMath::Max(0.01f, FlightSeconds);
+    State.Weapon = Weapon;
+    State.DirectHitActor = DirectHitActor;
+    State.DirectHit = DirectHit;
+    UpdateComponentTickState();
+}
+
+void URenegadeSoldierCombatComponent::UpdatePendingRocketImpacts(float DeltaTime)
+{
+    if (!HasAuthority() || PendingRocketImpacts.Num() == 0)
+    {
+        return;
+    }
+
+    for (int32 Index = PendingRocketImpacts.Num() - 1; Index >= 0; --Index)
+    {
+        FRenegadePendingRocketImpactRuntimeState& State = PendingRocketImpacts[Index];
+        State.ElapsedSeconds += FMath::Max(0.0f, DeltaTime);
+        if (State.ElapsedSeconds + KINDA_SMALL_NUMBER < State.DurationSeconds)
+        {
+            continue;
+        }
+
+        ApplyRocketExplosionDamage(
+            State.Weapon,
+            State.ImpactLocation,
+            State.DirectHitActor.Get(),
+            State.DirectHit);
+        PendingRocketImpacts.RemoveAtSwap(Index, 1, EAllowShrinking::No);
+    }
+}
+
+bool URenegadeSoldierCombatComponent::HasRocketExplosionLineOfSight(
+    const FRenegadeWeaponSettings& Weapon,
+    const FVector& ImpactLocation,
+    AActor* DamageActor,
+    const FVector& DamageLocation) const
+{
+    if (!Weapon.RocketLauncher.bUseExplosionOcclusion || !GetWorld() || !IsValid(DamageActor))
+    {
+        return true;
+    }
+
+    FVector Direction = (DamageLocation - ImpactLocation).GetSafeNormal();
+    if (Direction.IsNearlyZero())
+    {
+        return true;
+    }
+
+    FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(RenegadeRocketExplosionOcclusion), false, GetOwner());
+    RenegadeCombatPrivate::AddOwnerHierarchyToTraceIgnore(GetOwner(), QueryParams);
+    RenegadeCombatPrivate::AddOwnerHierarchyToTraceIgnore(DamageActor, QueryParams);
+
+    FHitResult OcclusionHit;
+    const FVector Start = ImpactLocation + Direction * 4.0f;
+    const FVector End = DamageLocation;
+    return !GetWorld()->LineTraceSingleByChannel(
+        OcclusionHit,
+        Start,
+        End,
+        Weapon.RocketLauncher.ExplosionOcclusionTraceChannel,
+        QueryParams);
+}
+
+void URenegadeSoldierCombatComponent::ApplyRocketExplosionDamage(
+    const FRenegadeWeaponSettings& Weapon,
+    const FVector& ImpactLocation,
+    AActor* DirectHitActor,
+    const FHitResult& DirectHit)
+{
+    if (!HasAuthority() || !GetWorld() || !GetOwner())
+    {
+        return;
+    }
+
+    const float InnerRadius = FMath::Max(0.0f, Weapon.RocketLauncher.ExplosionInnerRadius);
+    const float OuterRadius = FMath::Max(InnerRadius, Weapon.RocketLauncher.ExplosionOuterRadius);
+    const float MinimumDamageMultiplier = FMath::Clamp(Weapon.RocketLauncher.MinimumExplosionDamageMultiplier, 0.0f, 1.0f);
+    const float MaximumDamage = FMath::Max(0.0f, Weapon.DamagePerShot);
+    if (OuterRadius <= KINDA_SMALL_NUMBER || MaximumDamage <= 0.0f)
+    {
+        return;
+    }
+
+    TSubclassOf<UDamageType> ResolvedDamageType = Weapon.DamageTypeClass;
+    if (!ResolvedDamageType)
+    {
+        ResolvedDamageType = UDamageType::StaticClass();
+    }
+
+    TSet<TWeakObjectPtr<AActor>> ProcessedActors;
+    int32 DamagedTargetCount = 0;
+
+    auto TryDamageActor = [this, &Weapon, &ImpactLocation, DirectHitActor, &DirectHit, InnerRadius, OuterRadius,
+                           MinimumDamageMultiplier, MaximumDamage, ResolvedDamageType, &ProcessedActors, &DamagedTargetCount]
+        (AActor* DamageActor, const FVector& DamageLocation, URenegadeSoldierCombatComponent* SoldierCombat)
+    {
+        const TWeakObjectPtr<AActor> DamageActorKey(DamageActor);
+        if (!IsValid(DamageActor) || ProcessedActors.Contains(DamageActorKey))
+        {
+            return;
+        }
+        ProcessedActors.Add(DamageActorKey);
+
+        const bool bIsSelf = DamageActor == GetOwner();
+        if (bIsSelf)
+        {
+            if (!Weapon.RocketLauncher.bAllowSelfDamage)
+            {
+                return;
+            }
+        }
+        else if (!Weapon.bAllowFriendlyFire && !IsHostileToActor(DamageActor))
+        {
+            return;
+        }
+
+        const bool bDirectHitTarget = DamageActor == DirectHitActor;
+        const FVector EffectiveDamageLocation = bDirectHitTarget && DirectHit.bBlockingHit
+            ? DirectHit.ImpactPoint
+            : DamageLocation;
+        const float Distance = bDirectHitTarget
+            ? 0.0f
+            : FVector::Distance(ImpactLocation, EffectiveDamageLocation);
+        if (Distance > OuterRadius)
+        {
+            return;
+        }
+
+        if (!bDirectHitTarget
+            && !HasRocketExplosionLineOfSight(Weapon, ImpactLocation, DamageActor, EffectiveDamageLocation))
+        {
+            return;
+        }
+
+        float DamageMultiplier = 1.0f;
+        if (Distance > InnerRadius && OuterRadius > InnerRadius + KINDA_SMALL_NUMBER)
+        {
+            const float FalloffAlpha = FMath::Clamp((Distance - InnerRadius) / (OuterRadius - InnerRadius), 0.0f, 1.0f);
+            DamageMultiplier = FMath::Lerp(1.0f, MinimumDamageMultiplier, FalloffAlpha);
+        }
+        if (bDirectHitTarget)
+        {
+            DamageMultiplier *= FMath::Max(0.0f, Weapon.RocketLauncher.DirectHitDamageMultiplier);
+        }
+
+        const float Damage = MaximumDamage * DamageMultiplier;
+        if (Damage <= 0.0f)
+        {
+            return;
+        }
+
+        FVector DamageDirection = (EffectiveDamageLocation - ImpactLocation).GetSafeNormal();
+        if (DamageDirection.IsNearlyZero())
+        {
+            DamageDirection = FVector::UpVector;
+        }
+
+        FHitResult ExplosionHit;
+        ExplosionHit.TraceStart = ImpactLocation;
+        ExplosionHit.TraceEnd = EffectiveDamageLocation;
+        ExplosionHit.Location = EffectiveDamageLocation;
+        ExplosionHit.ImpactPoint = EffectiveDamageLocation;
+        ExplosionHit.ImpactNormal = -DamageDirection;
+        if (bDirectHitTarget)
+        {
+            ExplosionHit.BoneName = DirectHit.BoneName;
+        }
+
+        if (IsValid(SoldierCombat))
+        {
+            SoldierCombat->PrepareIncomingCombatHit(ExplosionHit, DamageDirection);
+        }
+
+        const float AppliedDamage = UGameplayStatics::ApplyPointDamage(
+            DamageActor,
+            Damage,
+            DamageDirection,
+            ExplosionHit,
+            GetOwningController(),
+            GetOwner(),
+            ResolvedDamageType);
+
+        if (IsValid(SoldierCombat))
+        {
+            SoldierCombat->ClearIncomingCombatHit();
+        }
+
+        if (AppliedDamage > 0.0f)
+        {
+            ++DamagedTargetCount;
+        }
+    };
+
+    if (URenegadeCombatRegistrySubsystem* Registry = GetWorld()->GetSubsystem<URenegadeCombatRegistrySubsystem>())
+    {
+        TArray<URenegadeSoldierCombatComponent*> Combatants;
+        Registry->GetCombatants(Combatants);
+        for (URenegadeSoldierCombatComponent* Combatant : Combatants)
+        {
+            if (!IsValid(Combatant) || Combatant->bIsDead || !IsValid(Combatant->GetOwner()))
+            {
+                continue;
+            }
+            TryDamageActor(Combatant->GetOwner(), GetAimLocation(Combatant->GetOwner()), Combatant);
+        }
+
+        TArray<URenegadeBuildingCombatComponent*> Buildings;
+        Registry->GetBuildings(Buildings);
+        for (URenegadeBuildingCombatComponent* Building : Buildings)
+        {
+            if (!IsValid(Building) || Building->bIsDestroyed || Building->CurrentHealth <= 0.0f || !IsValid(Building->GetOwner()))
+            {
+                continue;
+            }
+            TryDamageActor(Building->GetOwner(), Building->GetTargetAimLocation(), nullptr);
+        }
+    }
+
+    if (Weapon.RocketLauncher.bDrawDebugRocket)
+    {
+        DrawDebugSphere(
+            GetWorld(),
+            ImpactLocation,
+            OuterRadius,
+            24,
+            DamagedTargetCount > 0 ? FColor::Green : FColor::Red,
+            false,
+            Weapon.RocketLauncher.DebugDrawDuration,
+            0,
+            2.0f);
+        if (InnerRadius > KINDA_SMALL_NUMBER)
+        {
+            DrawDebugSphere(
+                GetWorld(),
+                ImpactLocation,
+                InnerRadius,
+                20,
+                FColor::Yellow,
+                false,
+                Weapon.RocketLauncher.DebugDrawDuration,
+                0,
+                1.5f);
+        }
+    }
+}
+
 bool URenegadeSoldierCombatComponent::ExecuteWeaponShot(
     const FRenegadeWeaponSettings& Weapon,
     const FVector& TraceStart,
     const FVector& BaseShotDirection,
     bool bUseMuzzleObstructionTrace)
 {
+    if (IsRocketLauncherWeapon(Weapon))
+    {
+        return ExecuteRocketLauncherShot(Weapon, TraceStart, BaseShotDirection, bUseMuzzleObstructionTrace);
+    }
+
     if (!HasAuthority() || !GetWorld() || !GetOwner())
     {
         return false;
@@ -3909,6 +4520,51 @@ FVector URenegadeSoldierCombatComponent::ResolveBulletVisualSpawnLocation(const 
     }
 
     return FallbackTraceStart;
+}
+
+
+USceneComponent* URenegadeSoldierCombatComponent::ResolveRocketLauncherMuzzleComponent() const
+{
+    if (IsValid(RuntimeRocketLauncherMuzzleComponent) && RuntimeRocketLauncherMuzzleComponent->GetOwner() == GetOwner())
+    {
+        return RuntimeRocketLauncherMuzzleComponent;
+    }
+
+    if (GetOwner())
+    {
+        if (UActorComponent* ReferencedComponent = RocketLauncherMuzzleComponent.GetComponent(GetOwner()))
+        {
+            if (USceneComponent* ReferencedSceneComponent = Cast<USceneComponent>(ReferencedComponent))
+            {
+                return ReferencedSceneComponent;
+            }
+        }
+
+        if (!RocketLauncherMuzzleComponentTag.IsNone())
+        {
+            const TArray<UActorComponent*> TaggedComponents = GetOwner()->GetComponentsByTag(
+                USceneComponent::StaticClass(), RocketLauncherMuzzleComponentTag);
+            for (UActorComponent* TaggedComponent : TaggedComponents)
+            {
+                if (USceneComponent* TaggedSceneComponent = Cast<USceneComponent>(TaggedComponent))
+                {
+                    return TaggedSceneComponent;
+                }
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+FVector URenegadeSoldierCombatComponent::ResolveRocketLauncherMuzzleLocation(const FVector& FallbackLocation) const
+{
+    if (const USceneComponent* MuzzleComponent = ResolveRocketLauncherMuzzleComponent())
+    {
+        return MuzzleComponent->GetComponentTransform().TransformPosition(RocketLauncherMuzzleRelativeOffset);
+    }
+
+    return FallbackLocation;
 }
 
 UStaticMeshComponent* URenegadeSoldierCombatComponent::AcquireBulletVisualComponent(int32& OutVisualIndex)
@@ -4121,6 +4777,298 @@ void URenegadeSoldierCombatComponent::StopAllBulletMeshVisuals()
     }
 }
 
+AActor* URenegadeSoldierCombatComponent::SpawnRocketCosmeticActor(
+    TSubclassOf<AActor> ActorClass,
+    const FVector& Location,
+    const FRotator& Rotation,
+    float LifeSeconds,
+    bool bDisableCollision) const
+{
+    if (!ActorClass || !ShouldRunCosmeticVisuals() || !GetWorld())
+    {
+        return nullptr;
+    }
+
+    FActorSpawnParameters SpawnParameters;
+    SpawnParameters.Owner = GetOwner();
+    SpawnParameters.Instigator = GetOwner() ? GetOwner()->GetInstigator() : nullptr;
+    SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+    AActor* EffectActor = GetWorld()->SpawnActor<AActor>(ActorClass, Location, Rotation, SpawnParameters);
+    if (IsValid(EffectActor))
+    {
+        // The launch multicast already spawns one cosmetic actor per view. Never replicate these helper actors.
+        EffectActor->SetReplicates(false);
+        if (bDisableCollision)
+        {
+            EffectActor->SetActorEnableCollision(false);
+        }
+        if (LifeSeconds > 0.0f)
+        {
+            EffectActor->SetLifeSpan(LifeSeconds);
+        }
+    }
+    return EffectActor;
+}
+
+int32 URenegadeSoldierCombatComponent::AcquireRocketVisualSlot(const FRenegadeWeaponSettings& Weapon)
+{
+    if (!ShouldRunCosmeticVisuals() || !GetOwner() || !GetWorld())
+    {
+        return INDEX_NONE;
+    }
+
+    const int32 PoolLimit = FMath::Clamp(Weapon.RocketLauncher.RocketVisualPoolSize, 1, 12);
+    int32 SelectedIndex = INDEX_NONE;
+    for (int32 Index = 0; Index < RocketVisualStates.Num(); ++Index)
+    {
+        if (!RocketVisualStates[Index].bActive)
+        {
+            SelectedIndex = Index;
+            break;
+        }
+    }
+
+    if (SelectedIndex == INDEX_NONE && RocketVisualStates.Num() < PoolLimit)
+    {
+        SelectedIndex = RocketVisualStates.AddDefaulted();
+        RocketVisualComponents.SetNum(RocketVisualStates.Num());
+    }
+
+    if (SelectedIndex == INDEX_NONE)
+    {
+        float BestProgress = -1.0f;
+        for (int32 Index = 0; Index < RocketVisualStates.Num(); ++Index)
+        {
+            const FRenegadeRocketVisualRuntimeState& State = RocketVisualStates[Index];
+            const float Progress = State.DurationSeconds > KINDA_SMALL_NUMBER
+                ? State.ElapsedSeconds / State.DurationSeconds
+                : 1.0f;
+            if (Progress > BestProgress)
+            {
+                BestProgress = Progress;
+                SelectedIndex = Index;
+            }
+        }
+
+        if (SelectedIndex != INDEX_NONE)
+        {
+            DeactivateRocketLauncherVisual(SelectedIndex, false);
+        }
+    }
+
+    if (SelectedIndex == INDEX_NONE)
+    {
+        return INDEX_NONE;
+    }
+
+    if (RocketVisualComponents.Num() < RocketVisualStates.Num())
+    {
+        RocketVisualComponents.SetNum(RocketVisualStates.Num());
+    }
+
+    if (IsValid(Weapon.RocketLauncher.RocketMesh)
+        && (!RocketVisualComponents.IsValidIndex(SelectedIndex) || !IsValid(RocketVisualComponents[SelectedIndex])))
+    {
+        UStaticMeshComponent* NewComponent = NewObject<UStaticMeshComponent>(GetOwner(), NAME_None, RF_Transient);
+        if (IsValid(NewComponent))
+        {
+            GetOwner()->AddInstanceComponent(NewComponent);
+            NewComponent->SetMobility(EComponentMobility::Movable);
+            NewComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            NewComponent->SetGenerateOverlapEvents(false);
+            NewComponent->SetCanEverAffectNavigation(false);
+            NewComponent->SetVisibility(false, true);
+            NewComponent->SetHiddenInGame(true, true);
+            NewComponent->RegisterComponent();
+            RocketVisualComponents[SelectedIndex] = NewComponent;
+        }
+    }
+
+    return SelectedIndex;
+}
+
+void URenegadeSoldierCombatComponent::SpawnRocketLauncherVisual(
+    const FRenegadeWeaponSettings& Weapon,
+    const FVector& LaunchLocation,
+    const FVector& ImpactLocation,
+    float FlightSeconds)
+{
+    if (!ShouldRunCosmeticVisuals())
+    {
+        return;
+    }
+
+    FVector Direction = ImpactLocation - LaunchLocation;
+    const float RawDistance = Direction.Size();
+    if (RawDistance <= KINDA_SMALL_NUMBER)
+    {
+        return;
+    }
+    Direction /= RawDistance;
+
+    const FVector VisualStart = LaunchLocation
+        + Direction * FMath::Max(0.0f, Weapon.RocketLauncher.RocketVisualMuzzleForwardOffset);
+    FVector VisualEnd = ImpactLocation
+        - Direction * FMath::Min(
+            FMath::Max(0.0f, Weapon.RocketLauncher.RocketVisualImpactStopShortDistance),
+            RawDistance * 0.25f);
+    if (FVector::DistSquared(VisualStart, VisualEnd) <= 1.0f)
+    {
+        VisualEnd = ImpactLocation;
+    }
+
+    const FRotator TravelRotation = Direction.Rotation() + Weapon.RocketLauncher.RocketMeshRotationOffset;
+    const int32 VisualIndex = AcquireRocketVisualSlot(Weapon);
+    if (!RocketVisualStates.IsValidIndex(VisualIndex))
+    {
+        return;
+    }
+
+    FRenegadeRocketVisualRuntimeState& State = RocketVisualStates[VisualIndex];
+    State.StartLocation = VisualStart;
+    State.VisualEndLocation = VisualEnd;
+    State.ImpactLocation = ImpactLocation;
+    State.TravelRotation = TravelRotation;
+    State.ElapsedSeconds = 0.0f;
+    State.DurationSeconds = FMath::Max(0.01f, FlightSeconds);
+    State.bActive = true;
+    State.Weapon = Weapon;
+    State.FlightEffectActor = SpawnRocketCosmeticActor(
+        Weapon.RocketLauncher.RocketFlightEffectActorClass,
+        VisualStart,
+        TravelRotation,
+        0.0f,
+        true);
+
+    if (RocketVisualComponents.IsValidIndex(VisualIndex) && IsValid(RocketVisualComponents[VisualIndex]))
+    {
+        UStaticMeshComponent* RocketComponent = RocketVisualComponents[VisualIndex];
+        RocketComponent->SetStaticMesh(Weapon.RocketLauncher.RocketMesh);
+        RocketComponent->SetCastShadow(Weapon.RocketLauncher.bRocketVisualCastsShadow);
+        if (IsValid(Weapon.RocketLauncher.RocketMaterialOverride))
+        {
+            RocketComponent->SetMaterial(0, Weapon.RocketLauncher.RocketMaterialOverride);
+        }
+        else
+        {
+            RocketComponent->SetMaterial(0, nullptr);
+        }
+        RocketComponent->SetWorldLocationAndRotation(VisualStart, TravelRotation, false, nullptr, ETeleportType::TeleportPhysics);
+        RocketComponent->SetWorldScale3D(Weapon.RocketLauncher.RocketMeshScale);
+        RocketComponent->SetHiddenInGame(false, true);
+        RocketComponent->SetVisibility(IsValid(Weapon.RocketLauncher.RocketMesh), true);
+    }
+
+    SetComponentTickEnabled(true);
+}
+
+void URenegadeSoldierCombatComponent::UpdateRocketLauncherVisuals(float DeltaTime)
+{
+    for (int32 Index = 0; Index < RocketVisualStates.Num(); ++Index)
+    {
+        FRenegadeRocketVisualRuntimeState& State = RocketVisualStates[Index];
+        if (!State.bActive)
+        {
+            continue;
+        }
+
+        State.ElapsedSeconds += FMath::Max(0.0f, DeltaTime);
+        const float Alpha = State.DurationSeconds > KINDA_SMALL_NUMBER
+            ? FMath::Clamp(State.ElapsedSeconds / State.DurationSeconds, 0.0f, 1.0f)
+            : 1.0f;
+        const FVector NewLocation = FMath::Lerp(State.StartLocation, State.VisualEndLocation, Alpha);
+
+        if (RocketVisualComponents.IsValidIndex(Index) && IsValid(RocketVisualComponents[Index]))
+        {
+            RocketVisualComponents[Index]->SetWorldLocationAndRotation(
+                NewLocation,
+                State.TravelRotation,
+                false,
+                nullptr,
+                ETeleportType::TeleportPhysics);
+        }
+        if (AActor* FlightEffectActor = State.FlightEffectActor.Get())
+        {
+            FlightEffectActor->SetActorLocationAndRotation(
+                NewLocation,
+                State.TravelRotation,
+                false,
+                nullptr,
+                ETeleportType::TeleportPhysics);
+        }
+
+        if (Alpha >= 1.0f)
+        {
+            DeactivateRocketLauncherVisual(Index, true);
+        }
+    }
+}
+
+void URenegadeSoldierCombatComponent::DeactivateRocketLauncherVisual(int32 VisualIndex, bool bSpawnImpactPresentation)
+{
+    if (!RocketVisualStates.IsValidIndex(VisualIndex))
+    {
+        return;
+    }
+
+    const FRenegadeRocketVisualRuntimeState PreviousState = RocketVisualStates[VisualIndex];
+    RocketVisualStates[VisualIndex] = FRenegadeRocketVisualRuntimeState();
+
+    if (RocketVisualComponents.IsValidIndex(VisualIndex) && IsValid(RocketVisualComponents[VisualIndex]))
+    {
+        RocketVisualComponents[VisualIndex]->SetVisibility(false, true);
+        RocketVisualComponents[VisualIndex]->SetHiddenInGame(true, true);
+    }
+    if (AActor* FlightEffectActor = PreviousState.FlightEffectActor.Get())
+    {
+        FlightEffectActor->Destroy();
+    }
+
+    if (!bSpawnImpactPresentation || !PreviousState.bActive)
+    {
+        return;
+    }
+
+    const FRenegadeRocketLauncherSettings& Rocket = PreviousState.Weapon.RocketLauncher;
+    SpawnRocketCosmeticActor(
+        Rocket.RocketImpactEffectActorClass,
+        PreviousState.ImpactLocation,
+        PreviousState.TravelRotation,
+        FMath::Max(0.0f, Rocket.RocketImpactEffectLifeSeconds),
+        true);
+
+    if (IsValid(Rocket.RocketImpactSound))
+    {
+        UGameplayStatics::PlaySoundAtLocation(
+            this,
+            Rocket.RocketImpactSound,
+            PreviousState.ImpactLocation,
+            FMath::Max(0.0f, Rocket.RocketImpactVolumeMultiplier));
+    }
+    OnRocketImpacted.Broadcast(PreviousState.ImpactLocation);
+}
+
+void URenegadeSoldierCombatComponent::StopAllRocketLauncherVisuals()
+{
+    for (int32 Index = 0; Index < RocketVisualStates.Num(); ++Index)
+    {
+        DeactivateRocketLauncherVisual(Index, false);
+    }
+}
+
+bool URenegadeSoldierCombatComponent::HasActiveRocketLauncherVisuals() const
+{
+    for (const FRenegadeRocketVisualRuntimeState& State : RocketVisualStates)
+    {
+        if (State.bActive)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool URenegadeSoldierCombatComponent::SpawnGroundBloodSplatter(const FHitResult& BulletHit)
 {
     if (!CombatVisuals.bEnableGroundBloodSplatter || !ShouldRunCosmeticVisuals() || !GetWorld())
@@ -4228,7 +5176,15 @@ void URenegadeSoldierCombatComponent::UpdateComponentTickState()
     const bool bNeedsBuiltInPlayerInput = bPlayerControlledCombat && PlayerInput.bEnableBuiltInInput;
     const bool bNeedsPlayerLockOn = bPlayerControlledCombat && IsLocallyControlledPlayer()
         && (bPlayerLockOnInputHeld || IsValid(PlayerLockOnTarget));
-    SetComponentTickEnabled(bNeedsCombatFacing || bNeedsBuiltInPlayerInput || bNeedsPlayerLockOn || HasPlayerAimPresentationWork() || HasActiveBulletMeshVisuals());
+    const bool bNeedsPendingRocketImpact = HasAuthority() && PendingRocketImpacts.Num() > 0;
+    SetComponentTickEnabled(
+        bNeedsCombatFacing
+        || bNeedsBuiltInPlayerInput
+        || bNeedsPlayerLockOn
+        || HasPlayerAimPresentationWork()
+        || HasActiveBulletMeshVisuals()
+        || HasActiveRocketLauncherVisuals()
+        || bNeedsPendingRocketImpact);
 }
 
 void URenegadeSoldierCombatComponent::StartReload()
@@ -4239,7 +5195,7 @@ void URenegadeSoldierCombatComponent::StartReload()
     }
 
     const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
-    if (!Weapon.bUseMagazine)
+    if (!WeaponUsesMagazine(Weapon))
     {
         return;
     }
@@ -4247,14 +5203,14 @@ void URenegadeSoldierCombatComponent::StartReload()
     const int32 ExistingAmmo = bPlayerControlledCombat
         ? GetPlayerWeaponAmmo(ActivePlayerWeapon)
         : CurrentMagazineAmmo;
-    if (ExistingAmmo >= FMath::Max(1, Weapon.MagazineSize))
+    if (ExistingAmmo >= GetEffectiveMagazineSize(Weapon))
     {
         return;
     }
 
     bReloading = true;
     MulticastReloadStarted();
-    GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &URenegadeSoldierCombatComponent::FinishReload, FMath::Max(0.01f, Weapon.ReloadSeconds), false);
+    GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &URenegadeSoldierCombatComponent::FinishReload, GetEffectiveReloadSeconds(Weapon), false);
 }
 
 void URenegadeSoldierCombatComponent::FinishReload()
@@ -4267,11 +5223,11 @@ void URenegadeSoldierCombatComponent::FinishReload()
     const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
     if (bPlayerControlledCombat)
     {
-        SetPlayerAmmo(ActivePlayerWeapon, FMath::Max(1, Weapon.MagazineSize));
+        SetPlayerAmmo(ActivePlayerWeapon, GetEffectiveMagazineSize(Weapon));
     }
     else
     {
-        CurrentMagazineAmmo = FMath::Max(1, Weapon.MagazineSize);
+        CurrentMagazineAmmo = GetEffectiveMagazineSize(Weapon);
     }
 
     bReloading = false;
@@ -4518,6 +5474,10 @@ void URenegadeSoldierCombatComponent::PerformCombatMovement()
 
     FVector DesiredDestination = OwnerLocation;
     ERenegadeCombatMoveType MoveType = ERenegadeCombatMoveType::Hold;
+    const FRenegadeWeaponSettings ActiveWeapon = GetActiveWeaponSettings();
+    const float PreferredMinimumRange = IsRocketLauncherWeapon(ActiveWeapon)
+        ? FMath::Max(CombatMovement.PreferredMinimumRange, ActiveWeapon.RocketLauncher.MinimumAIFiringDistance)
+        : CombatMovement.PreferredMinimumRange;
 
     if (Targeting.bRequireLineOfSight && !HasLineOfSightTo(CurrentTarget))
     {
@@ -4529,7 +5489,7 @@ void URenegadeSoldierCombatComponent::PerformCombatMovement()
         DesiredDestination = OwnerLocation + Forward * CombatMovement.AdvanceStepDistance;
         MoveType = ERenegadeCombatMoveType::Advance;
     }
-    else if (Distance < CombatMovement.PreferredMinimumRange)
+    else if (Distance < PreferredMinimumRange)
     {
         DesiredDestination = OwnerLocation - Forward * CombatMovement.RetreatStepDistance + Right * StrafeDirection * (CombatMovement.StrafeStepDistance * 0.35f);
         MoveType = ERenegadeCombatMoveType::Retreat;
@@ -5020,6 +5980,43 @@ void URenegadeSoldierCombatComponent::MulticastShotFired_Implementation(FVector 
     {
         SpawnGroundBloodSplatter(HitResult);
     }
+}
+
+void URenegadeSoldierCombatComponent::MulticastRocketLaunched_Implementation(
+    FVector_NetQuantize LaunchLocation,
+    FVector_NetQuantize ImpactLocation,
+    float FlightSeconds)
+{
+    const FRenegadeWeaponSettings Weapon = GetActiveWeaponSettings();
+    OnRocketLaunched.Broadcast(LaunchLocation, ImpactLocation, FlightSeconds);
+
+    if (!IsRocketLauncherWeapon(Weapon) || !ShouldRunCosmeticVisuals())
+    {
+        return;
+    }
+
+    const FVector Direction = (FVector(ImpactLocation) - FVector(LaunchLocation)).GetSafeNormal();
+    const FRotator LaunchRotation = Direction.IsNearlyZero()
+        ? (GetOwner() ? GetOwner()->GetActorRotation() : FRotator::ZeroRotator)
+        : Direction.Rotation();
+
+    SpawnRocketCosmeticActor(
+        Weapon.RocketLauncher.RocketMuzzleEffectActorClass,
+        LaunchLocation,
+        LaunchRotation,
+        FMath::Max(0.0f, Weapon.RocketLauncher.RocketMuzzleEffectLifeSeconds),
+        true);
+
+    if (IsValid(Weapon.RocketLauncher.RocketFireSound))
+    {
+        UGameplayStatics::PlaySoundAtLocation(
+            this,
+            Weapon.RocketLauncher.RocketFireSound,
+            LaunchLocation,
+            FMath::Max(0.0f, Weapon.RocketLauncher.RocketFireVolumeMultiplier));
+    }
+
+    SpawnRocketLauncherVisual(Weapon, LaunchLocation, ImpactLocation, FMath::Max(0.01f, FlightSeconds));
 }
 
 void URenegadeSoldierCombatComponent::MulticastReloadStarted_Implementation()

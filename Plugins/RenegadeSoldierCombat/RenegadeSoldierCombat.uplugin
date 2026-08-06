@@ -1,9 +1,9 @@
 {
   "FileVersion": 3,
-  "Version": 157,
-  "VersionName": "1.5.7",
+  "Version": 161,
+  "VersionName": "1.6.1",
   "FriendlyName": "Renegade NXT Combat and Building Warfare",
-  "Description": "Blueprint-first infantry and building warfare for Unreal Engine 5.8 with polished TPS lock-on targeting, mouse/right-stick movable lock points that inherit camera sensitivity, exposed limits and recentering, PNG indicator tinting, player/AI combat, targetable team buildings, team-aware EVA announcements, AGT rockets, Obelisk laser defence, bullet visuals, blood, ragdoll death, and same-actor respawning.",
+  "Description": "Blueprint-first UE5.8 infantry and building warfare with polished AI and player rocket launchers, server-authoritative travelling projectiles and occluded radial splash damage, TPS lock-on targeting, targetable team buildings, team-aware EVA announcements, AGT rockets, Obelisk laser defence, bullet visuals, blood, ragdoll death, and same-actor respawning.",
   "Category": "AI",
   "CreatedBy": "Renegade NXT",
   "CreatedByURL": "",

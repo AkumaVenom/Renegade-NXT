@@ -34,4 +34,8 @@ public:
 
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Weapon Presets")
     static FRenegadeWeaponSettings MakePistolPreset();
+
+    /** Returns a polished one-round infantry rocket-launcher preset. Assign mesh/effect/audio assets after applying it. */
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Weapon Presets")
+    static FRenegadeWeaponSettings MakeRocketLauncherPreset();
 };

@@ -14,10 +14,10 @@
 			"RenegadeWeaponProfile.gen.cpp.obj",
 			"PerModuleInline.gen.cpp.obj",
 			"RenegadeBuildingCombatComponent.cpp.obj",
-			"RenegadeCombatBlueprintLibrary.cpp.obj",
 			"RenegadeCombatRegistrySubsystem.cpp.obj",
 			"RenegadeSoldierCombatModule.cpp.obj",
 			"RenegadeSoldierSpawnPoint.cpp.obj",
+			"RenegadeCombatBlueprintLibrary.cpp.obj",
 			"RenegadeSoldierCombatComponent.cpp.obj"
 		]
 	}

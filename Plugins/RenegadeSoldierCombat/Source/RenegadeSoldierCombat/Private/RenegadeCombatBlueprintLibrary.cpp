@@ -102,3 +102,28 @@ FRenegadeWeaponSettings URenegadeCombatBlueprintLibrary::MakePistolPreset()
     Result.ReloadSeconds = 1.65f;
     return Result;
 }
+
+
+FRenegadeWeaponSettings URenegadeCombatBlueprintLibrary::MakeRocketLauncherPreset()
+{
+    FRenegadeWeaponSettings Result;
+    Result.WeaponClass = ERenegadeWeaponClass::RocketLauncher;
+    Result.DamagePerShot = 125.0f;
+    Result.MaximumRange = 6000.0f;
+    Result.RoundsPerMinute = 38.0f;
+    Result.MinimumBurstShots = 1;
+    Result.MaximumBurstShots = 1;
+    Result.MinimumBurstPause = 0.0f;
+    Result.MaximumBurstPause = 0.0f;
+    Result.HipFireSpreadDegrees = 0.65f;
+    Result.MovingSpreadPenaltyDegrees = 0.65f;
+    Result.CriticalHitMultiplier = 1.0f;
+    Result.CriticalBones.Reset();
+    Result.MinimumLongRangeDamageMultiplier = 1.0f;
+    Result.DamageFalloffStartFraction = 1.0f;
+    Result.bUseMagazine = true;
+    Result.MagazineSize = 1;
+    Result.ReloadSeconds = 2.75f;
+    Result.RocketLauncher = FRenegadeRocketLauncherSettings();
+    return Result;
+}

@@ -315,7 +315,7 @@ struct UHT_STATICS
 };
 
 // ********** Begin Function MakeAutomaticRiflePreset Property Definitions *************************
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeCombatBlueprintLibrary_eventMakeAutomaticRiflePreset_Parms, ReturnValue), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(0, nullptr) }; // b91f7b15a362e3bc7250f20a0a118b3219e06b08
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeCombatBlueprintLibrary_eventMakeAutomaticRiflePreset_Parms, ReturnValue), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(0, nullptr) }; // 5774b3e4c1655e645c606c633fde01bd93833e15
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ReturnValue,
 };
@@ -368,7 +368,7 @@ struct UHT_STATICS
 };
 
 // ********** Begin Function MakePistolPreset Property Definitions *********************************
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeCombatBlueprintLibrary_eventMakePistolPreset_Parms, ReturnValue), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(0, nullptr) }; // b91f7b15a362e3bc7250f20a0a118b3219e06b08
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeCombatBlueprintLibrary_eventMakePistolPreset_Parms, ReturnValue), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(0, nullptr) }; // 5774b3e4c1655e645c606c633fde01bd93833e15
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ReturnValue,
 };
@@ -394,6 +394,65 @@ DEFINE_FUNCTION(URenegadeCombatBlueprintLibrary::execMakePistolPreset)
 	P_NATIVE_END;
 }
 // ********** End Class URenegadeCombatBlueprintLibrary Function MakePistolPreset ******************
+
+// ********** Begin Class URenegadeCombatBlueprintLibrary Function MakeRocketLauncherPreset ********
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_MakeRocketLauncherPreset_Statics
+struct UHT_STATICS
+{
+	struct RenegadeCombatBlueprintLibrary_eventMakeRocketLauncherPreset_Parms
+	{
+		FRenegadeWeaponSettings ReturnValue;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Weapon Presets" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Returns a polished one-round infantry rocket-launcher preset. Assign mesh/effect/audio assets after applying it. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatBlueprintLibrary.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Returns a polished one-round infantry rocket-launcher preset. Assign mesh/effect/audio assets after applying it." },
+#endif
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function MakeRocketLauncherPreset constinit property declarations **************
+	static const UECodeGen_Private::FStructPropertyParams NewProp_ReturnValue;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function MakeRocketLauncherPreset constinit property declarations ****************
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function MakeRocketLauncherPreset Property Definitions *************************
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeCombatBlueprintLibrary_eventMakeRocketLauncherPreset_Parms, ReturnValue), Z_Construct_UScriptStruct_FRenegadeWeaponSettings, METADATA_PARAMS(0, nullptr) }; // 5774b3e4c1655e645c606c633fde01bd93833e15
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ReturnValue,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function MakeRocketLauncherPreset Property Definitions ***************************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeCombatBlueprintLibrary, nullptr, "MakeRocketLauncherPreset", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::RenegadeCombatBlueprintLibrary_eventMakeRocketLauncherPreset_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x14022401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::RenegadeCombatBlueprintLibrary_eventMakeRocketLauncherPreset_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_MakeRocketLauncherPreset(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeCombatBlueprintLibrary::execMakeRocketLauncherPreset)
+{
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	*(FRenegadeWeaponSettings*)Z_Param__Result=URenegadeCombatBlueprintLibrary::MakeRocketLauncherPreset();
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeCombatBlueprintLibrary Function MakeRocketLauncherPreset **********
 
 // ********** Begin Class URenegadeCombatBlueprintLibrary Function SetRenegadeTeamId ***************
 #ifdef UHT_STATICS
@@ -485,6 +544,7 @@ struct UHT_STATICS
 		{ .NameUTF8 = UTF8TEXT("GetRenegadeTeamId"), .Pointer = &URenegadeCombatBlueprintLibrary::execGetRenegadeTeamId },
 		{ .NameUTF8 = UTF8TEXT("MakeAutomaticRiflePreset"), .Pointer = &URenegadeCombatBlueprintLibrary::execMakeAutomaticRiflePreset },
 		{ .NameUTF8 = UTF8TEXT("MakePistolPreset"), .Pointer = &URenegadeCombatBlueprintLibrary::execMakePistolPreset },
+		{ .NameUTF8 = UTF8TEXT("MakeRocketLauncherPreset"), .Pointer = &URenegadeCombatBlueprintLibrary::execMakeRocketLauncherPreset },
 		{ .NameUTF8 = UTF8TEXT("SetRenegadeTeamId"), .Pointer = &URenegadeCombatBlueprintLibrary::execSetRenegadeTeamId },
 	};
 	static FTypeConstructFunc* DependentSingletons[];
@@ -493,8 +553,9 @@ struct UHT_STATICS
 		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_GetRenegadeBuildingCombatComponent, "GetRenegadeBuildingCombatComponent" }, // 256b966a96dd9d3bfa9ad2701a5acc81e290a0d3
 		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_GetRenegadeCombatComponent, "GetRenegadeCombatComponent" }, // 1f727dff974c927143882b36ef69a93506f75fc1
 		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_GetRenegadeTeamId, "GetRenegadeTeamId" }, // 7d14c5be73c62f97d3869e52786462f12c5060ff
-		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_MakeAutomaticRiflePreset, "MakeAutomaticRiflePreset" }, // 37ead9a1cc3c611522378918ffc8475fa68a04d6
-		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_MakePistolPreset, "MakePistolPreset" }, // 72ec61a7eb09dd7dc422d74878bf55790b437247
+		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_MakeAutomaticRiflePreset, "MakeAutomaticRiflePreset" }, // 133864f28bfe4e8722ec6671b7e94142eebea1b6
+		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_MakePistolPreset, "MakePistolPreset" }, // 3a655db1331da2262212d831869048d359152cfd
+		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_MakeRocketLauncherPreset, "MakeRocketLauncherPreset" }, // 67f994ebf8bf97c8638e5a6df08544049877a496
 		{ &Z_Construct_UFunction_URenegadeCombatBlueprintLibrary_SetRenegadeTeamId, "SetRenegadeTeamId" }, // aa67941350bb796d1fdf8bee6b0362cc582f947f
 	};
 	static_assert(UE_ARRAY_COUNT(FuncInfo) < 2048);
@@ -575,10 +636,10 @@ URenegadeCombatBlueprintLibrary::~URenegadeCombatBlueprintLibrary() {}
 struct UHT_STATICS
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
-		{ Z_Construct_UClass_URenegadeCombatBlueprintLibrary, TEXT("URenegadeCombatBlueprintLibrary"), &Z_Registration_Info_UClass_URenegadeCombatBlueprintLibrary, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeCombatBlueprintLibrary), 1413628419U) },
+		{ Z_Construct_UClass_URenegadeCombatBlueprintLibrary, TEXT("URenegadeCombatBlueprintLibrary"), &Z_Registration_Info_UClass_URenegadeCombatBlueprintLibrary, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeCombatBlueprintLibrary), 2364554598U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatBlueprintLibrary_h__Script_RenegadeSoldierCombat_e08be100f1101b176d60b6bd4b138f9936af254f{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatBlueprintLibrary_h__Script_RenegadeSoldierCombat_c246c0e23fbf51a93533d2e911a58b0a5d03ae31{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	UHT_STATICS::ClassInfo, UE_ARRAY_COUNT(UHT_STATICS::ClassInfo),
 	nullptr, 0,

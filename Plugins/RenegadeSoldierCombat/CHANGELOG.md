@@ -1,3 +1,34 @@
+# Renegade Soldier Combat v1.6.1
+
+- Added a dedicated `Rocket Launcher` value to the replicated player weapon-slot enum while preserving the existing rifle and pistol enum values.
+- Added independent player rocket-launcher Weapon Profile and inline settings fields under `Player Combat > Weapons`.
+- Added replicated `Current Rocket Launcher Ammo` with the existing `On Player Ammo Changed` event and active-magazine synchronisation.
+- Added `Player Fire Rocket Launcher` and `Select Player Rocket Launcher` Blueprint nodes.
+- The generic `Player Start Fire` and `Player Fire Once` nodes now also launch one rocket whenever the Rocket Launcher player slot is active.
+- Added a reliable owning-client-to-server rocket-shot request while retaining the existing unreliable request for high-rate rifle and pistol fire.
+- Player rockets use the current camera/controller aim ray, lock-on shot assistance, server aim validation, launcher muzzle confirmation, delayed travel-time impact, radial splash damage, direct-hit bonus, occlusion, team filtering, building damage, effects, sounds, and reliable multicast presentation.
+- Added built-in Rocket Launcher selection controls: keyboard `3` and gamepad D-Pad Right, both fully exposed.
+- Added one-round player launcher defaults matching the v1.6.0 rocket preset; custom profiles and inline values remain fully configurable.
+- Preserved NPC rocket soldiers, rifle/pistol player combat, lock-on targeting, AGT/Obelisk defence, buildings, blood, ragdoll, respawn, and spline integration.
+
+# Renegade Soldier Combat v1.6.0
+
+- Added a dedicated `Rocket Launcher` value to the shared infantry Weapon Class enum.
+- Added `Make Rocket Launcher Preset` for a polished one-round launcher profile with configurable damage, range, cadence, spread, reload, and rocket defaults.
+- Added server-authoritative rocket travel: the launch path is confirmed from the configured muzzle, flight time is calculated from projectile speed, and damage is delayed until arrival rather than applied instantly.
+- Added reliable multicast launch presentation so LAN clients receive the travelling rocket, muzzle effect, launch sound, smoke/trail actor, and impact presentation consistently.
+- Added selectable rocket-launcher muzzle Scene Component, local-space offset, `RocketMuzzle` tag fallback, runtime Set/Clear/Get nodes, and muzzle-location query.
+- Added pooled collision-free rocket Static Mesh visuals with material override, scale, rotation correction, launch offset, impact stop-short distance, pool size, and optional shadows.
+- Added optional local cosmetic Blueprint actor classes for rocket flight/trail, muzzle flash, and impact effects, plus exposed fire/impact sounds and volume multipliers.
+- Added authoritative radial explosion damage with inner/outer radius, linear falloff to an exposed minimum multiplier, direct-hit multiplier, optional self damage, and existing friendly-fire/team hostility filtering.
+- Added explosion occlusion traces so walls and solid cover can prevent splash damage through geometry.
+- Added direct-hit resolution through child actors, attachments, soldiers, and building components; large buildings receive the direct-hit bonus even when their Actor origin is outside the splash radius.
+- Added moving-target prediction for AI rocket soldiers with an exposed maximum lead time.
+- Added an exposed minimum AI firing distance; rocket soldiers refuse unsafe close shots and integrate it into the existing retreat/strafe combat movement.
+- Added `On Rocket Launched` and `On Rocket Impacted` Blueprint events and a local `Preview Rocket Launcher Visual` testing node.
+- Added server tick persistence for rockets already in flight so their delayed explosion still resolves correctly if the firing soldier dies before impact.
+- Preserved existing rifle/pistol combat, player lock-on, buildings, EVA announcements, AGT, Obelisk, bullet visuals, blood, ragdoll, respawn, and spline integration.
+
 # Renegade Soldier Combat v1.5.7
 
 - Fixed automatic lock-on aim-point movement remaining centred in projects that use Enhanced Input for camera look.

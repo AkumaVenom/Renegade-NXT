@@ -41,6 +41,8 @@ Suggested pistol values:
 
 You can also create a **Renegade Weapon Profile** Data Asset and assign it to many soldier classes.
 
+For rocket infantry, set `Weapon Class = Rocket Launcher`, use `Make Rocket Launcher Preset` as a starting point, and add/select a `RocketMuzzle` Scene Component at the launcher barrel. Full setup is in `Rocket_Launcher_Soldiers.md`.
+
 ## 4. Connect your particles, sounds, and animations
 
 From the component, bind these Blueprint dispatchers:
