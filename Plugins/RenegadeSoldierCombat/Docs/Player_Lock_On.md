@@ -33,7 +33,8 @@ Only living hostile Actors with another `Renegade Soldier Combat Component` and 
 - `Camera Rotation Interp Speed`: smooth tracking speed; 0 snaps immediately.
 - `Track Target Pitch`: follows the target vertically as well as horizontally.
 - `Target Lead Seconds`: small visual prediction for moving soldiers.
-- `Target Aim Offset`: additional world-space adjustment.
+- `Targeting > Aim Height Offset`: shared signed vertical adjustment from the configured weapon aim bone. Use negative values to lower the lock point from the head toward the chest or torso.
+- `Target Aim Offset`: additional player-lock-on-only world-space adjustment; negative Z lowers it further.
 - `Aim Player Shots At Locked Target`: feeds the locked aim point into the established player shot request.
 - `Maximum Shot Assist Angle Degrees`: limits correction when the camera is not sufficiently aligned.
 
@@ -106,3 +107,9 @@ The colour is an RGBA tint. RGB recolours the visible pixels and Alpha controls 
 ## Indicator colour and transparency
 
 Assign the PNG under `Targeting > Player Lock-On Visual > Lock-On Indicator PNG / Texture`, then choose `Lock-On Indicator Color`. The selected RGBA value is multiplied directly with the Slate image that renders the texture. RGB changes the visible colour, Alpha changes opacity, and transparent pixels in the source PNG remain transparent. Runtime changes through `Set Player Lock On Indicator Color` update an active indicator immediately.
+
+## Aim height adjustment (v1.5.5)
+
+`Targeting > Aim Height Offset` is now a signed centimetre value. The lock-on system starts from the active weapon's configured `Aim Bone Name`, then applies this vertical offset. For example, when the aim bone is near the head, values such as `-25`, `-40`, or `-60` move the target point downward toward the upper chest or torso. Positive values move it upward.
+
+The same adjusted point is used by camera tracking, the lock-on image, line-of-sight checks, and player shot assistance. `Player Lock-On > Camera > Target Aim Offset` remains available for an additional player-only XYZ adjustment.

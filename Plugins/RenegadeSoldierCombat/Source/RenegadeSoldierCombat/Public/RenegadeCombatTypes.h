@@ -160,7 +160,8 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadeTargetingSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting", meta=(ClampMin="1.0"))
     float LoseTargetRadiusMultiplier = 1.25f;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting", meta=(ClampMin="0.0"))
+    /** Signed vertical offset in centimetres applied to the selected aim bone or fallback target point. Negative values move AI and player lock-on aim downward; positive values move it upward. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting", meta=(ClampMin="-500.0", ClampMax="500.0", UIMin="-250.0", UIMax="250.0", Units="cm", ToolTip="Signed vertical offset from the configured Aim Bone. Use negative values to move the lock-on point down toward the chest or torso."))
     float AimHeightOffset = 8.0f;
 
     /** PNG/Texture2D displayed over the hostile soldier selected by the local player lock-on system. */
@@ -405,8 +406,8 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadePlayerLockOnSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Camera", meta=(ClampMin="0.0", ClampMax="1.0", EditCondition="bEnableLockOn"))
     float TargetLeadSeconds = 0.035f;
 
-    /** Additional world-space offset applied to the combat aim point. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Camera", meta=(EditCondition="bEnableLockOn"))
+    /** Additional signed world-space offset applied after the shared Targeting Aim Height Offset. Negative Z lowers the player lock-on point further. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Camera", meta=(EditCondition="bEnableLockOn", Units="cm", ToolTip="Fine adjustment added after Targeting > Aim Height Offset. Use a negative Z value to lower the player-only lock point."))
     FVector TargetAimOffset = FVector::ZeroVector;
 
     /** Player shot direction is corrected to the locked soldier while the lock remains valid. */

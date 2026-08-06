@@ -699,8 +699,15 @@ struct UHT_STATICS
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_AimHeightOffset_MetaData[] = {
 		{ "Category", "Targeting" },
-		{ "ClampMin", "0.0" },
+		{ "ClampMax", "500.0" },
+		{ "ClampMin", "-500.0" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Signed vertical offset from the configured Aim Bone. Use negative values to move the lock-on point down toward the chest or torso." },
+#endif
+		{ "UIMax", "250.0" },
+		{ "UIMin", "-250.0" },
+		{ "Units", "cm" },
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_PlayerLockOnIndicatorTexture_MetaData[] = {
 		{ "Category", "Targeting|Player Lock-On Visual" },
@@ -1728,14 +1735,12 @@ struct UHT_STATICS
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_TargetAimOffset_MetaData[] = {
 		{ "Category", "Player Lock-On|Camera" },
-#if !UE_BUILD_SHIPPING
-		{ "Comment", "/** Additional world-space offset applied to the combat aim point. */" },
-#endif
 		{ "EditCondition", "bEnableLockOn" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
 #if !UE_BUILD_SHIPPING
-		{ "ToolTip", "Additional world-space offset applied to the combat aim point." },
+		{ "ToolTip", "Fine adjustment added after Targeting > Aim Height Offset. Use a negative Z value to lower the player-only lock point." },
 #endif
+		{ "Units", "cm" },
 	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAimPlayerShotsAtLockedTarget_MetaData[] = {
 		{ "Category", "Player Lock-On|Shooting" },
@@ -3429,17 +3434,17 @@ struct UHT_STATICS
 	};
 	static constexpr FStructRegisterCompiledInInfo ScriptStructInfo[] = {
 		{ Z_Construct_UScriptStruct_FRenegadeWeaponSettings, Z_Construct_UScriptStruct_FRenegadeWeaponSettings_Statics::NewStructOps, TEXT("RenegadeWeaponSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeWeaponSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeWeaponSettings), 3105848085U) },
-		{ Z_Construct_UScriptStruct_FRenegadeTargetingSettings, Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics::NewStructOps, TEXT("RenegadeTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeTargetingSettings), 2832958943U) },
+		{ Z_Construct_UScriptStruct_FRenegadeTargetingSettings, Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics::NewStructOps, TEXT("RenegadeTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeTargetingSettings), 4238528035U) },
 		{ Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings, Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings_Statics::NewStructOps, TEXT("RenegadeCombatMovementSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatMovementSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatMovementSettings), 3050183974U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings, Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings_Statics::NewStructOps, TEXT("RenegadePlayerCombatSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerCombatSettings), 3336172806U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings, Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings_Statics::NewStructOps, TEXT("RenegadePlayerAimPresentationSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerAimPresentationSettings), 2735215814U) },
-		{ Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings, Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings_Statics::NewStructOps, TEXT("RenegadePlayerLockOnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerLockOnSettings), 3815542472U) },
+		{ Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings, Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings_Statics::NewStructOps, TEXT("RenegadePlayerLockOnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerLockOnSettings), 1914134403U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerInputSettings, Z_Construct_UScriptStruct_FRenegadePlayerInputSettings_Statics::NewStructOps, TEXT("RenegadePlayerInputSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerInputSettings), 1482115598U) },
 		{ Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings, Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings_Statics::NewStructOps, TEXT("RenegadeCombatVisualSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatVisualSettings), 793923901U) },
 		{ Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings, Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics::NewStructOps, TEXT("RenegadeHealthRespawnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeHealthRespawnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeHealthRespawnSettings), 1785623175U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_0e63b4ce535ee81f7091c9c83ac279ae77e870c5{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_4afbed134779187eac5e2cbb0a792f92068e1341{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	nullptr, 0,
 	UHT_STATICS::ScriptStructInfo, UE_ARRAY_COUNT(UHT_STATICS::ScriptStructInfo),

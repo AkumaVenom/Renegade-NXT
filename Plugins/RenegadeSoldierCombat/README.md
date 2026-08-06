@@ -1,5 +1,7 @@
 # Renegade NXT Combat and Building Warfare
 
+> v1.5.5 fixes lock-on vertical adjustment: `Targeting > Aim Height Offset` now accepts negative values so the target point can be moved down from the configured aim bone.
+
 **Current version: 1.4.4** — UE 5.8
 
 A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manual player rifle/pistol combat, damageable team buildings, and automated base defences.

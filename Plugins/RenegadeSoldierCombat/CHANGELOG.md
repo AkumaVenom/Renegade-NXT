@@ -1,3 +1,12 @@
+# Renegade Soldier Combat v1.5.5
+
+- Fixed `Aim Height Offset` being restricted to zero or positive values.
+- The offset is now signed and accepts values from `-500 cm` to `+500 cm`.
+- Negative values move the shared AI and player lock-on aim point below the configured weapon `Aim Bone Name`; positive values move it upward.
+- Added clearer editor tooltips and centimetre units for both `Aim Height Offset` and the player-only `Target Aim Offset`.
+- Confirmed the player lock-on camera, indicator, line-of-sight trace, and shot assistance all resolve through the same adjusted aim point.
+- Target acquisition, target switching, lock-on texture tint, player shooting, NPC combat, and building warfare are otherwise unchanged.
+
 # Renegade Soldier Combat v1.5.4
 
 - Fixed the player lock-on PNG remaining white during gameplay.

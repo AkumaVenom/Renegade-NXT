@@ -2049,9 +2049,11 @@ FVector URenegadeSoldierCombatComponent::GetPlayerLockOnAimLocation() const
         return FVector::ZeroVector;
     }
 
-    return GetAimLocation(PlayerLockOnTarget)
-        + PlayerLockOn.TargetAimOffset
-        + PlayerLockOnTarget->GetVelocity() * FMath::Max(0.0f, PlayerLockOn.TargetLeadSeconds);
+    // GetAimLocation already applies Targeting.AimHeightOffset to the configured target aim bone.
+    // AimHeightOffset is signed from v1.5.5 onward, so negative values lower the lock point.
+    const FVector BaseAimLocation = GetAimLocation(PlayerLockOnTarget);
+    const FVector LeadOffset = PlayerLockOnTarget->GetVelocity() * FMath::Max(0.0f, PlayerLockOn.TargetLeadSeconds);
+    return BaseAimLocation + PlayerLockOn.TargetAimOffset + LeadOffset;
 }
 
 void URenegadeSoldierCombatComponent::SetPlayerLockOnIndicatorTexture(UTexture2D* NewTexture)
