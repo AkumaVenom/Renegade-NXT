@@ -1742,6 +1742,164 @@ struct UHT_STATICS
 #endif
 		{ "Units", "cm" },
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableAimOffsetControl_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Lets mouse or right-stick look input move the lock point around the selected soldier instead of fighting camera tracking. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Lets mouse or right-stick look input move the lock point around the selected soldier instead of fighting camera tracking." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bConsumeLookInputWhileLocked_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** When enabled, built-in look input is consumed by the lock point while locked instead of rotating freely away from the target. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "When enabled, built-in look input is consumed by the lock point while locked instead of rotating freely away from the target." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAutomaticallyReadConfiguredLookAxes_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Automatically polls the configured mouse/right-stick axes while locked, even when the plugin's Built-In Look Input is disabled. Disable this only when feeding Player Add Lock On Aim Input manually. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Automatically polls the configured mouse/right-stick axes while locked, even when the plugin's Built-In Look Input is disabled. Disable this only when feeding Player Add Lock On Aim Input manually." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_AimOffsetCentimetersPerLookDegree_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control" },
+		{ "ClampMax", "10.0" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Uses the existing mouse sensitivity, gamepad yaw/pitch speeds, dead zone, inversion and aiming sensitivity multiplier before applying this conversion." },
+#endif
+		{ "Units", "cm" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_AimOffsetHorizontalSensitivityMultiplier_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control" },
+		{ "ClampMax", "5.0" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Additional horizontal response multiplier after the normal camera sensitivity settings. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Additional horizontal response multiplier after the normal camera sensitivity settings." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_AimOffsetVerticalSensitivityMultiplier_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control" },
+		{ "ClampMax", "5.0" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Additional vertical response multiplier after the normal camera sensitivity settings. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Additional vertical response multiplier after the normal camera sensitivity settings." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MaximumHorizontalAimOffset_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control|Limits" },
+		{ "ClampMax", "250.0" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum left/right displacement from the base target point. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum left/right displacement from the base target point." },
+#endif
+		{ "Units", "cm" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MaximumUpwardAimOffset_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control|Limits" },
+		{ "ClampMax", "250.0" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum upward displacement from the base target point. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum upward displacement from the base target point." },
+#endif
+		{ "Units", "cm" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MaximumDownwardAimOffset_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control|Limits" },
+		{ "ClampMax", "250.0" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum downward displacement from the base target point. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum downward displacement from the base target point." },
+#endif
+		{ "Units", "cm" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_AimOffsetInterpSpeed_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control|Smoothing" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Smoothing speed used while the player actively moves the lock point. Set to 0 for immediate response. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Smoothing speed used while the player actively moves the lock point. Set to 0 for immediate response." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAutoRecenterAimOffset_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control|Recentering" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Returns the movable lock point toward the authored Target Aim Offset after input stops. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Returns the movable lock point toward the authored Target Aim Offset after input stops." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_AimOffsetRecenterDelaySeconds_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control|Recentering" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl && bAutoRecenterAimOffset" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_AimOffsetRecenterInterpSpeed_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control|Recentering" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl && bAutoRecenterAimOffset" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bResetAimOffsetWhenTargetChanges_MetaData[] = {
+		{ "Category", "Player Lock-On|Aim Offset Control" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Clears the movable offset whenever a different soldier becomes the active lock target. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bEnableAimOffsetControl" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Clears the movable offset whenever a different soldier becomes the active lock target." },
+#endif
+	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAimPlayerShotsAtLockedTarget_MetaData[] = {
 		{ "Category", "Player Lock-On|Shooting" },
 #if !UE_BUILD_SHIPPING
@@ -1945,6 +2103,40 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FBoolPropertyParams NewProp_bTrackTargetPitch;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_TargetLeadSeconds;
 	static const UECodeGen_Private::FStructPropertyParams NewProp_TargetAimOffset;
+	static void NewProp_bEnableAimOffsetControl_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bEnableAimOffsetControl = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnableAimOffsetControl;
+	static void NewProp_bConsumeLookInputWhileLocked_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bConsumeLookInputWhileLocked = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bConsumeLookInputWhileLocked;
+	static void NewProp_bAutomaticallyReadConfiguredLookAxes_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bAutomaticallyReadConfiguredLookAxes = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bAutomaticallyReadConfiguredLookAxes;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_AimOffsetCentimetersPerLookDegree;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_AimOffsetHorizontalSensitivityMultiplier;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_AimOffsetVerticalSensitivityMultiplier;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MaximumHorizontalAimOffset;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MaximumUpwardAimOffset;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MaximumDownwardAimOffset;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_AimOffsetInterpSpeed;
+	static void NewProp_bAutoRecenterAimOffset_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bAutoRecenterAimOffset = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bAutoRecenterAimOffset;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_AimOffsetRecenterDelaySeconds;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_AimOffsetRecenterInterpSpeed;
+	static void NewProp_bResetAimOffsetWhenTargetChanges_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bResetAimOffsetWhenTargetChanges = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bResetAimOffsetWhenTargetChanges;
 	static void NewProp_bAimPlayerShotsAtLockedTarget_SetBit(void* Obj)
 	{
 		((FRenegadePlayerLockOnSettings*)Obj)->bAimPlayerShotsAtLockedTarget = 1;
@@ -2010,6 +2202,20 @@ const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_CameraRotatio
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bTrackTargetPitch = { "bTrackTargetPitch", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bTrackTargetPitch_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bTrackTargetPitch_MetaData), NewProp_bTrackTargetPitch_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_TargetLeadSeconds = { "TargetLeadSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, TargetLeadSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TargetLeadSeconds_MetaData), NewProp_TargetLeadSeconds_MetaData) };
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_TargetAimOffset = { "TargetAimOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, TargetAimOffset), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TargetAimOffset_MetaData), NewProp_TargetAimOffset_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableAimOffsetControl = { "bEnableAimOffsetControl", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bEnableAimOffsetControl_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableAimOffsetControl_MetaData), NewProp_bEnableAimOffsetControl_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bConsumeLookInputWhileLocked = { "bConsumeLookInputWhileLocked", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bConsumeLookInputWhileLocked_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bConsumeLookInputWhileLocked_MetaData), NewProp_bConsumeLookInputWhileLocked_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAutomaticallyReadConfiguredLookAxes = { "bAutomaticallyReadConfiguredLookAxes", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bAutomaticallyReadConfiguredLookAxes_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAutomaticallyReadConfiguredLookAxes_MetaData), NewProp_bAutomaticallyReadConfiguredLookAxes_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AimOffsetCentimetersPerLookDegree = { "AimOffsetCentimetersPerLookDegree", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, AimOffsetCentimetersPerLookDegree), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimOffsetCentimetersPerLookDegree_MetaData), NewProp_AimOffsetCentimetersPerLookDegree_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AimOffsetHorizontalSensitivityMultiplier = { "AimOffsetHorizontalSensitivityMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, AimOffsetHorizontalSensitivityMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimOffsetHorizontalSensitivityMultiplier_MetaData), NewProp_AimOffsetHorizontalSensitivityMultiplier_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AimOffsetVerticalSensitivityMultiplier = { "AimOffsetVerticalSensitivityMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, AimOffsetVerticalSensitivityMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimOffsetVerticalSensitivityMultiplier_MetaData), NewProp_AimOffsetVerticalSensitivityMultiplier_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumHorizontalAimOffset = { "MaximumHorizontalAimOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, MaximumHorizontalAimOffset), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumHorizontalAimOffset_MetaData), NewProp_MaximumHorizontalAimOffset_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumUpwardAimOffset = { "MaximumUpwardAimOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, MaximumUpwardAimOffset), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumUpwardAimOffset_MetaData), NewProp_MaximumUpwardAimOffset_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumDownwardAimOffset = { "MaximumDownwardAimOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, MaximumDownwardAimOffset), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumDownwardAimOffset_MetaData), NewProp_MaximumDownwardAimOffset_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AimOffsetInterpSpeed = { "AimOffsetInterpSpeed", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, AimOffsetInterpSpeed), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimOffsetInterpSpeed_MetaData), NewProp_AimOffsetInterpSpeed_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAutoRecenterAimOffset = { "bAutoRecenterAimOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bAutoRecenterAimOffset_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAutoRecenterAimOffset_MetaData), NewProp_bAutoRecenterAimOffset_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AimOffsetRecenterDelaySeconds = { "AimOffsetRecenterDelaySeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, AimOffsetRecenterDelaySeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimOffsetRecenterDelaySeconds_MetaData), NewProp_AimOffsetRecenterDelaySeconds_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AimOffsetRecenterInterpSpeed = { "AimOffsetRecenterInterpSpeed", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, AimOffsetRecenterInterpSpeed), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimOffsetRecenterInterpSpeed_MetaData), NewProp_AimOffsetRecenterInterpSpeed_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bResetAimOffsetWhenTargetChanges = { "bResetAimOffsetWhenTargetChanges", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bResetAimOffsetWhenTargetChanges_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bResetAimOffsetWhenTargetChanges_MetaData), NewProp_bResetAimOffsetWhenTargetChanges_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAimPlayerShotsAtLockedTarget = { "bAimPlayerShotsAtLockedTarget", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bAimPlayerShotsAtLockedTarget_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAimPlayerShotsAtLockedTarget_MetaData), NewProp_bAimPlayerShotsAtLockedTarget_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumShotAssistAngleDegrees = { "MaximumShotAssistAngleDegrees", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, MaximumShotAssistAngleDegrees), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumShotAssistAngleDegrees_MetaData), NewProp_MaximumShotAssistAngleDegrees_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableTargetSwitching = { "bEnableTargetSwitching", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bEnableTargetSwitching_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableTargetSwitching_MetaData), NewProp_bEnableTargetSwitching_MetaData) };
@@ -2046,6 +2252,20 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bTrackTargetPitch,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TargetLeadSeconds,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TargetAimOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableAimOffsetControl,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bConsumeLookInputWhileLocked,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAutomaticallyReadConfiguredLookAxes,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimOffsetCentimetersPerLookDegree,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimOffsetHorizontalSensitivityMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimOffsetVerticalSensitivityMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumHorizontalAimOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumUpwardAimOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumDownwardAimOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimOffsetInterpSpeed,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAutoRecenterAimOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimOffsetRecenterDelaySeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimOffsetRecenterInterpSpeed,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bResetAimOffsetWhenTargetChanges,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAimPlayerShotsAtLockedTarget,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumShotAssistAngleDegrees,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableTargetSwitching,
@@ -3438,13 +3658,13 @@ struct UHT_STATICS
 		{ Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings, Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings_Statics::NewStructOps, TEXT("RenegadeCombatMovementSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatMovementSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatMovementSettings), 3050183974U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings, Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings_Statics::NewStructOps, TEXT("RenegadePlayerCombatSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerCombatSettings), 3336172806U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings, Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings_Statics::NewStructOps, TEXT("RenegadePlayerAimPresentationSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerAimPresentationSettings), 2735215814U) },
-		{ Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings, Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings_Statics::NewStructOps, TEXT("RenegadePlayerLockOnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerLockOnSettings), 1914134403U) },
+		{ Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings, Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings_Statics::NewStructOps, TEXT("RenegadePlayerLockOnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerLockOnSettings), 3819754068U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerInputSettings, Z_Construct_UScriptStruct_FRenegadePlayerInputSettings_Statics::NewStructOps, TEXT("RenegadePlayerInputSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerInputSettings), 1482115598U) },
 		{ Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings, Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings_Statics::NewStructOps, TEXT("RenegadeCombatVisualSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatVisualSettings), 793923901U) },
 		{ Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings, Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics::NewStructOps, TEXT("RenegadeHealthRespawnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeHealthRespawnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeHealthRespawnSettings), 1785623175U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_4afbed134779187eac5e2cbb0a792f92068e1341{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_1a9b9d740c2648a676d5419272952e390d127d68{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	nullptr, 0,
 	UHT_STATICS::ScriptStructInfo, UE_ARRAY_COUNT(UHT_STATICS::ScriptStructInfo),

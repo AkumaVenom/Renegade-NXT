@@ -1,3 +1,26 @@
+# Renegade Soldier Combat v1.5.7
+
+- Fixed automatic lock-on aim-point movement remaining centred in projects that use Enhanced Input for camera look.
+- Mouse aim-offset input now reads the Player Controller's real per-frame mouse delta instead of relying only on `GetInputAnalogKeyState(MouseX/MouseY)`, which can return zero after Enhanced Input processes those axes.
+- Applied the same direct mouse-delta path to both built-in camera look and automatic lock-point input polling.
+- Custom nonstandard mouse-axis keys still fall back to the configured analog-key polling path.
+- Existing exposed mouse sensitivity, aiming sensitivity multiplier, horizontal/vertical offset sensitivity, movement limits, smoothing and recentring settings remain fully applied.
+- Gamepad right-stick offset movement, target switching, targeting, indicator, shooting, damage and all building-warfare systems are unchanged.
+
+# Renegade Soldier Combat v1.5.6
+
+- Added polished player-controlled lock-point movement while locked onto a hostile soldier.
+- Mouse and right-stick look input can now move the lock point up/down and slightly left/right around the selected target instead of fighting the automatic camera tracking.
+- Built-in input inherits the existing mouse yaw/pitch sensitivity, gamepad yaw/pitch speeds, gamepad dead zone, Y inversion and aiming sensitivity multiplier.
+- Added dedicated horizontal/vertical lock-point sensitivity multipliers and a centimetres-per-look-degree conversion value.
+- Added exposed horizontal, upward and downward movement limits.
+- Added smoothing, optional delayed automatic recentring, configurable recenter speed and reset-on-target-change behaviour.
+- Automatically reads the configured Mouse X/Y and Gamepad Right Stick axes while locked even when Built-In Look Input is disabled, so existing Enhanced Input camera setups work without extra lock-offset wiring.
+- Added `Player Add Lock On Aim Input` for custom Enhanced Input axes and runtime `Reset/Get Player Lock On Aim Offset` Blueprint nodes.
+- The movable point is shared by camera tracking, the lock-on indicator and authoritative player shot assistance.
+- Right-stick target flick switching remains supported; a switching flick is consumed so it does not also drag the lock point sideways.
+- Existing acquisition, damage, building warfare, EVA, AGT, Obelisk, bullet, blood, ragdoll and respawn systems are unchanged.
+
 # Renegade Soldier Combat v1.5.5
 
 - Fixed `Aim Height Offset` being restricted to zero or positive values.

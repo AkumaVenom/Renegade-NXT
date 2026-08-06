@@ -401,6 +401,19 @@ public:
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Lock-On")
     FVector GetPlayerLockOnAimLocation() const;
 
+
+    /** Feeds a 2D look axis into the movable lock point. Use this from Enhanced Input when Built-In Look Input is disabled. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Lock-On|Aim Offset")
+    void PlayerAddLockOnAimInput(FVector2D LookInput, bool bGamepadInput = false);
+
+    /** Clears the player-controlled left/right and up/down lock-point displacement. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Lock-On|Aim Offset")
+    void ResetPlayerLockOnAimOffset(bool bInstant = false);
+
+    /** Returns horizontal and vertical lock-point displacement in centimetres. */
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Lock-On|Aim Offset")
+    FVector2D GetPlayerLockOnAimOffset() const { return PlayerLockOnAimOffsetCurrent; }
+
     /** Changes the local lock indicator texture at runtime and refreshes the active visual immediately. */
     UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Lock-On|Indicator")
     void SetPlayerLockOnIndicatorTexture(UTexture2D* NewTexture);
@@ -630,6 +643,10 @@ private:
     void UpdateBuiltInPlayerInput(float DeltaTime);
     void ResetBuiltInPlayerInputState(bool bClearAimState);
     void UpdatePlayerLockOn(float DeltaTime);
+    void ApplyPlayerLockOnAimInputInternal(const FVector2D& SensitivityScaledLookInput);
+    void PollPlayerLockOnAimOffsetInput(float DeltaTime);
+    void UpdatePlayerLockOnAimOffset(float DeltaTime);
+    FVector GetPlayerLockOnManualWorldOffset() const;
     bool IsPlayerLockOnCandidateValid(const AActor* Candidate, bool bForAcquisition) const;
     bool HasPlayerLockOnLineOfSight(const AActor* Candidate) const;
     AActor* FindBestPlayerLockOnTarget(const AActor* ExcludedTarget = nullptr) const;
@@ -792,6 +809,9 @@ private:
     bool bPreviousBuiltInSwitchRightDown = false;
     bool bPlayerLockOnInputHeld = false;
     bool bRightStickSwitchLatched = false;
+    FVector2D PlayerLockOnAimOffsetCurrent = FVector2D::ZeroVector;
+    FVector2D PlayerLockOnAimOffsetTarget = FVector2D::ZeroVector;
+    double LastPlayerLockOnAimInputTime = -BIG_NUMBER;
     double LastPlayerLockOnVisibleTime = -BIG_NUMBER;
     double LastPlayerLockOnSearchTime = -BIG_NUMBER;
     double LastPlayerLockOnSwitchTime = -BIG_NUMBER;

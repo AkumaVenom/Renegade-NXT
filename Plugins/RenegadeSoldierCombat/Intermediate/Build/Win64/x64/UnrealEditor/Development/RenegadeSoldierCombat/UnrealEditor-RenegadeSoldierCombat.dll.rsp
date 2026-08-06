@@ -38,7 +38,7 @@
 /NOEXP
 /NATVIS:"../Intermediate/Build/Win64/x64/UnrealEditor/Development/AIModule/AIModule.natvis"
 /NATVIS:"../Plugins/FX/Niagara/Intermediate/Build/Win64/x64/UnrealEditor/Development/Niagara/Niagara.natvis"
-"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Intermediate/Build/Win64/x64/UnrealEditor/Development/UnrealEd/SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h.obj"
+"C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Intermediate/Build/Win64/x64/RenegadeNXTEditor/Development/UnrealEd/SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h.obj"
 "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSoldierCombat/Intermediate/Build/Win64/x64/UnrealEditor/Development/RenegadeSoldierCombat/Module.RenegadeSoldierCombat.cpp.obj"
 "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSoldierCombat/Intermediate/Build/Win64/x64/UnrealEditor/Development/RenegadeSoldierCombat/RenegadeSoldierCombatComponent.cpp.obj"
 "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Plugins/RenegadeSoldierCombat/Intermediate/Build/Win64/x64/UnrealEditor/Development/RenegadeSoldierCombat/Default.rc2.res"

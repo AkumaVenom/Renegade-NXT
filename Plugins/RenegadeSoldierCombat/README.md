@@ -1,6 +1,6 @@
 # Renegade NXT Combat and Building Warfare
 
-> v1.5.5 fixes lock-on vertical adjustment: `Targeting > Aim Height Offset` now accepts negative values so the target point can be moved down from the configured aim bone.
+> v1.5.6 fixes lock-on vertical adjustment: `Targeting > Aim Height Offset` now accepts negative values so the target point can be moved down from the configured aim bone.
 
 **Current version: 1.4.4** — UE 5.8
 
@@ -154,3 +154,8 @@ The main component Details panel now exposes both:
 - `Targeting > Player Lock-On Visual > Lock-On Indicator Color`
 
 The colour is an RGBA tint. RGB recolours the visible pixels and Alpha controls additional opacity. The imported PNG's own alpha channel is multiplied rather than discarded, so transparent areas stay transparent. Runtime Blueprint control is available through `Set Player Lock On Indicator Color`.
+
+
+## Player lock-on aim-point control (v1.5.6)
+
+While locked, mouse or right-stick look input can shift the shared lock point vertically and horizontally around the selected soldier. The feature inherits the exposed camera sensitivity, dead-zone and inversion settings and adds dedicated limits, smoothing and optional automatic recentring. Enhanced Input projects can feed their look axis through `Player Add Lock On Aim Input`.

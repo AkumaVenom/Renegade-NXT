@@ -96,6 +96,9 @@ struct FVector_NetQuantizeNormal;
 	DECLARE_FUNCTION(execSetPlayerLockOnIndicatorColor); \
 	DECLARE_FUNCTION(execGetPlayerLockOnIndicatorTexture); \
 	DECLARE_FUNCTION(execSetPlayerLockOnIndicatorTexture); \
+	DECLARE_FUNCTION(execGetPlayerLockOnAimOffset); \
+	DECLARE_FUNCTION(execResetPlayerLockOnAimOffset); \
+	DECLARE_FUNCTION(execPlayerAddLockOnAimInput); \
 	DECLARE_FUNCTION(execGetPlayerLockOnAimLocation); \
 	DECLARE_FUNCTION(execGetPlayerLockOnTarget); \
 	DECLARE_FUNCTION(execIsPlayerLockedOn); \

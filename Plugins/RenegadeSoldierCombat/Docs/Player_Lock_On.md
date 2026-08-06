@@ -1,6 +1,6 @@
 # Player TPS Lock-On Targeting
 
-Version 1.5.1 adds a local, hold-to-lock targeting mode for player-controlled combatants. The lock target is selected locally for responsiveness, while firing still uses the plugin's existing server-authoritative player shot validation, camera trace, muzzle obstruction trace, damage, bullet mesh, and blood systems.
+Version 1.5.6 includes a local, hold-to-lock targeting mode for player-controlled combatants. The lock target is selected locally for responsiveness, while firing still uses the plugin's existing server-authoritative player shot validation, camera trace, muzzle obstruction trace, damage, bullet mesh, and blood systems.
 
 ## Quick setup
 
@@ -113,3 +113,32 @@ Assign the PNG under `Targeting > Player Lock-On Visual > Lock-On Indicator PNG 
 `Targeting > Aim Height Offset` is now a signed centimetre value. The lock-on system starts from the active weapon's configured `Aim Bone Name`, then applies this vertical offset. For example, when the aim bone is near the head, values such as `-25`, `-40`, or `-60` move the target point downward toward the upper chest or torso. Positive values move it upward.
 
 The same adjusted point is used by camera tracking, the lock-on image, line-of-sight checks, and player shot assistance. `Player Lock-On > Camera > Target Aim Offset` remains available for an additional player-only XYZ adjustment.
+
+## Movable lock point with mouse or right stick (v1.5.6)
+
+While a soldier is locked, camera-look input can move the final target point around that soldier instead of trying to rotate away from the automatic lock. Horizontal input moves the point screen-left/right and vertical input moves it up/down. Camera tracking, the PNG marker and shot assistance all follow the same adjusted point.
+
+The built-in path automatically uses the existing camera controls before applying the lock offset:
+
+- Mouse yaw and pitch sensitivity
+- Gamepad yaw and pitch speed
+- Gamepad dead zone
+- Mouse/gamepad Y inversion
+- Aiming look sensitivity multiplier
+
+Additional settings are under `Player Lock-On > Aim Offset Control`:
+
+- `Enable Aim Offset Control`
+- `Consume Look Input While Locked`
+- `Aim Offset Centimeters Per Look Degree`
+- Horizontal and vertical sensitivity multipliers
+- Horizontal, upward and downward limits
+- Active movement interpolation speed
+- Automatic recenter toggle, delay and speed
+- Reset offset when the target changes
+
+The plugin automatically polls the configured Mouse X/Y and Gamepad Right Stick axes while locked, even when Built-In Look Input is disabled. For a custom Enhanced Input axis that does not use those configured keys, disable `Automatically Read Configured Look Axes`, branch while locked and call `Player Add Lock On Aim Input`. Pass the action's Vector2D value and set `Gamepad Input` appropriately. This applies the same exposed plugin sensitivity values. `Reset Player Lock On Aim Offset` and `Get Player Lock On Aim Offset` are also available.
+
+## v1.5.7 Enhanced Input mouse-delta fix
+
+Automatic lock-point movement now reads the Player Controller's per-frame mouse delta directly when the configured axes are Mouse X and Mouse Y. This keeps the default system functional in projects whose Enhanced Input camera mapping consumes those axes before analog-key polling. The existing sensitivity, limits, smoothing and recenter controls still apply.

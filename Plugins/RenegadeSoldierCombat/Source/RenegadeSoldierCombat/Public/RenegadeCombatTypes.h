@@ -410,6 +410,60 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadePlayerLockOnSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Camera", meta=(EditCondition="bEnableLockOn", Units="cm", ToolTip="Fine adjustment added after Targeting > Aim Height Offset. Use a negative Z value to lower the player-only lock point."))
     FVector TargetAimOffset = FVector::ZeroVector;
 
+    /** Lets mouse or right-stick look input move the lock point around the selected soldier instead of fighting camera tracking. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control", meta=(EditCondition="bEnableLockOn"))
+    bool bEnableAimOffsetControl = true;
+
+    /** When enabled, built-in look input is consumed by the lock point while locked instead of rotating freely away from the target. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control", meta=(EditCondition="bEnableLockOn && bEnableAimOffsetControl"))
+    bool bConsumeLookInputWhileLocked = true;
+
+    /** Automatically polls the configured mouse/right-stick axes while locked, even when the plugin's Built-In Look Input is disabled. Disable this only when feeding Player Add Lock On Aim Input manually. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control", meta=(EditCondition="bEnableLockOn && bEnableAimOffsetControl"))
+    bool bAutomaticallyReadConfiguredLookAxes = true;
+
+    /** Converts the already sensitivity-scaled camera look input into centimetres of target-point movement. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control", meta=(ClampMin="0.0", ClampMax="10.0", EditCondition="bEnableLockOn && bEnableAimOffsetControl", Units="cm", ToolTip="Uses the existing mouse sensitivity, gamepad yaw/pitch speeds, dead zone, inversion and aiming sensitivity multiplier before applying this conversion."))
+    float AimOffsetCentimetersPerLookDegree = 0.55f;
+
+    /** Additional horizontal response multiplier after the normal camera sensitivity settings. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control", meta=(ClampMin="0.0", ClampMax="5.0", EditCondition="bEnableLockOn && bEnableAimOffsetControl"))
+    float AimOffsetHorizontalSensitivityMultiplier = 1.0f;
+
+    /** Additional vertical response multiplier after the normal camera sensitivity settings. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control", meta=(ClampMin="0.0", ClampMax="5.0", EditCondition="bEnableLockOn && bEnableAimOffsetControl"))
+    float AimOffsetVerticalSensitivityMultiplier = 1.0f;
+
+    /** Maximum left/right displacement from the base target point. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control|Limits", meta=(ClampMin="0.0", ClampMax="250.0", EditCondition="bEnableLockOn && bEnableAimOffsetControl", Units="cm"))
+    float MaximumHorizontalAimOffset = 42.0f;
+
+    /** Maximum upward displacement from the base target point. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control|Limits", meta=(ClampMin="0.0", ClampMax="250.0", EditCondition="bEnableLockOn && bEnableAimOffsetControl", Units="cm"))
+    float MaximumUpwardAimOffset = 65.0f;
+
+    /** Maximum downward displacement from the base target point. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control|Limits", meta=(ClampMin="0.0", ClampMax="250.0", EditCondition="bEnableLockOn && bEnableAimOffsetControl", Units="cm"))
+    float MaximumDownwardAimOffset = 90.0f;
+
+    /** Smoothing speed used while the player actively moves the lock point. Set to 0 for immediate response. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control|Smoothing", meta=(ClampMin="0.0", EditCondition="bEnableLockOn && bEnableAimOffsetControl"))
+    float AimOffsetInterpSpeed = 20.0f;
+
+    /** Returns the movable lock point toward the authored Target Aim Offset after input stops. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control|Recentering", meta=(EditCondition="bEnableLockOn && bEnableAimOffsetControl"))
+    bool bAutoRecenterAimOffset = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control|Recentering", meta=(ClampMin="0.0", EditCondition="bEnableLockOn && bEnableAimOffsetControl && bAutoRecenterAimOffset"))
+    float AimOffsetRecenterDelaySeconds = 1.10f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control|Recentering", meta=(ClampMin="0.0", EditCondition="bEnableLockOn && bEnableAimOffsetControl && bAutoRecenterAimOffset"))
+    float AimOffsetRecenterInterpSpeed = 4.5f;
+
+    /** Clears the movable offset whenever a different soldier becomes the active lock target. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Aim Offset Control", meta=(EditCondition="bEnableLockOn && bEnableAimOffsetControl"))
+    bool bResetAimOffsetWhenTargetChanges = true;
+
     /** Player shot direction is corrected to the locked soldier while the lock remains valid. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Shooting", meta=(EditCondition="bEnableLockOn"))
     bool bAimPlayerShotsAtLockedTarget = true;

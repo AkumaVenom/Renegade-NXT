@@ -19,6 +19,7 @@ void EmptyLinkFunctionForGeneratedCodeRenegadeSoldierCombatComponent() {}
 COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FLinearColor(ETypeConstructPhase);
 COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FTransform(ETypeConstructPhase);
 COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FVector(ETypeConstructPhase);
+COREUOBJECT_API UScriptStruct* Z_Construct_UScriptStruct_FVector2D(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_UActorComponent(ETypeConstructPhase);
 ENGINE_API UScriptStruct* Z_Construct_UScriptStruct_FComponentReference(ETypeConstructPhase);
 ENGINE_API UScriptStruct* Z_Construct_UScriptStruct_FHitResult(ETypeConstructPhase);
@@ -1724,6 +1725,65 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execGetPlayerLockOnAimLocation)
 	P_NATIVE_END;
 }
 // ********** End Class URenegadeSoldierCombatComponent Function GetPlayerLockOnAimLocation ********
+
+// ********** Begin Class URenegadeSoldierCombatComponent Function GetPlayerLockOnAimOffset ********
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerLockOnAimOffset_Statics
+struct UHT_STATICS
+{
+	struct RenegadeSoldierCombatComponent_eventGetPlayerLockOnAimOffset_Parms
+	{
+		FVector2D ReturnValue;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Player Combat|Lock-On|Aim Offset" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Returns horizontal and vertical lock-point displacement in centimetres. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Returns horizontal and vertical lock-point displacement in centimetres." },
+#endif
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function GetPlayerLockOnAimOffset constinit property declarations **************
+	static const UECodeGen_Private::FStructPropertyParams NewProp_ReturnValue;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function GetPlayerLockOnAimOffset constinit property declarations ****************
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function GetPlayerLockOnAimOffset Property Definitions *************************
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventGetPlayerLockOnAimOffset_Parms, ReturnValue), Z_Construct_UScriptStruct_FVector2D, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_ReturnValue,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function GetPlayerLockOnAimOffset Property Definitions ***************************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "GetPlayerLockOnAimOffset", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::RenegadeSoldierCombatComponent_eventGetPlayerLockOnAimOffset_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x54820401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::RenegadeSoldierCombatComponent_eventGetPlayerLockOnAimOffset_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerLockOnAimOffset(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execGetPlayerLockOnAimOffset)
+{
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	*(FVector2D*)Z_Param__Result=P_THIS->GetPlayerLockOnAimOffset();
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function GetPlayerLockOnAimOffset **********
 
 // ********** Begin Class URenegadeSoldierCombatComponent Function GetPlayerLockOnIndicatorColor ***
 #ifdef UHT_STATICS
@@ -3661,6 +3721,76 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execOnRep_TeamId)
 }
 // ********** End Class URenegadeSoldierCombatComponent Function OnRep_TeamId **********************
 
+// ********** Begin Class URenegadeSoldierCombatComponent Function PlayerAddLockOnAimInput *********
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerAddLockOnAimInput_Statics
+struct UHT_STATICS
+{
+	struct RenegadeSoldierCombatComponent_eventPlayerAddLockOnAimInput_Parms
+	{
+		FVector2D LookInput;
+		bool bGamepadInput;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Player Combat|Lock-On|Aim Offset" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Feeds a 2D look axis into the movable lock point. Use this from Enhanced Input when Built-In Look Input is disabled. */" },
+#endif
+		{ "CPP_Default_bGamepadInput", "false" },
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Feeds a 2D look axis into the movable lock point. Use this from Enhanced Input when Built-In Look Input is disabled." },
+#endif
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function PlayerAddLockOnAimInput constinit property declarations ***************
+	static const UECodeGen_Private::FStructPropertyParams NewProp_LookInput;
+	static void NewProp_bGamepadInput_SetBit(void* Obj)
+	{
+		((RenegadeSoldierCombatComponent_eventPlayerAddLockOnAimInput_Parms*)Obj)->bGamepadInput = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bGamepadInput;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function PlayerAddLockOnAimInput constinit property declarations *****************
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function PlayerAddLockOnAimInput Property Definitions **************************
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_LookInput = { "LookInput", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(RenegadeSoldierCombatComponent_eventPlayerAddLockOnAimInput_Parms, LookInput), Z_Construct_UScriptStruct_FVector2D, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bGamepadInput = { "bGamepadInput", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(RenegadeSoldierCombatComponent_eventPlayerAddLockOnAimInput_Parms), &UHT_STATICS::NewProp_bGamepadInput_SetBit, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LookInput,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bGamepadInput,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function PlayerAddLockOnAimInput Property Definitions ****************************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "PlayerAddLockOnAimInput", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::RenegadeSoldierCombatComponent_eventPlayerAddLockOnAimInput_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04820401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::RenegadeSoldierCombatComponent_eventPlayerAddLockOnAimInput_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerAddLockOnAimInput(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execPlayerAddLockOnAimInput)
+{
+	P_GET_STRUCT(FVector2D,Z_Param_LookInput);
+	P_GET_UBOOL(Z_Param_bGamepadInput);
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->PlayerAddLockOnAimInput(Z_Param_LookInput,Z_Param_bGamepadInput);
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function PlayerAddLockOnAimInput ***********
+
 // ********** Begin Class URenegadeSoldierCombatComponent Function PlayerFireOnce ******************
 #ifdef UHT_STATICS
 #error UHT_STATICS already defined
@@ -4644,6 +4774,71 @@ DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execRefreshPlayerLockOnTarget)
 	P_NATIVE_END;
 }
 // ********** End Class URenegadeSoldierCombatComponent Function RefreshPlayerLockOnTarget *********
+
+// ********** Begin Class URenegadeSoldierCombatComponent Function ResetPlayerLockOnAimOffset ******
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UFunction_URenegadeSoldierCombatComponent_ResetPlayerLockOnAimOffset_Statics
+struct UHT_STATICS
+{
+	struct RenegadeSoldierCombatComponent_eventResetPlayerLockOnAimOffset_Parms
+	{
+		bool bInstant;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "Category", "Renegade NXT|Player Combat|Lock-On|Aim Offset" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Clears the player-controlled left/right and up/down lock-point displacement. */" },
+#endif
+		{ "CPP_Default_bInstant", "false" },
+		{ "ModuleRelativePath", "Public/RenegadeSoldierCombatComponent.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Clears the player-controlled left/right and up/down lock-point displacement." },
+#endif
+	};
+#endif // WITH_METADATA
+
+// ********** Begin Function ResetPlayerLockOnAimOffset constinit property declarations ************
+	static void NewProp_bInstant_SetBit(void* Obj)
+	{
+		((RenegadeSoldierCombatComponent_eventResetPlayerLockOnAimOffset_Parms*)Obj)->bInstant = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bInstant;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End Function ResetPlayerLockOnAimOffset constinit property declarations **************
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+
+// ********** Begin Function ResetPlayerLockOnAimOffset Property Definitions ***********************
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bInstant = { "bInstant", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(RenegadeSoldierCombatComponent_eventResetPlayerLockOnAimOffset_Parms), &UHT_STATICS::NewProp_bInstant_SetBit, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bInstant,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End Function ResetPlayerLockOnAimOffset Property Definitions *************************
+const UECodeGen_Private::FFunctionParams UHT_STATICS::FuncParams = { { (FTypeConstructFunc*)Z_Construct_UClass_URenegadeSoldierCombatComponent, nullptr, "ResetPlayerLockOnAimOffset", UHT_STATICS::PropPointers, UE_ARRAY_COUNT(UHT_STATICS::PropPointers), DataSizeOf<UHT_STATICS::RenegadeSoldierCombatComponent_eventResetPlayerLockOnAimOffset_Parms>(), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)},  };
+static_assert(sizeof(UHT_STATICS::RenegadeSoldierCombatComponent_eventResetPlayerLockOnAimOffset_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_URenegadeSoldierCombatComponent_ResetPlayerLockOnAimOffset(ETypeConstructPhase Phase)
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, UHT_STATICS::FuncParams);
+	}
+	return ReturnFunction;
+}
+#undef UHT_STATICS
+DEFINE_FUNCTION(URenegadeSoldierCombatComponent::execResetPlayerLockOnAimOffset)
+{
+	P_GET_UBOOL(Z_Param_bInstant);
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	P_THIS->ResetPlayerLockOnAimOffset(Z_Param_bInstant);
+	P_NATIVE_END;
+}
+// ********** End Class URenegadeSoldierCombatComponent Function ResetPlayerLockOnAimOffset ********
 
 // ********** Begin Class URenegadeSoldierCombatComponent Function RespawnNow **********************
 #ifdef UHT_STATICS
@@ -6542,6 +6737,7 @@ struct UHT_STATICS
 		{ .NameUTF8 = UTF8TEXT("GetPlayerAimAlpha"), .Pointer = &URenegadeSoldierCombatComponent::execGetPlayerAimAlpha },
 		{ .NameUTF8 = UTF8TEXT("GetPlayerAimCameraComponent"), .Pointer = &URenegadeSoldierCombatComponent::execGetPlayerAimCameraComponent },
 		{ .NameUTF8 = UTF8TEXT("GetPlayerLockOnAimLocation"), .Pointer = &URenegadeSoldierCombatComponent::execGetPlayerLockOnAimLocation },
+		{ .NameUTF8 = UTF8TEXT("GetPlayerLockOnAimOffset"), .Pointer = &URenegadeSoldierCombatComponent::execGetPlayerLockOnAimOffset },
 		{ .NameUTF8 = UTF8TEXT("GetPlayerLockOnIndicatorColor"), .Pointer = &URenegadeSoldierCombatComponent::execGetPlayerLockOnIndicatorColor },
 		{ .NameUTF8 = UTF8TEXT("GetPlayerLockOnIndicatorTexture"), .Pointer = &URenegadeSoldierCombatComponent::execGetPlayerLockOnIndicatorTexture },
 		{ .NameUTF8 = UTF8TEXT("GetPlayerLockOnTarget"), .Pointer = &URenegadeSoldierCombatComponent::execGetPlayerLockOnTarget },
@@ -6576,6 +6772,7 @@ struct UHT_STATICS
 		{ .NameUTF8 = UTF8TEXT("OnRep_PistolAmmo"), .Pointer = &URenegadeSoldierCombatComponent::execOnRep_PistolAmmo },
 		{ .NameUTF8 = UTF8TEXT("OnRep_PlayerAiming"), .Pointer = &URenegadeSoldierCombatComponent::execOnRep_PlayerAiming },
 		{ .NameUTF8 = UTF8TEXT("OnRep_TeamId"), .Pointer = &URenegadeSoldierCombatComponent::execOnRep_TeamId },
+		{ .NameUTF8 = UTF8TEXT("PlayerAddLockOnAimInput"), .Pointer = &URenegadeSoldierCombatComponent::execPlayerAddLockOnAimInput },
 		{ .NameUTF8 = UTF8TEXT("PlayerFireOnce"), .Pointer = &URenegadeSoldierCombatComponent::execPlayerFireOnce },
 		{ .NameUTF8 = UTF8TEXT("PlayerFirePistol"), .Pointer = &URenegadeSoldierCombatComponent::execPlayerFirePistol },
 		{ .NameUTF8 = UTF8TEXT("PlayerLockOnToTarget"), .Pointer = &URenegadeSoldierCombatComponent::execPlayerLockOnToTarget },
@@ -6595,6 +6792,7 @@ struct UHT_STATICS
 		{ .NameUTF8 = UTF8TEXT("PreviewBulletMeshVisual"), .Pointer = &URenegadeSoldierCombatComponent::execPreviewBulletMeshVisual },
 		{ .NameUTF8 = UTF8TEXT("PreviewGroundBloodAtLocation"), .Pointer = &URenegadeSoldierCombatComponent::execPreviewGroundBloodAtLocation },
 		{ .NameUTF8 = UTF8TEXT("RefreshPlayerLockOnTarget"), .Pointer = &URenegadeSoldierCombatComponent::execRefreshPlayerLockOnTarget },
+		{ .NameUTF8 = UTF8TEXT("ResetPlayerLockOnAimOffset"), .Pointer = &URenegadeSoldierCombatComponent::execResetPlayerLockOnAimOffset },
 		{ .NameUTF8 = UTF8TEXT("RespawnNow"), .Pointer = &URenegadeSoldierCombatComponent::execRespawnNow },
 		{ .NameUTF8 = UTF8TEXT("RestorePlayerAimPresentation"), .Pointer = &URenegadeSoldierCombatComponent::execRestorePlayerAimPresentation },
 		{ .NameUTF8 = UTF8TEXT("SelectPlayerAutomaticRifle"), .Pointer = &URenegadeSoldierCombatComponent::execSelectPlayerAutomaticRifle },
@@ -6637,6 +6835,7 @@ struct UHT_STATICS
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerAimAlpha, "GetPlayerAimAlpha" }, // b9258d6bfdebe9179616c3890a000b53cebed188
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerAimCameraComponent, "GetPlayerAimCameraComponent" }, // af7297cb072eeea1f51621702943127d5904255b
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerLockOnAimLocation, "GetPlayerLockOnAimLocation" }, // 0b39d66ee9236fd833456b35cbb5fdd14616b7d8
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerLockOnAimOffset, "GetPlayerLockOnAimOffset" }, // bde322a0b43bbf9b2679208dbcf5d783011d44cc
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerLockOnIndicatorColor, "GetPlayerLockOnIndicatorColor" }, // 3da81fb5f6d94c174605ffe69ee1913c698c0002
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerLockOnIndicatorTexture, "GetPlayerLockOnIndicatorTexture" }, // b539f4459e9419fdd8304a5dc7da78f55eb175a8
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_GetPlayerLockOnTarget, "GetPlayerLockOnTarget" }, // 758288606bc497049e9793e139a5f6ecdb09f39f
@@ -6671,6 +6870,7 @@ struct UHT_STATICS
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_PistolAmmo, "OnRep_PistolAmmo" }, // 048a3c34977f85c775e3a1491672d96613b742c1
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_PlayerAiming, "OnRep_PlayerAiming" }, // aec01c2243e6f0148a0bc222322fbf14388b5f58
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_OnRep_TeamId, "OnRep_TeamId" }, // 7baede63230f963333df75a43c947d49e504247c
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerAddLockOnAimInput, "PlayerAddLockOnAimInput" }, // 0f0a50a0e283a5a2e9cd94acaf672b77af9d7c23
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerFireOnce, "PlayerFireOnce" }, // a558bcf94a876f227ef6232ffcd0ee7eebd75b34
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerFirePistol, "PlayerFirePistol" }, // 76465ebd2cf4d02fbe1b95e87a2d0abde0aea5d9
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PlayerLockOnToTarget, "PlayerLockOnToTarget" }, // b61343643461885589c1c28ee57cbb837761477d
@@ -6690,6 +6890,7 @@ struct UHT_STATICS
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PreviewBulletMeshVisual, "PreviewBulletMeshVisual" }, // e0348e43d4a0d3dd00e7809ceb98e9ff5819558d
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_PreviewGroundBloodAtLocation, "PreviewGroundBloodAtLocation" }, // c136db2553ccd1504d23b36903226faaf68a9759
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_RefreshPlayerLockOnTarget, "RefreshPlayerLockOnTarget" }, // 0c17642f07e6dd34faf3e2be752bbc0be8e66709
+		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_ResetPlayerLockOnAimOffset, "ResetPlayerLockOnAimOffset" }, // a0cf776cb6609a978789ad5b4368061721440433
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_RespawnNow, "RespawnNow" }, // eef0eb0339b955eb5ffaef1b1add0484439da5fe
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_RestorePlayerAimPresentation, "RestorePlayerAimPresentation" }, // d48087f42dd08f3321ded149f950e1aff7c8c1fc
 		{ &Z_Construct_UFunction_URenegadeSoldierCombatComponent_SelectPlayerAutomaticRifle, "SelectPlayerAutomaticRifle" }, // 178afdf7bc86455d9d37014242d04c1dbb0c6336
@@ -6730,7 +6931,7 @@ const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bPlayerControl
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerCombat = { "PlayerCombat", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerCombat), Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerCombat_MetaData), NewProp_PlayerCombat_MetaData) }; // c6d9f506f10c93d8ecea55d4eb7a1253bc056cee
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerInput = { "PlayerInput", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerInput), Z_Construct_UScriptStruct_FRenegadePlayerInputSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerInput_MetaData), NewProp_PlayerInput_MetaData) }; // 58574a0eea27322dc1ff83bc7d328f1f69d8d106
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerAimPresentation = { "PlayerAimPresentation", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerAimPresentation), Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerAimPresentation_MetaData), NewProp_PlayerAimPresentation_MetaData) }; // a30814c671056417cb47a77cda3347d0e6d77de1
-const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerLockOn = { "PlayerLockOn", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerLockOn), Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerLockOn_MetaData), NewProp_PlayerLockOn_MetaData) }; // 72175f83fb93450f98e525a0013544eba6da621d
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerLockOn = { "PlayerLockOn", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerLockOn), Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerLockOn_MetaData), NewProp_PlayerLockOn_MetaData) }; // e3acd254023a39a6ea607b65fc2752d107c54f04
 const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerAimCameraComponent = { "PlayerAimCameraComponent", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerAimCameraComponent), Z_Construct_UScriptStruct_FComponentReference, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerAimCameraComponent_MetaData), NewProp_PlayerAimCameraComponent_MetaData) }; // 9b9ae5abd01cfb2cb2ece10137db004a3044215c
 const UECodeGen_Private::FNamePropertyParams UHT_STATICS::NewProp_PlayerAimCameraComponentTag = { "PlayerAimCameraComponentTag", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Name, nullptr, nullptr, 1, STRUCT_OFFSET(URenegadeSoldierCombatComponent, PlayerAimCameraComponentTag), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerAimCameraComponentTag_MetaData), NewProp_PlayerAimCameraComponentTag_MetaData) };
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUsePlayerWeaponProfiles = { "bUsePlayerWeaponProfiles", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(URenegadeSoldierCombatComponent), &UHT_STATICS::NewProp_bUsePlayerWeaponProfiles_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUsePlayerWeaponProfiles_MetaData), NewProp_bUsePlayerWeaponProfiles_MetaData) };
@@ -6963,10 +7164,10 @@ URenegadeSoldierCombatComponent::~URenegadeSoldierCombatComponent() {}
 struct UHT_STATICS
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
-		{ Z_Construct_UClass_URenegadeSoldierCombatComponent, TEXT("URenegadeSoldierCombatComponent"), &Z_Registration_Info_UClass_URenegadeSoldierCombatComponent, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeSoldierCombatComponent), 2548036073U) },
+		{ Z_Construct_UClass_URenegadeSoldierCombatComponent, TEXT("URenegadeSoldierCombatComponent"), &Z_Registration_Info_UClass_URenegadeSoldierCombatComponent, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(URenegadeSoldierCombatComponent), 2248445558U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h__Script_RenegadeSoldierCombat_f6cf5717a9ea95f4ebd62e085adda1be3a151706{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeSoldierCombatComponent_h__Script_RenegadeSoldierCombat_174ff6da0ff195cd22e6febb78821f265c0e7eb7{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	UHT_STATICS::ClassInfo, UE_ARRAY_COUNT(UHT_STATICS::ClassInfo),
 	nullptr, 0,

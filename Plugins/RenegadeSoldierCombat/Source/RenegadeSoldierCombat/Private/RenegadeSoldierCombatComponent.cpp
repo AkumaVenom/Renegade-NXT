@@ -1961,6 +1961,7 @@ void URenegadeSoldierCombatComponent::UpdateBuiltInPlayerInput(float DeltaTime)
         PlayerSwitchLockOnTarget(true);
     }
 
+    bool bRightStickSwitchInputConsumed = false;
     if (bPlayerLockOnInputHeld && PlayerLockOn.bEnableTargetSwitching && PlayerLockOn.bEnableRightStickFlickSwitching)
     {
         const float SwitchAxis = GetBuiltInInputAxis(PlayerController, PlayerInput.GamepadLookXAxis);
@@ -1972,7 +1973,11 @@ void URenegadeSoldierCombatComponent::UpdateBuiltInPlayerInput(float DeltaTime)
         else if (!bRightStickSwitchLatched && FMath::Abs(SwitchAxis) >= SwitchThreshold)
         {
             bRightStickSwitchLatched = true;
-            PlayerSwitchLockOnTarget(SwitchAxis > 0.0f);
+            bRightStickSwitchInputConsumed = PlayerSwitchLockOnTarget(SwitchAxis > 0.0f);
+        }
+        else if (bRightStickSwitchLatched && FMath::Abs(SwitchAxis) >= SwitchThreshold)
+        {
+            bRightStickSwitchInputConsumed = true;
         }
     }
     else
@@ -1982,10 +1987,21 @@ void URenegadeSoldierCombatComponent::UpdateBuiltInPlayerInput(float DeltaTime)
 
     if (PlayerInput.bEnableBuiltInLookInput && (!PlayerInput.bOnlyLookWhileAiming || bIsPlayerAiming))
     {
-        const float MouseYaw = GetBuiltInInputAxis(PlayerController, PlayerInput.MouseLookXAxis)
-            * FMath::Max(0.0f, PlayerInput.MouseYawSensitivity);
-        float MousePitch = GetBuiltInInputAxis(PlayerController, PlayerInput.MouseLookYAxis)
-            * FMath::Max(0.0f, PlayerInput.MousePitchSensitivity);
+        // MouseX/MouseY are per-frame deltas. GetInputAnalogKeyState can remain zero when
+        // Enhanced Input owns the camera axes, so read the controller's raw mouse delta directly.
+        float RawMouseDeltaX = 0.0f;
+        float RawMouseDeltaY = 0.0f;
+        PlayerController->GetInputMouseDelta(RawMouseDeltaX, RawMouseDeltaY);
+
+        const float RawMouseYaw = PlayerInput.MouseLookXAxis == EKeys::MouseX
+            ? RawMouseDeltaX
+            : GetBuiltInInputAxis(PlayerController, PlayerInput.MouseLookXAxis);
+        const float RawMousePitch = PlayerInput.MouseLookYAxis == EKeys::MouseY
+            ? RawMouseDeltaY
+            : GetBuiltInInputAxis(PlayerController, PlayerInput.MouseLookYAxis);
+
+        const float MouseYaw = RawMouseYaw * FMath::Max(0.0f, PlayerInput.MouseYawSensitivity);
+        float MousePitch = RawMousePitch * FMath::Max(0.0f, PlayerInput.MousePitchSensitivity);
         if (PlayerInput.bInvertMouseY)
         {
             MousePitch *= -1.0f;
@@ -2005,16 +2021,28 @@ void URenegadeSoldierCombatComponent::UpdateBuiltInPlayerInput(float DeltaTime)
         const float AimLookMultiplier = bIsPlayerAiming
             ? FMath::Clamp(PlayerInput.AimingLookSensitivityMultiplier, 0.0f, 2.0f)
             : 1.0f;
-        const float FinalYawInput = (MouseYaw + GamepadYaw) * AimLookMultiplier;
+        const float EffectiveGamepadYaw = bRightStickSwitchInputConsumed ? 0.0f : GamepadYaw;
+        const float FinalYawInput = (MouseYaw + EffectiveGamepadYaw) * AimLookMultiplier;
         const float FinalPitchInput = (MousePitch + GamepadPitch) * AimLookMultiplier;
 
-        if (!FMath::IsNearlyZero(FinalYawInput))
+        const bool bRouteLookToLockPoint = PlayerLockOn.bEnableAimOffsetControl
+            && bPlayerLockOnInputHeld
+            && IsValid(PlayerLockOnTarget);
+        if (bRouteLookToLockPoint)
         {
-            PlayerController->AddYawInput(FinalYawInput);
+            ApplyPlayerLockOnAimInputInternal(FVector2D(FinalYawInput, FinalPitchInput));
         }
-        if (!FMath::IsNearlyZero(FinalPitchInput))
+
+        if (!bRouteLookToLockPoint || !PlayerLockOn.bConsumeLookInputWhileLocked)
         {
-            PlayerController->AddPitchInput(FinalPitchInput);
+            if (!FMath::IsNearlyZero(FinalYawInput))
+            {
+                PlayerController->AddYawInput(FinalYawInput);
+            }
+            if (!FMath::IsNearlyZero(FinalPitchInput))
+            {
+                PlayerController->AddPitchInput(FinalPitchInput);
+            }
         }
     }
 
@@ -2050,10 +2078,201 @@ FVector URenegadeSoldierCombatComponent::GetPlayerLockOnAimLocation() const
     }
 
     // GetAimLocation already applies Targeting.AimHeightOffset to the configured target aim bone.
-    // AimHeightOffset is signed from v1.5.5 onward, so negative values lower the lock point.
+    // The movable input offset is screen-relative: horizontal follows camera right and vertical follows world up.
     const FVector BaseAimLocation = GetAimLocation(PlayerLockOnTarget);
     const FVector LeadOffset = PlayerLockOnTarget->GetVelocity() * FMath::Max(0.0f, PlayerLockOn.TargetLeadSeconds);
-    return BaseAimLocation + PlayerLockOn.TargetAimOffset + LeadOffset;
+    return BaseAimLocation + PlayerLockOn.TargetAimOffset + GetPlayerLockOnManualWorldOffset() + LeadOffset;
+}
+
+void URenegadeSoldierCombatComponent::PlayerAddLockOnAimInput(const FVector2D LookInput, const bool bGamepadInput)
+{
+    if (!PlayerLockOn.bEnableAimOffsetControl || !bPlayerLockOnInputHeld || !IsValid(PlayerLockOnTarget)
+        || !IsLocallyControlledPlayer())
+    {
+        return;
+    }
+
+    const float AimLookMultiplier = bIsPlayerAiming
+        ? FMath::Clamp(PlayerInput.AimingLookSensitivityMultiplier, 0.0f, 2.0f)
+        : 1.0f;
+
+    FVector2D ScaledInput = LookInput;
+    if (bGamepadInput)
+    {
+        const float DeltaSeconds = GetWorld() ? FMath::Max(0.0f, GetWorld()->GetDeltaSeconds()) : 0.0f;
+        ScaledInput.X = ApplyGamepadDeadZone(ScaledInput.X)
+            * FMath::Max(0.0f, PlayerInput.GamepadYawSpeedDegreesPerSecond) * DeltaSeconds;
+        ScaledInput.Y = ApplyGamepadDeadZone(ScaledInput.Y)
+            * FMath::Max(0.0f, PlayerInput.GamepadPitchSpeedDegreesPerSecond) * DeltaSeconds;
+        if (PlayerInput.bInvertGamepadY)
+        {
+            ScaledInput.Y *= -1.0f;
+        }
+    }
+    else
+    {
+        ScaledInput.X *= FMath::Max(0.0f, PlayerInput.MouseYawSensitivity);
+        ScaledInput.Y *= FMath::Max(0.0f, PlayerInput.MousePitchSensitivity);
+        if (PlayerInput.bInvertMouseY)
+        {
+            ScaledInput.Y *= -1.0f;
+        }
+    }
+
+    ApplyPlayerLockOnAimInputInternal(ScaledInput * AimLookMultiplier);
+}
+
+void URenegadeSoldierCombatComponent::ResetPlayerLockOnAimOffset(const bool bInstant)
+{
+    PlayerLockOnAimOffsetTarget = FVector2D::ZeroVector;
+    LastPlayerLockOnAimInputTime = -BIG_NUMBER;
+    if (bInstant || PlayerLockOn.AimOffsetInterpSpeed <= KINDA_SMALL_NUMBER)
+    {
+        PlayerLockOnAimOffsetCurrent = FVector2D::ZeroVector;
+    }
+}
+
+void URenegadeSoldierCombatComponent::ApplyPlayerLockOnAimInputInternal(const FVector2D& SensitivityScaledLookInput)
+{
+    if (!PlayerLockOn.bEnableAimOffsetControl || !IsValid(PlayerLockOnTarget))
+    {
+        return;
+    }
+
+    const float Conversion = FMath::Max(0.0f, PlayerLockOn.AimOffsetCentimetersPerLookDegree);
+    const float HorizontalDelta = SensitivityScaledLookInput.X * Conversion
+        * FMath::Max(0.0f, PlayerLockOn.AimOffsetHorizontalSensitivityMultiplier);
+    // Positive camera pitch input normally looks downward, so invert it to make upward input move the lock point upward.
+    const float VerticalDelta = -SensitivityScaledLookInput.Y * Conversion
+        * FMath::Max(0.0f, PlayerLockOn.AimOffsetVerticalSensitivityMultiplier);
+
+    if (FMath::IsNearlyZero(HorizontalDelta) && FMath::IsNearlyZero(VerticalDelta))
+    {
+        return;
+    }
+
+    PlayerLockOnAimOffsetTarget.X = FMath::Clamp(
+        PlayerLockOnAimOffsetTarget.X + HorizontalDelta,
+        -FMath::Max(0.0f, PlayerLockOn.MaximumHorizontalAimOffset),
+        FMath::Max(0.0f, PlayerLockOn.MaximumHorizontalAimOffset));
+    PlayerLockOnAimOffsetTarget.Y = FMath::Clamp(
+        PlayerLockOnAimOffsetTarget.Y + VerticalDelta,
+        -FMath::Max(0.0f, PlayerLockOn.MaximumDownwardAimOffset),
+        FMath::Max(0.0f, PlayerLockOn.MaximumUpwardAimOffset));
+
+    LastPlayerLockOnAimInputTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+}
+
+void URenegadeSoldierCombatComponent::PollPlayerLockOnAimOffsetInput(const float DeltaTime)
+{
+    if (!PlayerLockOn.bEnableAimOffsetControl || !PlayerLockOn.bAutomaticallyReadConfiguredLookAxes
+        || !bPlayerLockOnInputHeld || !IsValid(PlayerLockOnTarget))
+    {
+        return;
+    }
+
+    // When the plugin's built-in look path is active it already routes the same axes into the offset.
+    if (PlayerInput.bEnableBuiltInInput && PlayerInput.bEnableBuiltInLookInput)
+    {
+        return;
+    }
+
+    APlayerController* PlayerController = Cast<APlayerController>(GetOwningController());
+    if (!IsValid(PlayerController) || !PlayerController->InputEnabled())
+    {
+        return;
+    }
+
+    const float AimLookMultiplier = bIsPlayerAiming
+        ? FMath::Clamp(PlayerInput.AimingLookSensitivityMultiplier, 0.0f, 2.0f)
+        : 1.0f;
+
+    // Enhanced Input often consumes MouseX/MouseY before GetInputAnalogKeyState can report
+    // a useful value. GetInputMouseDelta remains available and makes automatic lock-point
+    // movement work without an extra Blueprint axis call.
+    float RawMouseDeltaX = 0.0f;
+    float RawMouseDeltaY = 0.0f;
+    PlayerController->GetInputMouseDelta(RawMouseDeltaX, RawMouseDeltaY);
+
+    const float RawMouseYaw = PlayerInput.MouseLookXAxis == EKeys::MouseX
+        ? RawMouseDeltaX
+        : GetBuiltInInputAxis(PlayerController, PlayerInput.MouseLookXAxis);
+    const float RawMousePitch = PlayerInput.MouseLookYAxis == EKeys::MouseY
+        ? RawMouseDeltaY
+        : GetBuiltInInputAxis(PlayerController, PlayerInput.MouseLookYAxis);
+
+    const float MouseYaw = RawMouseYaw * FMath::Max(0.0f, PlayerInput.MouseYawSensitivity);
+    float MousePitch = RawMousePitch * FMath::Max(0.0f, PlayerInput.MousePitchSensitivity);
+    if (PlayerInput.bInvertMouseY)
+    {
+        MousePitch *= -1.0f;
+    }
+
+    const float GamepadYaw = ApplyGamepadDeadZone(GetBuiltInInputAxis(PlayerController, PlayerInput.GamepadLookXAxis))
+        * FMath::Max(0.0f, PlayerInput.GamepadYawSpeedDegreesPerSecond)
+        * FMath::Max(0.0f, DeltaTime);
+    float GamepadPitch = ApplyGamepadDeadZone(GetBuiltInInputAxis(PlayerController, PlayerInput.GamepadLookYAxis))
+        * FMath::Max(0.0f, PlayerInput.GamepadPitchSpeedDegreesPerSecond)
+        * FMath::Max(0.0f, DeltaTime);
+    if (PlayerInput.bInvertGamepadY)
+    {
+        GamepadPitch *= -1.0f;
+    }
+
+    ApplyPlayerLockOnAimInputInternal(FVector2D(
+        (MouseYaw + GamepadYaw) * AimLookMultiplier,
+        (MousePitch + GamepadPitch) * AimLookMultiplier));
+}
+
+void URenegadeSoldierCombatComponent::UpdatePlayerLockOnAimOffset(const float DeltaTime)
+{
+    if (!PlayerLockOn.bEnableAimOffsetControl || !IsValid(PlayerLockOnTarget))
+    {
+        ResetPlayerLockOnAimOffset(true);
+        return;
+    }
+
+    const double Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+    const bool bShouldRecenter = PlayerLockOn.bAutoRecenterAimOffset
+        && Now - LastPlayerLockOnAimInputTime >= FMath::Max(0.0f, PlayerLockOn.AimOffsetRecenterDelaySeconds);
+    if (bShouldRecenter)
+    {
+        PlayerLockOnAimOffsetTarget = FVector2D::ZeroVector;
+    }
+
+    const float InterpSpeed = bShouldRecenter
+        ? FMath::Max(0.0f, PlayerLockOn.AimOffsetRecenterInterpSpeed)
+        : FMath::Max(0.0f, PlayerLockOn.AimOffsetInterpSpeed);
+    if (InterpSpeed <= KINDA_SMALL_NUMBER || DeltaTime <= 0.0f)
+    {
+        PlayerLockOnAimOffsetCurrent = PlayerLockOnAimOffsetTarget;
+        return;
+    }
+
+    PlayerLockOnAimOffsetCurrent.X = FMath::FInterpTo(
+        PlayerLockOnAimOffsetCurrent.X, PlayerLockOnAimOffsetTarget.X, DeltaTime, InterpSpeed);
+    PlayerLockOnAimOffsetCurrent.Y = FMath::FInterpTo(
+        PlayerLockOnAimOffsetCurrent.Y, PlayerLockOnAimOffsetTarget.Y, DeltaTime, InterpSpeed);
+}
+
+FVector URenegadeSoldierCombatComponent::GetPlayerLockOnManualWorldOffset() const
+{
+    if (!PlayerLockOn.bEnableAimOffsetControl || PlayerLockOnAimOffsetCurrent.IsNearlyZero())
+    {
+        return FVector::ZeroVector;
+    }
+
+    FVector ScreenRight = GetOwner() ? GetOwner()->GetActorRightVector() : FVector::RightVector;
+    if (AController* Controller = GetOwningController())
+    {
+        FVector ViewLocation;
+        FRotator ViewRotation;
+        Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+        ScreenRight = FRotationMatrix(ViewRotation).GetUnitAxis(EAxis::Y).GetSafeNormal();
+    }
+
+    return ScreenRight * PlayerLockOnAimOffsetCurrent.X
+        + FVector::UpVector * PlayerLockOnAimOffsetCurrent.Y;
 }
 
 void URenegadeSoldierCombatComponent::SetPlayerLockOnIndicatorTexture(UTexture2D* NewTexture)
@@ -2417,6 +2636,10 @@ void URenegadeSoldierCombatComponent::SetPlayerLockOnTargetInternal(AActor* NewT
     AActor* PreviousTarget = PlayerLockOnTarget;
     const bool bWasLocked = IsValid(PreviousTarget);
     PlayerLockOnTarget = NewTarget;
+    if (PlayerLockOn.bResetAimOffsetWhenTargetChanges)
+    {
+        ResetPlayerLockOnAimOffset(true);
+    }
     const bool bIsLocked = IsValid(PlayerLockOnTarget);
 
     if (bIsLocked)
@@ -2452,6 +2675,8 @@ void URenegadeSoldierCombatComponent::ClearPlayerLockOnTargetInternal(const bool
     {
         HideLockOnIndicator();
     }
+
+    ResetPlayerLockOnAimOffset(true);
 
     if (bRestoreAimStartedByLock)
     {
@@ -2523,6 +2748,8 @@ void URenegadeSoldierCombatComponent::UpdatePlayerLockOn(const float DeltaTime)
 
     bPlayerLockOnAimRequested = PlayerLockOn.bAutomaticallyAimWhileLocking;
     RefreshPlayerAimingFromInputSources();
+    PollPlayerLockOnAimOffsetInput(DeltaTime);
+    UpdatePlayerLockOnAimOffset(DeltaTime);
 
     APlayerController* PlayerController = Cast<APlayerController>(GetOwningController());
     if (IsValid(PlayerController))
