@@ -10,6 +10,7 @@ class AActor;
 class UDamageType;
 class UMaterialInterface;
 class UStaticMesh;
+class UTexture2D;
 
 UENUM(BlueprintType)
 enum class ERenegadeWeaponClass : uint8
@@ -161,6 +162,14 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadeTargetingSettings
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting", meta=(ClampMin="0.0"))
     float AimHeightOffset = 8.0f;
+
+    /** PNG/Texture2D displayed over the hostile soldier selected by the local player lock-on system. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting|Player Lock-On Visual", meta=(DisplayName="Lock-On Indicator PNG / Texture", DisplayThumbnail="true"))
+    TObjectPtr<UTexture2D> PlayerLockOnIndicatorTexture = nullptr;
+
+    /** RGBA tint multiplied with the lock-on texture. The alpha channel remains combined with the PNG transparency. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting|Player Lock-On Visual", meta=(DisplayName="Lock-On Indicator Color", sRGB="true"))
+    FLinearColor PlayerLockOnIndicatorColor = FLinearColor::White;
 
     /** Controls whether autonomous infantry may acquire hostile building components as combat targets. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting|Buildings")
@@ -321,6 +330,148 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadePlayerAimPresentationSettings
     /** Uses PlayerCameraManager FOV locking when the player pawn has no usable Camera Component. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Aim Presentation|Camera", meta=(EditCondition="bEnableAimPresentation && bZoomCameraWhileAiming"))
     bool bUsePlayerCameraManagerFallback = true;
+};
+
+
+/**
+ * Local third-person lock-on targeting for player-controlled combatants.
+ * The selected target is cosmetic/local; authoritative shots still use the existing validated player trace path.
+ */
+USTRUCT(BlueprintType)
+struct RENEGADESOLDIERCOMBAT_API FRenegadePlayerLockOnSettings
+{
+    GENERATED_BODY()
+
+    /** Master switch for player lock-on targeting. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On")
+    bool bEnableLockOn = true;
+
+    /** Deprecated v1.5.0 serialization field. Lock-on always uses its dedicated inputs from v1.5.1 onward. */
+    UPROPERTY(meta=(DeprecatedProperty, DeprecationMessage="Normal aim and lock-on now use separate controls."))
+    bool bUseAimInputAsLockOn = false;
+
+    /** Dedicated keyboard lock-on input. Holding it also enters aim when Automatically Aim While Locking is enabled. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Input", meta=(EditCondition="bEnableLockOn"))
+    FKey KeyboardMouseLockOnKey = EKeys::LeftAlt;
+
+    /** Dedicated gamepad lock-on input. Defaults to Left Shoulder / LB, directly above Left Trigger. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Input", meta=(EditCondition="bEnableLockOn"))
+    FKey GamepadLockOnKey = EKeys::Gamepad_LeftShoulder;
+
+    /** Automatically enters the existing player aim state while a target lock is held. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Input", meta=(EditCondition="bEnableLockOn"))
+    bool bAutomaticallyAimWhileLocking = true;
+
+    /** Maximum initial acquisition distance. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Acquisition", meta=(ClampMin="100.0", EditCondition="bEnableLockOn"))
+    float MaximumAcquisitionDistance = 5000.0f;
+
+    /** Maximum view-space angle from the camera forward direction for initial acquisition. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Acquisition", meta=(ClampMin="1.0", ClampMax="179.0", EditCondition="bEnableLockOn"))
+    float AcquisitionHalfAngleDegrees = 42.0f;
+
+    /** Current targets may remain locked slightly farther away than the initial acquisition distance. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Maintenance", meta=(ClampMin="1.0", EditCondition="bEnableLockOn"))
+    float BreakDistanceMultiplier = 1.25f;
+
+    /** Current targets are released if they move this far outside the camera forward direction. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Maintenance", meta=(ClampMin="1.0", ClampMax="179.0", EditCondition="bEnableLockOn"))
+    float BreakHalfAngleDegrees = 78.0f;
+
+    /** Requires a clear visibility trace before initially locking a soldier. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Line of Sight", meta=(EditCondition="bEnableLockOn"))
+    bool bRequireLineOfSightToAcquire = true;
+
+    /** Releases a locked target after continuous obstruction exceeds the grace time. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Line of Sight", meta=(EditCondition="bEnableLockOn"))
+    bool bBreakLockWhenOccluded = true;
+
+    /** Short obstruction grace period prevents cover edges from causing unstable lock flicker. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Line of Sight", meta=(ClampMin="0.0", EditCondition="bEnableLockOn && bBreakLockWhenOccluded"))
+    float OcclusionGraceSeconds = 0.45f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Line of Sight", meta=(EditCondition="bEnableLockOn"))
+    TEnumAsByte<ECollisionChannel> LineOfSightTraceChannel = ECC_Visibility;
+
+    /** Camera/controller interpolation speed toward the locked soldier. Set to 0 for instant tracking. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Camera", meta=(ClampMin="0.0", EditCondition="bEnableLockOn"))
+    float CameraRotationInterpSpeed = 13.0f;
+
+    /** Tracks vertical camera pitch as well as yaw. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Camera", meta=(EditCondition="bEnableLockOn"))
+    bool bTrackTargetPitch = true;
+
+    /** Adds movement prediction to the lock point. Hitscan weapons usually need only a very small value. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Camera", meta=(ClampMin="0.0", ClampMax="1.0", EditCondition="bEnableLockOn"))
+    float TargetLeadSeconds = 0.035f;
+
+    /** Additional world-space offset applied to the combat aim point. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Camera", meta=(EditCondition="bEnableLockOn"))
+    FVector TargetAimOffset = FVector::ZeroVector;
+
+    /** Player shot direction is corrected to the locked soldier while the lock remains valid. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Shooting", meta=(EditCondition="bEnableLockOn"))
+    bool bAimPlayerShotsAtLockedTarget = true;
+
+    /** Maximum angle over which lock-on may correct the submitted player shot direction. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Shooting", meta=(ClampMin="0.0", ClampMax="90.0", EditCondition="bEnableLockOn && bAimPlayerShotsAtLockedTarget"))
+    float MaximumShotAssistAngleDegrees = 18.0f;
+
+    /** Enables manual target cycling. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Switching", meta=(EditCondition="bEnableLockOn"))
+    bool bEnableTargetSwitching = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Switching", meta=(EditCondition="bEnableLockOn && bEnableTargetSwitching"))
+    FKey KeyboardMouseSwitchLeftKey = EKeys::Q;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Switching", meta=(EditCondition="bEnableLockOn && bEnableTargetSwitching"))
+    FKey KeyboardMouseSwitchRightKey = EKeys::E;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Switching", meta=(EditCondition="bEnableLockOn && bEnableTargetSwitching"))
+    FKey GamepadSwitchLeftKey = EKeys::Gamepad_DPad_Left;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Switching", meta=(EditCondition="bEnableLockOn && bEnableTargetSwitching"))
+    FKey GamepadSwitchRightKey = EKeys::Gamepad_DPad_Right;
+
+    /** A right-stick horizontal flick can cycle targets without requiring another gamepad button. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Switching", meta=(EditCondition="bEnableLockOn && bEnableTargetSwitching"))
+    bool bEnableRightStickFlickSwitching = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Switching", meta=(ClampMin="0.1", ClampMax="1.0", EditCondition="bEnableLockOn && bEnableTargetSwitching && bEnableRightStickFlickSwitching"))
+    float RightStickSwitchThreshold = 0.78f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Switching", meta=(ClampMin="0.0", EditCondition="bEnableLockOn && bEnableTargetSwitching"))
+    float TargetSwitchCooldownSeconds = 0.22f;
+
+    /** Deprecated v1.5.1 location retained only so existing Blueprint assignments migrate to Targeting > Player Lock-On Visual. */
+    UPROPERTY(meta=(DeprecatedProperty, DeprecationMessage="Use Targeting.PlayerLockOnIndicatorTexture instead."))
+    TObjectPtr<UTexture2D> LockOnIndicatorTexture = nullptr;
+
+    /** World-space offset from the target combat aim point. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Indicator", meta=(EditCondition="bEnableLockOn"))
+    FVector LockOnIndicatorWorldOffset = FVector(0.0f, 0.0f, 15.0f);
+
+    /** Base world scale of the indicator billboard. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Indicator", meta=(EditCondition="bEnableLockOn"))
+    FVector LockOnIndicatorScale = FVector(0.35f, 0.35f, 0.35f);
+
+    /** Keeps the indicator approximately consistent in screen size over distance. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Indicator", meta=(EditCondition="bEnableLockOn"))
+    bool bUseScreenSizeScaling = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Indicator", meta=(ClampMin="0.0001", EditCondition="bEnableLockOn && bUseScreenSizeScaling"))
+    float IndicatorScreenSize = 0.0025f;
+
+    /** Subtle scale pulse amplitude. 0 disables pulsing. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Indicator", meta=(ClampMin="0.0", ClampMax="1.0", EditCondition="bEnableLockOn"))
+    float IndicatorPulseAmount = 0.10f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Indicator", meta=(ClampMin="0.0", EditCondition="bEnableLockOn"))
+    float IndicatorPulseSpeed = 5.0f;
+
+    /** Draws acquisition candidates, the active target line, and the line-of-sight result. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player Lock-On|Debug", meta=(EditCondition="bEnableLockOn"))
+    bool bDrawLockOnDebug = false;
 };
 
 

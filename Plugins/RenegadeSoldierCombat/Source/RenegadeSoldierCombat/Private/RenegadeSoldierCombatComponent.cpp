@@ -8,6 +8,7 @@
 #include "CollisionQueryParams.h"
 #include "EngineUtils.h"
 #include "Engine/World.h"
+#include "Engine/Texture2D.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -16,6 +17,9 @@
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
 #include "InputCoreTypes.h"
+#include "Components/WidgetComponent.h"
+#include "Widgets/Images/SImage.h"
+#include "Styling/SlateColor.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/SceneComponent.h"
@@ -266,6 +270,29 @@ URenegadeSoldierCombatComponent::URenegadeSoldierCombatComponent()
     InlinePlayerPistolSettings.ReloadSeconds = 1.55f;
 }
 
+void URenegadeSoldierCombatComponent::PostLoad()
+{
+    Super::PostLoad();
+
+    // v1.5.0 used normal Aim as lock-on and stored empty dedicated keys in existing Blueprint templates.
+    // v1.5.1 permanently separates the controls and upgrades those older serialized defaults safely.
+    PlayerLockOn.bUseAimInputAsLockOn = false;
+    if (!PlayerLockOn.KeyboardMouseLockOnKey.IsValid())
+    {
+        PlayerLockOn.KeyboardMouseLockOnKey = EKeys::LeftAlt;
+    }
+    if (!PlayerLockOn.GamepadLockOnKey.IsValid())
+    {
+        PlayerLockOn.GamepadLockOnKey = EKeys::Gamepad_LeftShoulder;
+    }
+
+    // v1.5.2 exposes the visual directly inside the main Targeting section. Preserve old Blueprint assignments.
+    if (!IsValid(Targeting.PlayerLockOnIndicatorTexture) && IsValid(PlayerLockOn.LockOnIndicatorTexture))
+    {
+        Targeting.PlayerLockOnIndicatorTexture = PlayerLockOn.LockOnIndicatorTexture;
+    }
+}
+
 void URenegadeSoldierCombatComponent::BeginPlay()
 {
     Super::BeginPlay();
@@ -338,6 +365,8 @@ void URenegadeSoldierCombatComponent::EndPlay(const EEndPlayReason::Type EndPlay
     RestorePlayerAimCameraZoom(true);
     PlayerAimAlpha = 0.0f;
     ResetBuiltInPlayerInputState(false);
+    ClearPlayerLockOnTargetInternal(false);
+    DestroyLockOnIndicator();
     StopLocalPlayerFireTimer();
     StopAllBulletMeshVisuals();
 
@@ -373,6 +402,9 @@ void URenegadeSoldierCombatComponent::TickComponent(float DeltaTime, ELevelTick 
 
     // Optional self-contained input runs only for the owning local player.
     UpdateBuiltInPlayerInput(DeltaTime);
+
+    // Local TPS lock-on steers controller aim before Character-facing and camera zoom presentation run.
+    UpdatePlayerLockOn(DeltaTime);
 
     // Player aim presentation owns camera zoom and camera-facing Character yaw while aiming.
     UpdatePlayerAimPresentation(DeltaTime);
@@ -1058,6 +1090,7 @@ bool URenegadeSoldierCombatComponent::ResolveLocalPlayerView(FVector& OutViewLoc
         return false;
     }
 
+    bool bResolvedView = false;
     if (PlayerCombat.bUseControllerViewForAim)
     {
         if (AController* Controller = GetOwningController())
@@ -1065,14 +1098,37 @@ bool URenegadeSoldierCombatComponent::ResolveLocalPlayerView(FVector& OutViewLoc
             FRotator ViewRotation;
             Controller->GetPlayerViewPoint(OutViewLocation, ViewRotation);
             OutViewDirection = ViewRotation.Vector().GetSafeNormal();
-            return !OutViewDirection.IsNearlyZero();
+            bResolvedView = !OutViewDirection.IsNearlyZero();
         }
     }
 
-    FRotator EyeRotation;
-    OwnerCharacter->GetActorEyesViewPoint(OutViewLocation, EyeRotation);
-    OutViewDirection = EyeRotation.Vector().GetSafeNormal();
-    return !OutViewDirection.IsNearlyZero();
+    if (!bResolvedView)
+    {
+        FRotator EyeRotation;
+        OwnerCharacter->GetActorEyesViewPoint(OutViewLocation, EyeRotation);
+        OutViewDirection = EyeRotation.Vector().GetSafeNormal();
+        bResolvedView = !OutViewDirection.IsNearlyZero();
+    }
+
+    if (bResolvedView
+        && PlayerLockOn.bEnableLockOn
+        && PlayerLockOn.bAimPlayerShotsAtLockedTarget
+        && IsValid(PlayerLockOnTarget)
+        && IsPlayerLockOnCandidateValid(PlayerLockOnTarget, false))
+    {
+        const FVector AssistedDirection = (GetPlayerLockOnAimLocation() - OutViewLocation).GetSafeNormal();
+        if (!AssistedDirection.IsNearlyZero())
+        {
+            const float Dot = FMath::Clamp(FVector::DotProduct(OutViewDirection, AssistedDirection), -1.0f, 1.0f);
+            const float AssistAngle = FMath::RadiansToDegrees(FMath::Acos(Dot));
+            if (AssistAngle <= FMath::Max(0.0f, PlayerLockOn.MaximumShotAssistAngleDegrees))
+            {
+                OutViewDirection = AssistedDirection;
+            }
+        }
+    }
+
+    return bResolvedView;
 }
 
 void URenegadeSoldierCombatComponent::PlayerStartFire()
@@ -1667,6 +1723,9 @@ void URenegadeSoldierCombatComponent::SnapPlayerCharacterToAimForward()
 void URenegadeSoldierCombatComponent::RestorePlayerAimPresentation()
 {
     const bool bWasAiming = bIsPlayerAiming;
+    bPlayerAimInputRequested = false;
+    bPlayerLockOnAimRequested = false;
+    bBuiltInToggleAimLatched = false;
     bIsPlayerAiming = false;
     RestorePlayerAimRotationMode();
     RestorePlayerAimCameraZoom(true);
@@ -1695,16 +1754,37 @@ void URenegadeSoldierCombatComponent::PlayerSetAiming(bool bNewAiming)
         return;
     }
 
-    bNewAiming = bNewAiming && !bIsDead;
-    if (bIsPlayerAiming == bNewAiming)
+    bPlayerAimInputRequested = bNewAiming && !bIsDead;
+    RefreshPlayerAimingFromInputSources();
+}
+
+void URenegadeSoldierCombatComponent::PlayerStartAiming()
+{
+    PlayerSetAiming(true);
+}
+
+void URenegadeSoldierCombatComponent::PlayerStopAiming()
+{
+    PlayerSetAiming(false);
+}
+
+void URenegadeSoldierCombatComponent::RefreshPlayerAimingFromInputSources()
+{
+    if (!bPlayerControlledCombat || (!IsLocallyControlledPlayer() && !HasAuthority()))
     {
         return;
     }
 
-    SetPlayerAimingInternal(bNewAiming);
-    if (!HasAuthority())
+    const bool bDesiredAiming = !bIsDead && (bPlayerAimInputRequested || bPlayerLockOnAimRequested);
+    if (bIsPlayerAiming == bDesiredAiming)
     {
-        ServerSetPlayerAiming(bNewAiming);
+        return;
+    }
+
+    SetPlayerAimingInternal(bDesiredAiming);
+    if (!HasAuthority() && IsLocallyControlledPlayer())
+    {
+        ServerSetPlayerAiming(bDesiredAiming);
     }
 }
 
@@ -1756,16 +1836,29 @@ void URenegadeSoldierCombatComponent::ResetBuiltInPlayerInputState(bool bClearAi
     }
 
     bBuiltInFireCommandActive = false;
+    bPlayerAimInputRequested = false;
+    bPlayerLockOnAimRequested = false;
+    bBuiltInToggleAimLatched = false;
     bPreviousBuiltInAimDown = false;
     bPreviousBuiltInReloadDown = false;
     bPreviousBuiltInSelectRifleDown = false;
     bPreviousBuiltInSelectPistolDown = false;
+    bPreviousBuiltInLockOnDown = false;
+    bPreviousBuiltInSwitchLeftDown = false;
+    bPreviousBuiltInSwitchRightDown = false;
+    bRightStickSwitchLatched = false;
+
+    if (bPlayerLockOnInputHeld || IsValid(PlayerLockOnTarget))
+    {
+        bPlayerLockOnInputHeld = false;
+        ClearPlayerLockOnTargetInternal(bClearAimState);
+    }
 
     if (bClearAimState && bIsPlayerAiming)
     {
         if (IsLocallyControlledPlayer())
         {
-            PlayerSetAiming(false);
+            RefreshPlayerAimingFromInputSources();
         }
         else
         {
@@ -1820,16 +1913,71 @@ void URenegadeSoldierCombatComponent::UpdateBuiltInPlayerInput(float DeltaTime)
 
     const bool bAimDown = IsBuiltInInputKeyDown(PlayerController, PlayerInput.KeyboardMouseAimKey)
         || IsBuiltInInputKeyDown(PlayerController, PlayerInput.GamepadAimKey);
+
     if (PlayerInput.bToggleAim)
     {
         if (bAimDown && !bPreviousBuiltInAimDown)
         {
-            PlayerSetAiming(!bIsPlayerAiming);
+            bBuiltInToggleAimLatched = !bBuiltInToggleAimLatched;
+        }
+        bPlayerAimInputRequested = bBuiltInToggleAimLatched;
+    }
+    else
+    {
+        bBuiltInToggleAimLatched = false;
+        bPlayerAimInputRequested = bAimDown;
+    }
+
+    const FKey KeyboardLockOnKey = PlayerLockOn.KeyboardMouseLockOnKey.IsValid()
+        ? PlayerLockOn.KeyboardMouseLockOnKey
+        : EKeys::LeftAlt;
+    const FKey GamepadLockOnKey = PlayerLockOn.GamepadLockOnKey.IsValid()
+        ? PlayerLockOn.GamepadLockOnKey
+        : EKeys::Gamepad_LeftShoulder;
+    const bool bDedicatedLockOnDown = IsBuiltInInputKeyDown(PlayerController, KeyboardLockOnKey)
+        || IsBuiltInInputKeyDown(PlayerController, GamepadLockOnKey);
+    const bool bLockOnDown = PlayerLockOn.bEnableLockOn && bDedicatedLockOnDown;
+    if (bLockOnDown != bPreviousBuiltInLockOnDown)
+    {
+        PlayerSetLockOnHeld(bLockOnDown);
+    }
+
+    // Normal aim and lock-on aim are independent sources. Either one keeps the full aim presentation active.
+    RefreshPlayerAimingFromInputSources();
+
+    const bool bSwitchLeftDown = PlayerLockOn.bEnableTargetSwitching
+        && (IsBuiltInInputKeyDown(PlayerController, PlayerLockOn.KeyboardMouseSwitchLeftKey)
+            || IsBuiltInInputKeyDown(PlayerController, PlayerLockOn.GamepadSwitchLeftKey));
+    const bool bSwitchRightDown = PlayerLockOn.bEnableTargetSwitching
+        && (IsBuiltInInputKeyDown(PlayerController, PlayerLockOn.KeyboardMouseSwitchRightKey)
+            || IsBuiltInInputKeyDown(PlayerController, PlayerLockOn.GamepadSwitchRightKey));
+
+    if (bPlayerLockOnInputHeld && bSwitchLeftDown && !bPreviousBuiltInSwitchLeftDown)
+    {
+        PlayerSwitchLockOnTarget(false);
+    }
+    if (bPlayerLockOnInputHeld && bSwitchRightDown && !bPreviousBuiltInSwitchRightDown)
+    {
+        PlayerSwitchLockOnTarget(true);
+    }
+
+    if (bPlayerLockOnInputHeld && PlayerLockOn.bEnableTargetSwitching && PlayerLockOn.bEnableRightStickFlickSwitching)
+    {
+        const float SwitchAxis = GetBuiltInInputAxis(PlayerController, PlayerInput.GamepadLookXAxis);
+        const float SwitchThreshold = FMath::Clamp(PlayerLockOn.RightStickSwitchThreshold, 0.1f, 1.0f);
+        if (FMath::Abs(SwitchAxis) <= SwitchThreshold * 0.45f)
+        {
+            bRightStickSwitchLatched = false;
+        }
+        else if (!bRightStickSwitchLatched && FMath::Abs(SwitchAxis) >= SwitchThreshold)
+        {
+            bRightStickSwitchLatched = true;
+            PlayerSwitchLockOnTarget(SwitchAxis > 0.0f);
         }
     }
-    else if (bAimDown != bIsPlayerAiming)
+    else
     {
-        PlayerSetAiming(bAimDown);
+        bRightStickSwitchLatched = false;
     }
 
     if (PlayerInput.bEnableBuiltInLookInput && (!PlayerInput.bOnlyLookWhileAiming || bIsPlayerAiming))
@@ -1889,6 +2037,620 @@ void URenegadeSoldierCombatComponent::UpdateBuiltInPlayerInput(float DeltaTime)
     bPreviousBuiltInReloadDown = bReloadDown;
     bPreviousBuiltInSelectRifleDown = bSelectRifleDown;
     bPreviousBuiltInSelectPistolDown = bSelectPistolDown;
+    bPreviousBuiltInLockOnDown = bLockOnDown;
+    bPreviousBuiltInSwitchLeftDown = bSwitchLeftDown;
+    bPreviousBuiltInSwitchRightDown = bSwitchRightDown;
+}
+
+FVector URenegadeSoldierCombatComponent::GetPlayerLockOnAimLocation() const
+{
+    if (!IsValid(PlayerLockOnTarget))
+    {
+        return FVector::ZeroVector;
+    }
+
+    return GetAimLocation(PlayerLockOnTarget)
+        + PlayerLockOn.TargetAimOffset
+        + PlayerLockOnTarget->GetVelocity() * FMath::Max(0.0f, PlayerLockOn.TargetLeadSeconds);
+}
+
+void URenegadeSoldierCombatComponent::SetPlayerLockOnIndicatorTexture(UTexture2D* NewTexture)
+{
+    Targeting.PlayerLockOnIndicatorTexture = NewTexture;
+    PlayerLockOn.LockOnIndicatorTexture = NewTexture; // Keep the legacy serialized field synchronized.
+    if (IsValid(NewTexture) && IsValid(PlayerLockOnTarget))
+    {
+        CreateOrUpdateLockOnIndicator();
+    }
+    else
+    {
+        HideLockOnIndicator();
+    }
+}
+
+void URenegadeSoldierCombatComponent::SetPlayerLockOnIndicatorColor(FLinearColor NewColor)
+{
+    Targeting.PlayerLockOnIndicatorColor = NewColor;
+
+    // The PNG is rendered by the Slate image hosted inside the Widget Component.
+    // Tint the image itself so RGB and alpha are multiplied with the source texture.
+    if (PlayerLockOnIndicatorSlateImage.IsValid())
+    {
+        PlayerLockOnIndicatorSlateImage->SetColorAndOpacity(FSlateColor(Targeting.PlayerLockOnIndicatorColor));
+    }
+
+    if (IsValid(PlayerLockOnIndicatorComponent))
+    {
+        // Keep the outer component neutral to avoid multiplying the selected tint twice.
+        PlayerLockOnIndicatorComponent->SetTintColorAndOpacity(FLinearColor::White);
+        PlayerLockOnIndicatorComponent->RequestRenderUpdate();
+    }
+}
+
+void URenegadeSoldierCombatComponent::PlayerStartLockOn()
+{
+    if (!PlayerLockOn.bEnableLockOn || bIsDead || !IsLocallyControlledPlayer())
+    {
+        return;
+    }
+
+    bPlayerLockOnInputHeld = true;
+    bPlayerLockOnAimRequested = PlayerLockOn.bAutomaticallyAimWhileLocking;
+    RefreshPlayerAimingFromInputSources();
+
+    RefreshPlayerLockOnTarget();
+    UpdateComponentTickState();
+}
+
+void URenegadeSoldierCombatComponent::PlayerStopLockOn()
+{
+    bPlayerLockOnInputHeld = false;
+    bPlayerLockOnAimRequested = false;
+    ClearPlayerLockOnTargetInternal(false);
+    RefreshPlayerAimingFromInputSources();
+    UpdateComponentTickState();
+}
+
+void URenegadeSoldierCombatComponent::PlayerSetLockOnHeld(const bool bHeld)
+{
+    if (bHeld)
+    {
+        PlayerStartLockOn();
+    }
+    else
+    {
+        PlayerStopLockOn();
+    }
+}
+
+bool URenegadeSoldierCombatComponent::PlayerLockOnToTarget(AActor* NewTarget)
+{
+    if (!PlayerLockOn.bEnableLockOn || bIsDead || !IsLocallyControlledPlayer()
+        || !IsPlayerLockOnCandidateValid(NewTarget, true)
+        || (PlayerLockOn.bRequireLineOfSightToAcquire && !HasPlayerLockOnLineOfSight(NewTarget)))
+    {
+        return false;
+    }
+
+    bPlayerLockOnInputHeld = true;
+    bPlayerLockOnAimRequested = PlayerLockOn.bAutomaticallyAimWhileLocking;
+    RefreshPlayerAimingFromInputSources();
+
+    SetPlayerLockOnTargetInternal(NewTarget);
+    UpdateComponentTickState();
+    return true;
+}
+
+bool URenegadeSoldierCombatComponent::RefreshPlayerLockOnTarget()
+{
+    if (!PlayerLockOn.bEnableLockOn || bIsDead || !IsLocallyControlledPlayer())
+    {
+        return false;
+    }
+
+    if (IsValid(PlayerLockOnTarget) && IsPlayerLockOnCandidateValid(PlayerLockOnTarget, false))
+    {
+        return true;
+    }
+
+    AActor* BestTarget = FindBestPlayerLockOnTarget();
+    SetPlayerLockOnTargetInternal(BestTarget);
+    LastPlayerLockOnSearchTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+    return IsValid(BestTarget);
+}
+
+bool URenegadeSoldierCombatComponent::PlayerSwitchLockOnTarget(const bool bSwitchRight)
+{
+    if (!PlayerLockOn.bEnableLockOn || !PlayerLockOn.bEnableTargetSwitching
+        || bIsDead || !IsLocallyControlledPlayer())
+    {
+        return false;
+    }
+
+    const double Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+    if (Now - LastPlayerLockOnSwitchTime < FMath::Max(0.0f, PlayerLockOn.TargetSwitchCooldownSeconds))
+    {
+        return false;
+    }
+
+    AActor* NewTarget = IsValid(PlayerLockOnTarget)
+        ? FindDirectionalPlayerLockOnTarget(bSwitchRight)
+        : FindBestPlayerLockOnTarget();
+    if (!IsValid(NewTarget))
+    {
+        return false;
+    }
+
+    LastPlayerLockOnSwitchTime = Now;
+    SetPlayerLockOnTargetInternal(NewTarget);
+    return true;
+}
+
+bool URenegadeSoldierCombatComponent::IsPlayerLockOnCandidateValid(const AActor* Candidate, const bool bForAcquisition) const
+{
+    if (!PlayerLockOn.bEnableLockOn || !IsValid(Candidate) || Candidate == GetOwner()
+        || !IsValid(GetOwner()) || !IsHostileToActor(Candidate))
+    {
+        return false;
+    }
+
+    const URenegadeSoldierCombatComponent* CandidateCombat = Candidate->FindComponentByClass<URenegadeSoldierCombatComponent>();
+    if (!IsValid(CandidateCombat) || !CandidateCombat->bRegisterAsCombatTarget || CandidateCombat->bIsDead)
+    {
+        return false;
+    }
+
+    FVector ViewLocation = GetOwner()->GetActorLocation();
+    FVector ViewDirection = GetOwner()->GetActorForwardVector();
+    if (AController* Controller = GetOwningController())
+    {
+        FRotator ViewRotation;
+        Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+        ViewDirection = ViewRotation.Vector().GetSafeNormal();
+    }
+
+    const FVector ToTarget = GetAimLocation(Candidate) - ViewLocation;
+    const float Distance = ToTarget.Size();
+    if (Distance <= KINDA_SMALL_NUMBER)
+    {
+        return false;
+    }
+
+    const float MaximumDistance = FMath::Max(100.0f, PlayerLockOn.MaximumAcquisitionDistance)
+        * (bForAcquisition ? 1.0f : FMath::Max(1.0f, PlayerLockOn.BreakDistanceMultiplier));
+    if (Distance > MaximumDistance)
+    {
+        return false;
+    }
+
+    const float Dot = FMath::Clamp(FVector::DotProduct(ViewDirection, ToTarget / Distance), -1.0f, 1.0f);
+    const float AngleDegrees = FMath::RadiansToDegrees(FMath::Acos(Dot));
+    const float MaximumAngle = bForAcquisition
+        ? FMath::Clamp(PlayerLockOn.AcquisitionHalfAngleDegrees, 1.0f, 179.0f)
+        : FMath::Clamp(PlayerLockOn.BreakHalfAngleDegrees, 1.0f, 179.0f);
+    return AngleDegrees <= MaximumAngle;
+}
+
+bool URenegadeSoldierCombatComponent::HasPlayerLockOnLineOfSight(const AActor* Candidate) const
+{
+    if (!IsValid(Candidate) || !IsValid(GetOwner()) || !GetWorld())
+    {
+        return false;
+    }
+
+    FVector TraceStart = GetOwner()->GetActorLocation();
+    if (AController* Controller = GetOwningController())
+    {
+        FRotator ViewRotation;
+        Controller->GetPlayerViewPoint(TraceStart, ViewRotation);
+    }
+    else if (IsValid(OwnerCharacter))
+    {
+        FRotator EyeRotation;
+        OwnerCharacter->GetActorEyesViewPoint(TraceStart, EyeRotation);
+    }
+
+    const FVector TraceEnd = GetAimLocation(Candidate) + PlayerLockOn.TargetAimOffset;
+    FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(RenegadePlayerLockOnLOS), true, GetOwner());
+    RenegadeCombatPrivate::AddOwnerHierarchyToTraceIgnore(GetOwner(), QueryParams);
+
+    FHitResult Hit;
+    const bool bHit = GetWorld()->LineTraceSingleByChannel(
+        Hit,
+        TraceStart,
+        TraceEnd,
+        PlayerLockOn.LineOfSightTraceChannel,
+        QueryParams);
+
+    bool bVisible = !bHit || Hit.GetActor() == Candidate;
+    if (!bVisible && bHit)
+    {
+        if (const URenegadeSoldierCombatComponent* ResolvedCombat = RenegadeCombatPrivate::ResolveCombatComponentFromActorHierarchy(Hit.GetActor()))
+        {
+            bVisible = ResolvedCombat->GetOwner() == Candidate;
+        }
+    }
+
+    if (PlayerLockOn.bDrawLockOnDebug)
+    {
+        DrawDebugLine(GetWorld(), TraceStart, bHit ? Hit.ImpactPoint : TraceEnd,
+            bVisible ? FColor::Green : FColor::Red, false, 0.05f, 0, 1.5f);
+    }
+
+    return bVisible;
+}
+
+AActor* URenegadeSoldierCombatComponent::FindBestPlayerLockOnTarget(const AActor* ExcludedTarget) const
+{
+    if (!GetWorld() || !IsValid(GetOwner()))
+    {
+        return nullptr;
+    }
+
+    URenegadeCombatRegistrySubsystem* Registry = GetWorld()->GetSubsystem<URenegadeCombatRegistrySubsystem>();
+    if (!IsValid(Registry))
+    {
+        return nullptr;
+    }
+
+    FVector ViewLocation = GetOwner()->GetActorLocation();
+    FVector ViewDirection = GetOwner()->GetActorForwardVector();
+    if (AController* Controller = GetOwningController())
+    {
+        FRotator ViewRotation;
+        Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+        ViewDirection = ViewRotation.Vector().GetSafeNormal();
+    }
+
+    TArray<URenegadeSoldierCombatComponent*> Combatants;
+    Registry->GetCombatants(Combatants);
+
+    AActor* BestTarget = nullptr;
+    float BestScore = BIG_NUMBER;
+    const float MaximumDistance = FMath::Max(100.0f, PlayerLockOn.MaximumAcquisitionDistance);
+    const float MaximumAngle = FMath::Clamp(PlayerLockOn.AcquisitionHalfAngleDegrees, 1.0f, 179.0f);
+
+    for (const URenegadeSoldierCombatComponent* CandidateCombat : Combatants)
+    {
+        AActor* Candidate = IsValid(CandidateCombat) ? CandidateCombat->GetOwner() : nullptr;
+        if (!IsValid(Candidate) || Candidate == ExcludedTarget || !IsPlayerLockOnCandidateValid(Candidate, true))
+        {
+            continue;
+        }
+
+        if (PlayerLockOn.bRequireLineOfSightToAcquire && !HasPlayerLockOnLineOfSight(Candidate))
+        {
+            continue;
+        }
+
+        const FVector ToTarget = GetAimLocation(Candidate) - ViewLocation;
+        const float Distance = FMath::Max(1.0f, ToTarget.Size());
+        const float Dot = FMath::Clamp(FVector::DotProduct(ViewDirection, ToTarget / Distance), -1.0f, 1.0f);
+        const float Angle = FMath::RadiansToDegrees(FMath::Acos(Dot));
+        const float Score = (Angle / MaximumAngle) * 0.82f + (Distance / MaximumDistance) * 0.18f;
+
+        if (Score < BestScore)
+        {
+            BestScore = Score;
+            BestTarget = Candidate;
+        }
+
+        if (PlayerLockOn.bDrawLockOnDebug)
+        {
+            DrawDebugSphere(GetWorld(), GetAimLocation(Candidate), 22.0f, 8, FColor::Cyan, false, 0.05f, 0, 1.0f);
+        }
+    }
+
+    return BestTarget;
+}
+
+AActor* URenegadeSoldierCombatComponent::FindDirectionalPlayerLockOnTarget(const bool bSwitchRight) const
+{
+    if (!IsValid(PlayerLockOnTarget) || !GetWorld())
+    {
+        return FindBestPlayerLockOnTarget();
+    }
+
+    URenegadeCombatRegistrySubsystem* Registry = GetWorld()->GetSubsystem<URenegadeCombatRegistrySubsystem>();
+    if (!IsValid(Registry))
+    {
+        return nullptr;
+    }
+
+    FVector ViewLocation = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
+    if (AController* Controller = GetOwningController())
+    {
+        FRotator ViewRotation;
+        Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+    }
+
+    const float CurrentYaw = (GetAimLocation(PlayerLockOnTarget) - ViewLocation).Rotation().Yaw;
+    AActor* BestPrimary = nullptr;
+    AActor* BestWrap = nullptr;
+    float BestPrimaryMagnitude = BIG_NUMBER;
+    float BestWrapMagnitude = -BIG_NUMBER;
+
+    TArray<URenegadeSoldierCombatComponent*> Combatants;
+    Registry->GetCombatants(Combatants);
+    for (const URenegadeSoldierCombatComponent* CandidateCombat : Combatants)
+    {
+        AActor* Candidate = IsValid(CandidateCombat) ? CandidateCombat->GetOwner() : nullptr;
+        if (!IsValid(Candidate) || Candidate == PlayerLockOnTarget || !IsPlayerLockOnCandidateValid(Candidate, true))
+        {
+            continue;
+        }
+        if (PlayerLockOn.bRequireLineOfSightToAcquire && !HasPlayerLockOnLineOfSight(Candidate))
+        {
+            continue;
+        }
+
+        const float CandidateYaw = (GetAimLocation(Candidate) - ViewLocation).Rotation().Yaw;
+        const float DeltaYaw = FMath::FindDeltaAngleDegrees(CurrentYaw, CandidateYaw);
+        const bool bPrimarySide = bSwitchRight ? DeltaYaw > 1.0f : DeltaYaw < -1.0f;
+        const float Magnitude = FMath::Abs(DeltaYaw);
+
+        if (bPrimarySide && Magnitude < BestPrimaryMagnitude)
+        {
+            BestPrimaryMagnitude = Magnitude;
+            BestPrimary = Candidate;
+        }
+        else if (!bPrimarySide && Magnitude > BestWrapMagnitude)
+        {
+            BestWrapMagnitude = Magnitude;
+            BestWrap = Candidate;
+        }
+    }
+
+    return IsValid(BestPrimary) ? BestPrimary : BestWrap;
+}
+
+void URenegadeSoldierCombatComponent::SetPlayerLockOnTargetInternal(AActor* NewTarget)
+{
+    if (NewTarget == PlayerLockOnTarget)
+    {
+        CreateOrUpdateLockOnIndicator();
+        return;
+    }
+
+    AActor* PreviousTarget = PlayerLockOnTarget;
+    const bool bWasLocked = IsValid(PreviousTarget);
+    PlayerLockOnTarget = NewTarget;
+    const bool bIsLocked = IsValid(PlayerLockOnTarget);
+
+    if (bIsLocked)
+    {
+        LastPlayerLockOnVisibleTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+        bPlayerLockOnAimRequested = PlayerLockOn.bAutomaticallyAimWhileLocking && bPlayerLockOnInputHeld;
+        RefreshPlayerAimingFromInputSources();
+        CreateOrUpdateLockOnIndicator();
+    }
+    else
+    {
+        HideLockOnIndicator();
+    }
+
+    OnPlayerLockOnTargetChanged.Broadcast(PreviousTarget, PlayerLockOnTarget);
+    if (bWasLocked != bIsLocked)
+    {
+        OnPlayerLockOnStateChanged.Broadcast(bIsLocked);
+    }
+}
+
+void URenegadeSoldierCombatComponent::ClearPlayerLockOnTargetInternal(const bool bRestoreAimStartedByLock)
+{
+    if (IsValid(PlayerLockOnTarget))
+    {
+        AActor* PreviousTarget = PlayerLockOnTarget;
+        PlayerLockOnTarget = nullptr;
+        HideLockOnIndicator();
+        OnPlayerLockOnTargetChanged.Broadcast(PreviousTarget, nullptr);
+        OnPlayerLockOnStateChanged.Broadcast(false);
+    }
+    else
+    {
+        HideLockOnIndicator();
+    }
+
+    if (bRestoreAimStartedByLock)
+    {
+        bPlayerLockOnAimRequested = false;
+        RefreshPlayerAimingFromInputSources();
+    }
+}
+
+void URenegadeSoldierCombatComponent::UpdatePlayerLockOn(const float DeltaTime)
+{
+    if (!IsLocallyControlledPlayer())
+    {
+        return;
+    }
+
+    if (!PlayerLockOn.bEnableLockOn || bIsDead || !bPlayerLockOnInputHeld)
+    {
+        const bool bShouldRestoreAim = !bPlayerLockOnInputHeld || bIsDead || !PlayerLockOn.bEnableLockOn;
+        if (bIsDead || !PlayerLockOn.bEnableLockOn)
+        {
+            bPlayerLockOnInputHeld = false;
+        }
+
+        if (IsValid(PlayerLockOnTarget) || bPlayerLockOnAimRequested)
+        {
+            if (bShouldRestoreAim)
+            {
+                bPlayerLockOnAimRequested = false;
+            }
+            ClearPlayerLockOnTargetInternal(bShouldRestoreAim);
+        }
+        else
+        {
+            HideLockOnIndicator();
+        }
+        return;
+    }
+
+    const double Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+    bool bTargetValid = IsValid(PlayerLockOnTarget) && IsPlayerLockOnCandidateValid(PlayerLockOnTarget, false);
+    if (bTargetValid)
+    {
+        const bool bVisible = HasPlayerLockOnLineOfSight(PlayerLockOnTarget);
+        if (bVisible)
+        {
+            LastPlayerLockOnVisibleTime = Now;
+        }
+        else if (PlayerLockOn.bBreakLockWhenOccluded
+            && Now - LastPlayerLockOnVisibleTime > FMath::Max(0.0f, PlayerLockOn.OcclusionGraceSeconds))
+        {
+            bTargetValid = false;
+        }
+    }
+
+    if (!bTargetValid)
+    {
+        ClearPlayerLockOnTargetInternal(false);
+        if (Now - LastPlayerLockOnSearchTime >= 0.10)
+        {
+            LastPlayerLockOnSearchTime = Now;
+            SetPlayerLockOnTargetInternal(FindBestPlayerLockOnTarget());
+        }
+    }
+
+    if (!IsValid(PlayerLockOnTarget))
+    {
+        return;
+    }
+
+    bPlayerLockOnAimRequested = PlayerLockOn.bAutomaticallyAimWhileLocking;
+    RefreshPlayerAimingFromInputSources();
+
+    APlayerController* PlayerController = Cast<APlayerController>(GetOwningController());
+    if (IsValid(PlayerController))
+    {
+        FVector ViewLocation;
+        FRotator ViewRotation;
+        PlayerController->GetPlayerViewPoint(ViewLocation, ViewRotation);
+
+        FVector ToTarget = GetPlayerLockOnAimLocation() - ViewLocation;
+        if (!ToTarget.IsNearlyZero())
+        {
+            FRotator DesiredRotation = ToTarget.Rotation();
+            DesiredRotation.Roll = 0.0f;
+            if (!PlayerLockOn.bTrackTargetPitch)
+            {
+                DesiredRotation.Pitch = PlayerController->GetControlRotation().Pitch;
+            }
+
+            const float RotationSpeed = FMath::Max(0.0f, PlayerLockOn.CameraRotationInterpSpeed);
+            const FRotator NewControlRotation = RotationSpeed <= KINDA_SMALL_NUMBER || DeltaTime <= 0.0f
+                ? DesiredRotation
+                : FMath::RInterpTo(PlayerController->GetControlRotation(), DesiredRotation, DeltaTime, RotationSpeed);
+            PlayerController->SetControlRotation(NewControlRotation);
+        }
+    }
+
+    CreateOrUpdateLockOnIndicator();
+
+    if (PlayerLockOn.bDrawLockOnDebug && GetWorld())
+    {
+        DrawDebugLine(GetWorld(), GetMuzzleLocation(), GetPlayerLockOnAimLocation(), FColor::Yellow, false, 0.05f, 0, 2.0f);
+    }
+}
+
+void URenegadeSoldierCombatComponent::CreateOrUpdateLockOnIndicator()
+{
+    UTexture2D* IndicatorTexture = GetPlayerLockOnIndicatorTexture();
+    if (!IsLocallyControlledPlayer() || !IsValid(PlayerLockOnTarget) || !IsValid(IndicatorTexture)
+        || !IsValid(GetOwner()))
+    {
+        HideLockOnIndicator();
+        return;
+    }
+
+    if (!IsValid(PlayerLockOnIndicatorComponent))
+    {
+        PlayerLockOnIndicatorComponent = NewObject<UWidgetComponent>(GetOwner(), TEXT("RenegadePlayerLockOnIndicator"));
+        if (!IsValid(PlayerLockOnIndicatorComponent))
+        {
+            return;
+        }
+
+        GetOwner()->AddInstanceComponent(PlayerLockOnIndicatorComponent);
+        PlayerLockOnIndicatorComponent->SetMobility(EComponentMobility::Movable);
+        PlayerLockOnIndicatorComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        PlayerLockOnIndicatorComponent->SetGenerateOverlapEvents(false);
+        PlayerLockOnIndicatorComponent->SetCastShadow(false);
+        PlayerLockOnIndicatorComponent->SetIsReplicated(false);
+        PlayerLockOnIndicatorComponent->SetWidgetSpace(EWidgetSpace::Screen);
+        PlayerLockOnIndicatorComponent->SetBlendMode(EWidgetBlendMode::Transparent);
+        PlayerLockOnIndicatorComponent->SetDrawAtDesiredSize(false);
+        PlayerLockOnIndicatorComponent->SetPivot(FVector2D(0.5f, 0.5f));
+        PlayerLockOnIndicatorComponent->SetWindowFocusable(false);
+        PlayerLockOnIndicatorComponent->SetTwoSided(true);
+        PlayerLockOnIndicatorComponent->SetOpacityFromTexture(1.0f);
+        PlayerLockOnIndicatorComponent->SetTintColorAndOpacity(FLinearColor::White);
+        PlayerLockOnIndicatorComponent->RegisterComponent();
+
+        PlayerLockOnIndicatorBrush.DrawAs = ESlateBrushDrawType::Image;
+        PlayerLockOnIndicatorSlateImage = SNew(SImage)
+            .Image(&PlayerLockOnIndicatorBrush)
+            .ColorAndOpacity(FSlateColor(Targeting.PlayerLockOnIndicatorColor));
+        PlayerLockOnIndicatorComponent->SetSlateWidget(PlayerLockOnIndicatorSlateImage);
+    }
+
+    PlayerLockOnIndicatorBrush.SetResourceObject(IndicatorTexture);
+    const float TextureWidth = FMath::Max(1.0f, static_cast<float>(IndicatorTexture->GetSizeX()));
+    const float TextureHeight = FMath::Max(1.0f, static_cast<float>(IndicatorTexture->GetSizeY()));
+    PlayerLockOnIndicatorBrush.ImageSize = FVector2D(TextureWidth, TextureHeight);
+
+    if (PlayerLockOnIndicatorSlateImage.IsValid())
+    {
+        PlayerLockOnIndicatorSlateImage->SetImage(&PlayerLockOnIndicatorBrush);
+        PlayerLockOnIndicatorSlateImage->SetColorAndOpacity(FSlateColor(Targeting.PlayerLockOnIndicatorColor));
+        PlayerLockOnIndicatorSlateImage->InvalidateImage();
+    }
+
+    // The Slate image owns the RGBA tint. Keep the Widget Component neutral so the
+    // selected colour is applied exactly once while the PNG transparency is preserved.
+    PlayerLockOnIndicatorComponent->SetTintColorAndOpacity(FLinearColor::White);
+    PlayerLockOnIndicatorComponent->SetOpacityFromTexture(1.0f);
+    PlayerLockOnIndicatorComponent->SetWorldLocation(GetPlayerLockOnAimLocation() + PlayerLockOn.LockOnIndicatorWorldOffset);
+
+    const float TimeSeconds = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0f;
+    const float Pulse = 1.0f + FMath::Max(0.0f, PlayerLockOn.IndicatorPulseAmount)
+        * FMath::Sin(TimeSeconds * FMath::Max(0.0f, PlayerLockOn.IndicatorPulseSpeed) * (2.0f * PI));
+
+    const FVector AbsScale = PlayerLockOn.LockOnIndicatorScale.GetAbs();
+    const float WidthScale = FMath::Max(0.01f, AbsScale.X);
+    const float HeightScale = FMath::Max(0.01f, AbsScale.Y);
+    const FVector2D DrawSize(
+        FMath::Max(1.0f, TextureWidth * WidthScale * FMath::Max(0.01f, Pulse)),
+        FMath::Max(1.0f, TextureHeight * HeightScale * FMath::Max(0.01f, Pulse)));
+    PlayerLockOnIndicatorComponent->SetDrawSize(DrawSize);
+    PlayerLockOnIndicatorComponent->SetWorldScale3D(FVector::OneVector);
+    PlayerLockOnIndicatorComponent->SetHiddenInGame(false);
+    PlayerLockOnIndicatorComponent->SetVisibility(true, true);
+    PlayerLockOnIndicatorComponent->RequestRenderUpdate();
+}
+
+void URenegadeSoldierCombatComponent::HideLockOnIndicator()
+{
+    if (IsValid(PlayerLockOnIndicatorComponent))
+    {
+        PlayerLockOnIndicatorComponent->SetVisibility(false, true);
+        PlayerLockOnIndicatorComponent->SetHiddenInGame(true);
+    }
+}
+
+void URenegadeSoldierCombatComponent::DestroyLockOnIndicator()
+{
+    if (IsValid(PlayerLockOnIndicatorComponent))
+    {
+        PlayerLockOnIndicatorComponent->SetSlateWidget(TSharedPtr<SWidget>());
+        PlayerLockOnIndicatorComponent->DestroyComponent();
+        PlayerLockOnIndicatorComponent = nullptr;
+    }
+
+    PlayerLockOnIndicatorSlateImage.Reset();
+    PlayerLockOnIndicatorBrush.SetResourceObject(nullptr);
 }
 
 void URenegadeSoldierCombatComponent::PlayerReload()
@@ -3235,7 +3997,9 @@ void URenegadeSoldierCombatComponent::UpdateComponentTickState()
 {
     const bool bNeedsCombatFacing = HasAuthority() && !bIsDead && bLockCombatRotationToCurrentTarget && IsValid(CurrentTarget);
     const bool bNeedsBuiltInPlayerInput = bPlayerControlledCombat && PlayerInput.bEnableBuiltInInput;
-    SetComponentTickEnabled(bNeedsCombatFacing || bNeedsBuiltInPlayerInput || HasPlayerAimPresentationWork() || HasActiveBulletMeshVisuals());
+    const bool bNeedsPlayerLockOn = bPlayerControlledCombat && IsLocallyControlledPlayer()
+        && (bPlayerLockOnInputHeld || IsValid(PlayerLockOnTarget));
+    SetComponentTickEnabled(bNeedsCombatFacing || bNeedsBuiltInPlayerInput || bNeedsPlayerLockOn || HasPlayerAimPresentationWork() || HasActiveBulletMeshVisuals());
 }
 
 void URenegadeSoldierCombatComponent::StartReload()
@@ -3670,6 +4434,8 @@ void URenegadeSoldierCombatComponent::BeginRagdollVisuals(const FVector& Impulse
 
     ResolveOwnerComponents();
     ResetBuiltInPlayerInputState(true);
+    bPlayerLockOnInputHeld = false;
+    ClearPlayerLockOnTargetInternal(false);
     StopLocalPlayerFireTimer();
     RestoreCombatFacingMode(true);
     UpdateComponentTickState();

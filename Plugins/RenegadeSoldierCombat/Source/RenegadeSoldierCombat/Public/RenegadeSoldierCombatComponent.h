@@ -5,6 +5,7 @@
 #include "Engine/EngineTypes.h"
 #include "RenegadeCombatTypes.h"
 #include "TimerManager.h"
+#include "Styling/SlateBrush.h"
 #include "RenegadeSoldierCombatComponent.generated.h"
 
 class AActor;
@@ -24,6 +25,9 @@ class UDamageType;
 class UPrimitiveComponent;
 class UDecalComponent;
 class UStaticMeshComponent;
+class UWidgetComponent;
+class SImage;
+class UTexture2D;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadeTargetChangedSignature, AActor*, PreviousTarget, AActor*, NewTarget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeCombatStartedSignature, AActor*, Target);
@@ -40,6 +44,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FRenegadeGroundBloodSpawnedSignat
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadePlayerWeaponChangedSignature, ERenegadePlayerWeaponSlot, PreviousWeapon, ERenegadePlayerWeaponSlot, NewWeapon);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FRenegadePlayerAmmoChangedSignature, ERenegadePlayerWeaponSlot, WeaponSlot, int32, PreviousAmmo, int32, NewAmmo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadePlayerAimChangedSignature, bool, bIsAiming);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadePlayerLockOnTargetChangedSignature, AActor*, PreviousTarget, AActor*, NewTarget);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadePlayerLockOnStateChangedSignature, bool, bIsLockedOn);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeRespawnTransformSelectedSignature, FTransform, RespawnTransform);
 
 struct FRenegadeBulletVisualRuntimeState
@@ -62,6 +68,7 @@ class RENEGADESOLDIERCOMBAT_API URenegadeSoldierCombatComponent : public UActorC
 public:
     URenegadeSoldierCombatComponent();
 
+    virtual void PostLoad() override;
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -91,6 +98,10 @@ public:
     /** Camera-facing body rotation and camera zoom applied while Player Aiming is active. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Aiming")
     FRenegadePlayerAimPresentationSettings PlayerAimPresentation;
+
+    /** Hold-to-lock third-person targeting, camera tracking, target switching, and local lock indicator. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Lock-On")
+    FRenegadePlayerLockOnSettings PlayerLockOn;
 
     /** Optional exact Camera Component to zoom. The plugin auto-finds an active player camera when this is unassigned. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Player Combat|Aiming|Camera", meta=(UseComponentPicker, AllowedClasses="/Script/Engine.CameraComponent"))
@@ -192,6 +203,10 @@ public:
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_PlayerAiming, Category="Renegade NXT|Player Combat|Runtime")
     bool bIsPlayerAiming = false;
 
+    /** Local lock-on target. This is intentionally not replicated; server-authoritative shots still validate the submitted view. */
+    UPROPERTY(BlueprintReadOnly, Transient, Category="Renegade NXT|Player Combat|Lock-On|Runtime")
+    TObjectPtr<AActor> PlayerLockOnTarget;
+
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Events")
     FRenegadeTargetChangedSignature OnTargetChanged;
 
@@ -235,6 +250,12 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Player Combat|Events")
     FRenegadePlayerAimChangedSignature OnPlayerAimChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Player Combat|Lock-On|Events")
+    FRenegadePlayerLockOnTargetChangedSignature OnPlayerLockOnTargetChanged;
+
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Player Combat|Lock-On|Events")
+    FRenegadePlayerLockOnStateChangedSignature OnPlayerLockOnStateChanged;
 
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Respawn|Events")
     FRenegadeRespawnTransformSelectedSignature OnRespawnTransformSelected;
@@ -335,13 +356,69 @@ public:
     void PlayerSetAiming(bool bNewAiming);
 
     UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
-    void PlayerStartAiming() { PlayerSetAiming(true); }
+    void PlayerStartAiming();
 
     UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Input")
-    void PlayerStopAiming() { PlayerSetAiming(false); }
+    void PlayerStopAiming();
 
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Input")
     bool IsPlayerAiming() const { return bIsPlayerAiming; }
+
+    /** Begins hold-to-lock targeting and attempts to acquire the best hostile soldier near screen centre. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Lock-On")
+    void PlayerStartLockOn();
+
+    /** Releases the current target immediately and restores normal camera behaviour. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Lock-On")
+    void PlayerStopLockOn();
+
+    /** Enhanced Input-friendly held-state node. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Lock-On")
+    void PlayerSetLockOnHeld(bool bHeld);
+
+    /** Attempts to lock a specific hostile soldier. Returns false when the target is invalid, friendly, dead, or out of range. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Lock-On")
+    bool PlayerLockOnToTarget(AActor* NewTarget);
+
+    /** Selects the next valid target to the left or right of the current lock. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Lock-On")
+    bool PlayerSwitchLockOnTarget(bool bSwitchRight);
+
+    /** Re-runs the acquisition query immediately while lock input remains held. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Lock-On")
+    bool RefreshPlayerLockOnTarget();
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Lock-On")
+    bool IsPlayerLockOnHeld() const { return bPlayerLockOnInputHeld; }
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Lock-On")
+    bool IsPlayerLockedOn() const { return IsValid(PlayerLockOnTarget); }
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Lock-On")
+    AActor* GetPlayerLockOnTarget() const { return PlayerLockOnTarget; }
+
+    /** Returns the final predicted aim point currently used for camera tracking and optional shot assistance. */
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Lock-On")
+    FVector GetPlayerLockOnAimLocation() const;
+
+    /** Changes the local lock indicator texture at runtime and refreshes the active visual immediately. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Lock-On|Indicator")
+    void SetPlayerLockOnIndicatorTexture(UTexture2D* NewTexture);
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Lock-On|Indicator")
+    UTexture2D* GetPlayerLockOnIndicatorTexture() const
+    {
+        return Targeting.PlayerLockOnIndicatorTexture
+            ? Targeting.PlayerLockOnIndicatorTexture.Get()
+            : PlayerLockOn.LockOnIndicatorTexture.Get();
+    }
+
+    /** Changes the RGBA tint applied to the lock-on image. Texture alpha is preserved and multiplied by Color.A. */
+    UFUNCTION(BlueprintCallable, Category="Renegade NXT|Player Combat|Lock-On|Indicator")
+    void SetPlayerLockOnIndicatorColor(FLinearColor NewColor);
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Lock-On|Indicator")
+    FLinearColor GetPlayerLockOnIndicatorColor() const { return Targeting.PlayerLockOnIndicatorColor; }
 
     /** Returns the current local aim transition amount: 0 is hip-fire and 1 is fully aimed. */
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Player Combat|Aiming")
@@ -538,6 +615,7 @@ private:
     bool ResolveLocalPlayerView(FVector& OutViewLocation, FVector& OutViewDirection) const;
     void PerformPlayerShotServer(const FVector& ClientViewLocation, const FVector& ClientViewDirection, ERenegadePlayerWeaponSlot RequestedWeapon, bool bClientAiming);
     void SetPlayerAimingInternal(bool bNewAiming);
+    void RefreshPlayerAimingFromInputSources();
     void HandlePlayerAimStateChanged(bool bPreviousAiming);
     void UpdatePlayerAimPresentation(float DeltaTime);
     void ApplyPlayerAimRotationMode();
@@ -551,6 +629,16 @@ private:
     void ResetPlayerAimCameraCapture();
     void UpdateBuiltInPlayerInput(float DeltaTime);
     void ResetBuiltInPlayerInputState(bool bClearAimState);
+    void UpdatePlayerLockOn(float DeltaTime);
+    bool IsPlayerLockOnCandidateValid(const AActor* Candidate, bool bForAcquisition) const;
+    bool HasPlayerLockOnLineOfSight(const AActor* Candidate) const;
+    AActor* FindBestPlayerLockOnTarget(const AActor* ExcludedTarget = nullptr) const;
+    AActor* FindDirectionalPlayerLockOnTarget(bool bSwitchRight) const;
+    void SetPlayerLockOnTargetInternal(AActor* NewTarget);
+    void ClearPlayerLockOnTargetInternal(bool bRestoreAimStartedByLock);
+    void CreateOrUpdateLockOnIndicator();
+    void HideLockOnIndicator();
+    void DestroyLockOnIndicator();
     bool IsBuiltInInputKeyDown(APlayerController* PlayerController, const FKey& Key) const;
     float GetBuiltInInputAxis(APlayerController* PlayerController, const FKey& Key) const;
     float ApplyGamepadDeadZone(float Value) const;
@@ -621,6 +709,14 @@ private:
     UPROPERTY(Transient)
     TObjectPtr<UCameraComponent> RuntimePlayerAimCameraComponent;
 
+    /** Local-only screen-space widget indicator created from the exposed lock-on PNG/texture. */
+    UPROPERTY(Transient)
+    TObjectPtr<UWidgetComponent> PlayerLockOnIndicatorComponent;
+
+    /** Native Slate image and brush used so the texture can be tinted while preserving PNG alpha. */
+    FSlateBrush PlayerLockOnIndicatorBrush;
+    TSharedPtr<SImage> PlayerLockOnIndicatorSlateImage;
+
     TWeakObjectPtr<UCameraComponent> CapturedPlayerAimCameraComponent;
     TWeakObjectPtr<APlayerCameraManager> CapturedPlayerAimCameraManager;
 
@@ -684,9 +780,20 @@ private:
     bool bLocalAutoCombatStarted = false;
     bool bLocalPlayerFireHeld = false;
     bool bBuiltInFireCommandActive = false;
+    bool bPlayerAimInputRequested = false;
+    bool bPlayerLockOnAimRequested = false;
+    bool bBuiltInToggleAimLatched = false;
     bool bPreviousBuiltInAimDown = false;
     bool bPreviousBuiltInReloadDown = false;
     bool bPreviousBuiltInSelectRifleDown = false;
     bool bPreviousBuiltInSelectPistolDown = false;
+    bool bPreviousBuiltInLockOnDown = false;
+    bool bPreviousBuiltInSwitchLeftDown = false;
+    bool bPreviousBuiltInSwitchRightDown = false;
+    bool bPlayerLockOnInputHeld = false;
+    bool bRightStickSwitchLatched = false;
+    double LastPlayerLockOnVisibleTime = -BIG_NUMBER;
+    double LastPlayerLockOnSearchTime = -BIG_NUMBER;
+    double LastPlayerLockOnSwitchTime = -BIG_NUMBER;
     TWeakObjectPtr<AActor> LastLocallyNotifiedTarget;
 };

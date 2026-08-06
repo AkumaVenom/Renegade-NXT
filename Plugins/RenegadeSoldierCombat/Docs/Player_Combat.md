@@ -137,3 +137,8 @@ Each player weapon also has `Use Combat Target Object Trace Fallback`, enabled b
 ## Editing player defaults while player mode is disabled
 
 From v1.3.4 onward, all built-in keyboard, mouse, gamepad, sensitivity, dead-zone, aiming, FOV, rotation, and camera settings remain editable even when `Player Controlled Combat` is disabled. This allows shared parent Character Blueprints to be configured before individual player child classes enable player mode. The Boolean still controls runtime activation.
+
+
+## 12. TPS lock-on targeting (v1.5.1)
+
+The component can hold-lock living hostile soldiers while preserving the same authoritative shooting path. The default dedicated lock controls are `Left Alt` and `Gamepad Left Shoulder / LB`; normal free aim remains on Right Mouse Button and Left Trigger. Holding lock-on automatically enters the full aim presentation, and independent aim-source tracking prevents either input from cancelling the other. Enhanced Input can call `Player Start Lock On` and `Player Stop Lock On`. Assign the exposed indicator texture and tune acquisition, obstruction grace, tracking speed, shot assistance, and switching under `Player Lock-On`. See `Docs/Player_Lock_On.md` for the complete setup.

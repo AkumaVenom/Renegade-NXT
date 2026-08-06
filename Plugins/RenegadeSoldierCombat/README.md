@@ -61,6 +61,12 @@ The client submits its current view ray, but the server validates aim, fire cade
 
 See `Docs/Player_Combat.md` for the full setup, weapon-switch events, HUD values, multiplayer behaviour, and custom respawn modes.
 
+### TPS lock-on targeting (v1.5.1)
+
+Enable `Player Lock-On > Enable Lock On` and assign `Lock On Indicator Texture`. By default, hold `Left Alt` on keyboard or `Gamepad Left Shoulder / LB` to lock the best living hostile soldier near screen centre. Lock-on automatically enters the full aim zoom/body-facing presentation while held. Normal free aim remains separate on Right Mouse Button and Gamepad Left Trigger. Targets can be switched with Q/E, D-pad Left/Right, or an optional right-stick flick.
+
+See `Docs/Player_Lock_On.md` for acquisition, obstruction, camera, shot-assist, indicator, Enhanced Input, and Blueprint-event setup.
+
 ## Bullet mesh and ground blood (v1.2.1)
 
 Open the soldier Blueprint, select **Renegade Soldier Combat Component**, and expand **Renegade NXT | Combat Visuals**.
@@ -132,3 +138,17 @@ At runtime, Blueprints can instead call **Set Bullet Visual Spawn Component** an
 Player characters can fire, aim, reload, select rifle/pistol and control camera look through exposed keyboard/mouse and gamepad FKey settings without creating Input Action assets. Aim now performs actual presentation work: the Character faces the camera/controller yaw, orient-to-movement is temporarily disabled, the selected Camera Component smoothly zooms to `Aimed Field Of View`, and all original movement/FOV values are restored on release, death, respawn, or shutdown.
 
 Assign `Player Aim Camera Component` to the exact player camera when the Character owns several cameras. If unassigned, the plugin prefers an active Camera Component and can fall back to PlayerCameraManager. Disable the built-in input path when using an existing Enhanced Input graph; the public `Player Start Aiming`, `Player Stop Aiming`, and `Player Set Aiming` nodes use the same polished presentation path.
+
+
+## Lock-On Indicator Texture
+
+Assign the visual PNG/Texture2D under `Targeting > Player Lock-On Visual > Lock-On Indicator PNG / Texture`.
+
+## Lock-on indicator colour (v1.5.4)
+
+The main component Details panel now exposes both:
+
+- `Targeting > Player Lock-On Visual > Lock-On Indicator PNG / Texture`
+- `Targeting > Player Lock-On Visual > Lock-On Indicator Color`
+
+The colour is an RGBA tint. RGB recolours the visible pixels and Alpha controls additional opacity. The imported PNG's own alpha channel is multiplied rather than discarded, so transparent areas stay transparent. Runtime Blueprint control is available through `Set Player Lock On Indicator Color`.

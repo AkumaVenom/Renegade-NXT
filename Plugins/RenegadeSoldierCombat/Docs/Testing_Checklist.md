@@ -1,5 +1,19 @@
 # Testing Checklist
 
+## Player TPS lock-on (v1.5.1)
+
+- Hold `Left Alt` or `Gamepad Left Shoulder / LB` with one hostile soldier near screen centre: target event fires, indicator appears, camera tracks, and Character enters the full aim presentation.
+- Release the dedicated lock button: target and indicator clear immediately. Aim remains active only when Right Mouse Button or Left Trigger is still held.
+- Hold normal aim and lock-on together, then release either one: the remaining held input must keep aiming active without FOV or aim-event flicker.
+- Put a friendly soldier closer than an enemy: only the hostile soldier can be selected.
+- Kill the locked target while holding the dedicated lock button: the lock clears and reacquires another valid hostile soldier.
+- Move the target behind cover briefly: lock survives the configured grace time; sustained obstruction clears it.
+- Switch left/right with Q/E, D-pad, and right-stick flick.
+- Fire while locked: the existing authoritative muzzle trace still respects walls and damages the locked enemy when unobstructed.
+- Test with no indicator texture: lock logic works without creating a visual.
+- Test death, respawn, cursor/menu input blocking, and component EndPlay: no stale target or indicator remains.
+
+
 1. Add a NavMesh Bounds Volume over the combat area and verify green navigation coverage.
 2. Place one GDI and one Nod AI Character, each with the combat component.
 3. Confirm both Characters are possessed by an AIController.

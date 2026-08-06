@@ -16,7 +16,10 @@ public class RenegadeSoldierCombat : ModuleRules
             "NavigationSystem",
             "GameplayTasks",
             "NetCore",
-            "Niagara"
+            "Niagara",
+            "UMG",
+            "Slate",
+            "SlateCore"
         });
     }
 }

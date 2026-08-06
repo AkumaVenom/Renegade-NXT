@@ -1,4 +1,60 @@
+# Renegade Soldier Combat v1.5.4
+
+- Fixed the player lock-on PNG remaining white during gameplay.
+- The selected `Lock-On Indicator Color` is now applied directly to the Slate image that renders the PNG.
+- RGB tint and Alpha opacity multiply with the source texture, preserving transparent pixels.
+- The outer Widget Component remains white to prevent the colour from being multiplied twice.
+- Runtime `Set Player Lock On Indicator Color` changes now update the active indicator immediately.
+- Target acquisition, aiming, target switching, shooting, damage, and all building-warfare systems are unchanged.
+
+# Version 1.5.3
+
+- Added an exposed **Lock-On Indicator Color** RGBA colour picker beside the lock-on PNG/Texture field under `Targeting > Player Lock-On Visual`.
+- Replaced the untinted runtime billboard with a local screen-space Slate image rendered through a Widget Component.
+- The selected colour multiplies the source texture while preserving its transparent PNG alpha channel.
+- The colour alpha value provides an additional opacity control without modifying the imported texture.
+- Added `Set Player Lock On Indicator Color` and `Get Player Lock On Indicator Color` Blueprint nodes.
+- Existing lock-on texture, position, scale, pulse, acquisition, aiming, firing, damage, and target-switching behaviour remains intact.
+
 # Changelog
+
+## 1.5.2
+
+- Exposed `Lock-On Indicator PNG / Texture` directly under `Targeting > Player Lock-On Visual` on the Soldier Combat Component.
+- The lock-on billboard now reads the directly exposed targeting texture first.
+- Existing v1.5.0/v1.5.1 texture assignments migrate automatically from the old nested lock-on setting.
+- The runtime Set/Get Lock-On Indicator Texture Blueprint nodes now use the new exposed property.
+
+## 1.5.1 - Separate Lock-On Controls with Integrated Aim
+
+- Changed the default gamepad lock-on control to `Gamepad Left Shoulder / LB`, the button directly above Left Trigger.
+- Changed the default keyboard lock-on control to `Left Alt`; no mouse button is used for lock-on.
+- Kept `Gamepad Left Trigger` and `Right Mouse Button` dedicated to normal free aiming.
+- Removed normal-Aim-to-lock runtime coupling; the old v1.5.0 value is retained only as hidden deprecated serialization data and is ignored.
+- Lock-on remains a complete aim mode: holding the dedicated lock button automatically activates FOV zoom, camera-facing Character rotation, aimed spread, and target tracking.
+- Added independent normal-aim and lock-on-aim request tracking so releasing one input cannot incorrectly cancel the other.
+- Fixed held lock-on fighting the normal aim input every frame and causing aim state/event/zoom instability.
+- Toggle-aim mode now remains compatible with dedicated hold-to-lock controls.
+- Preserved target switching, lock indicator, shot assistance, server-authoritative damage, building warfare, EVA announcements, defensive buildings, and all existing combat visuals.
+
+## 1.5.0 - Polished Player TPS Lock-On Targeting
+
+- Added a complete local hold-to-lock third-person targeting system for player-controlled combat components.
+- Existing Aim input can automatically drive lock-on, matching classic GTA/Saints Row-style held targeting; separate keyboard/mouse and gamepad lock keys are also exposed.
+- Releasing the lock input immediately clears the selected target and restores normal camera control.
+- Target acquisition searches only registered, living hostile soldier combatants and strongly prioritizes enemies near the camera centre.
+- Added exposed acquisition distance, acquisition angle, break distance multiplier, and break angle.
+- Added line-of-sight acquisition with an exposed trace channel and obstruction grace time to prevent unstable lock flicker around cover edges.
+- Added smooth controller yaw/pitch tracking with exposed interpolation speed, pitch tracking, aim offset, and small target-velocity prediction.
+- Added optional locked-target shot assistance through the existing server-validated camera/muzzle trace path, with an exposed maximum correction angle.
+- Added automatic reacquisition while the input remains held after a target dies, leaves range, or remains occluded too long.
+- Added left/right target switching through exposed keyboard keys, gamepad D-pad keys, and optional right-stick flick detection with cooldown.
+- Added an exposed lock-on indicator texture rendered through a local camera-facing Billboard Component.
+- Added indicator world offset, XYZ scale, screen-size scaling, screen-size value, pulse amount, and pulse speed.
+- Added runtime Blueprint nodes for starting/stopping lock, setting held state, locking a specific Actor, refreshing, switching, querying target/state/aim point, and changing the indicator texture.
+- Added `On Player Lock On Target Changed` and `On Player Lock On State Changed` Blueprint events.
+- Added optional lock-on debug candidate spheres, visibility lines, and active muzzle-to-target line.
+- Preserved player/NPC rifle combat, building targeting and destruction, GDI/Nod EVA announcements, AGT/Obelisk defence, bullet visuals, ground blood, ragdoll, and respawning.
 
 ## 1.4.4 - Team-Aware EVA Building Announcements and Low-Health State
 

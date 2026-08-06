@@ -25,6 +25,7 @@ ENGINE_API UClass* Z_Construct_UClass_AActor(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_UDamageType(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_UMaterialInterface(ETypeConstructPhase);
 ENGINE_API UClass* Z_Construct_UClass_UStaticMesh(ETypeConstructPhase);
+ENGINE_API UClass* Z_Construct_UClass_UTexture2D(ETypeConstructPhase);
 // ********** End Cross Module References **********************************************************
 
 // ********** Begin Same Module References *********************************************************
@@ -41,6 +42,7 @@ RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeHeal
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerInputSettings(ETypeConstructPhase);
+RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeTargetingSettings(ETypeConstructPhase);
 RENEGADESOLDIERCOMBAT_API UScriptStruct* Z_Construct_UScriptStruct_FRenegadeWeaponSettings(ETypeConstructPhase);
 // ********** End Same Module References ***********************************************************
@@ -700,6 +702,30 @@ struct UHT_STATICS
 		{ "ClampMin", "0.0" },
 		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_PlayerLockOnIndicatorTexture_MetaData[] = {
+		{ "Category", "Targeting|Player Lock-On Visual" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** PNG/Texture2D displayed over the hostile soldier selected by the local player lock-on system. */" },
+#endif
+		{ "DisplayName", "Lock-On Indicator PNG / Texture" },
+		{ "DisplayThumbnail", "true" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "PNG/Texture2D displayed over the hostile soldier selected by the local player lock-on system." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_PlayerLockOnIndicatorColor_MetaData[] = {
+		{ "Category", "Targeting|Player Lock-On Visual" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** RGBA tint multiplied with the lock-on texture. The alpha channel remains combined with the PNG transparency. */" },
+#endif
+		{ "DisplayName", "Lock-On Indicator Color" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+		{ "sRGB", "true" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "RGBA tint multiplied with the lock-on texture. The alpha channel remains combined with the PNG transparency." },
+#endif
+	};
 	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BuildingTargetPolicy_MetaData[] = {
 		{ "Category", "Targeting|Buildings" },
 #if !UE_BUILD_SHIPPING
@@ -739,6 +765,8 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FBoolPropertyParams NewProp_bRetaliateWhenDamaged;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_LoseTargetRadiusMultiplier;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_AimHeightOffset;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_PlayerLockOnIndicatorTexture;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_PlayerLockOnIndicatorColor;
 	static const UECodeGen_Private::FBytePropertyParams NewProp_BuildingTargetPolicy_Underlying;
 	static const UECodeGen_Private::FEnumPropertyParams NewProp_BuildingTargetPolicy;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_BuildingTargetDistanceScoreMultiplier;
@@ -759,6 +787,8 @@ const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bRequireLineOf
 const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bRetaliateWhenDamaged = { "bRetaliateWhenDamaged", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeTargetingSettings), &UHT_STATICS::NewProp_bRetaliateWhenDamaged_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bRetaliateWhenDamaged_MetaData), NewProp_bRetaliateWhenDamaged_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_LoseTargetRadiusMultiplier = { "LoseTargetRadiusMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, LoseTargetRadiusMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LoseTargetRadiusMultiplier_MetaData), NewProp_LoseTargetRadiusMultiplier_MetaData) };
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AimHeightOffset = { "AimHeightOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, AimHeightOffset), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AimHeightOffset_MetaData), NewProp_AimHeightOffset_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_PlayerLockOnIndicatorTexture = { "PlayerLockOnIndicatorTexture", nullptr, (EPropertyFlags)0x0114000000000005, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, PlayerLockOnIndicatorTexture), Z_Construct_UClass_UTexture2D, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerLockOnIndicatorTexture_MetaData), NewProp_PlayerLockOnIndicatorTexture_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerLockOnIndicatorColor = { "PlayerLockOnIndicatorColor", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, PlayerLockOnIndicatorColor), Z_Construct_UScriptStruct_FLinearColor, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_PlayerLockOnIndicatorColor_MetaData), NewProp_PlayerLockOnIndicatorColor_MetaData) };
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_BuildingTargetPolicy_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
 const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_BuildingTargetPolicy = { "BuildingTargetPolicy", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, BuildingTargetPolicy), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeBuildingTargetPolicy, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BuildingTargetPolicy_MetaData), NewProp_BuildingTargetPolicy_MetaData) }; // 3f4a6f6bbc08b327f762e02f063cc8907da1ea50
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_BuildingTargetDistanceScoreMultiplier = { "BuildingTargetDistanceScoreMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, BuildingTargetDistanceScoreMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BuildingTargetDistanceScoreMultiplier_MetaData), NewProp_BuildingTargetDistanceScoreMultiplier_MetaData) };
@@ -770,6 +800,8 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bRetaliateWhenDamaged,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LoseTargetRadiusMultiplier,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AimHeightOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PlayerLockOnIndicatorTexture,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_PlayerLockOnIndicatorColor,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BuildingTargetPolicy_Underlying,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BuildingTargetPolicy,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BuildingTargetDistanceScoreMultiplier,
@@ -1494,6 +1526,574 @@ UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings(
 }
 #undef UHT_STATICS
 // ********** End ScriptStruct FRenegadePlayerAimPresentationSettings ******************************
+
+// ********** Begin ScriptStruct FRenegadePlayerLockOnSettings *************************************
+#ifdef UHT_STATICS
+#error UHT_STATICS already defined
+#endif
+#define UHT_STATICS Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings_Statics
+struct UHT_STATICS
+{
+	static inline consteval int32 GetStructSize() { return DataSizeOf<FRenegadePlayerLockOnSettings>(); }
+	static inline consteval int16 GetStructAlignment() { return alignof(FRenegadePlayerLockOnSettings); }
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Type_MetaData[] = {
+		{ "BlueprintType", "true" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/**\n * Local third-person lock-on targeting for player-controlled combatants.\n * The selected target is cosmetic/local; authoritative shots still use the existing validated player trace path.\n */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Local third-person lock-on targeting for player-controlled combatants.\nThe selected target is cosmetic/local; authoritative shots still use the existing validated player trace path." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableLockOn_MetaData[] = {
+		{ "Category", "Player Lock-On" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Master switch for player lock-on targeting. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Master switch for player lock-on targeting." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bUseAimInputAsLockOn_MetaData[] = {
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Deprecated v1.5.0 serialization field. Lock-on always uses its dedicated inputs from v1.5.1 onward. */" },
+#endif
+		{ "DeprecatedProperty", "" },
+		{ "DeprecationMessage", "Normal aim and lock-on now use separate controls." },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Deprecated v1.5.0 serialization field. Lock-on always uses its dedicated inputs from v1.5.1 onward." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_KeyboardMouseLockOnKey_MetaData[] = {
+		{ "Category", "Player Lock-On|Input" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Dedicated keyboard lock-on input. Holding it also enters aim when Automatically Aim While Locking is enabled. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Dedicated keyboard lock-on input. Holding it also enters aim when Automatically Aim While Locking is enabled." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadLockOnKey_MetaData[] = {
+		{ "Category", "Player Lock-On|Input" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Dedicated gamepad lock-on input. Defaults to Left Shoulder / LB, directly above Left Trigger. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Dedicated gamepad lock-on input. Defaults to Left Shoulder / LB, directly above Left Trigger." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAutomaticallyAimWhileLocking_MetaData[] = {
+		{ "Category", "Player Lock-On|Input" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Automatically enters the existing player aim state while a target lock is held. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Automatically enters the existing player aim state while a target lock is held." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MaximumAcquisitionDistance_MetaData[] = {
+		{ "Category", "Player Lock-On|Acquisition" },
+		{ "ClampMin", "100.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum initial acquisition distance. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum initial acquisition distance." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_AcquisitionHalfAngleDegrees_MetaData[] = {
+		{ "Category", "Player Lock-On|Acquisition" },
+		{ "ClampMax", "179.0" },
+		{ "ClampMin", "1.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum view-space angle from the camera forward direction for initial acquisition. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum view-space angle from the camera forward direction for initial acquisition." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BreakDistanceMultiplier_MetaData[] = {
+		{ "Category", "Player Lock-On|Maintenance" },
+		{ "ClampMin", "1.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Current targets may remain locked slightly farther away than the initial acquisition distance. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Current targets may remain locked slightly farther away than the initial acquisition distance." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_BreakHalfAngleDegrees_MetaData[] = {
+		{ "Category", "Player Lock-On|Maintenance" },
+		{ "ClampMax", "179.0" },
+		{ "ClampMin", "1.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Current targets are released if they move this far outside the camera forward direction. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Current targets are released if they move this far outside the camera forward direction." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bRequireLineOfSightToAcquire_MetaData[] = {
+		{ "Category", "Player Lock-On|Line of Sight" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Requires a clear visibility trace before initially locking a soldier. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Requires a clear visibility trace before initially locking a soldier." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bBreakLockWhenOccluded_MetaData[] = {
+		{ "Category", "Player Lock-On|Line of Sight" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Releases a locked target after continuous obstruction exceeds the grace time. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Releases a locked target after continuous obstruction exceeds the grace time." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_OcclusionGraceSeconds_MetaData[] = {
+		{ "Category", "Player Lock-On|Line of Sight" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Short obstruction grace period prevents cover edges from causing unstable lock flicker. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bBreakLockWhenOccluded" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Short obstruction grace period prevents cover edges from causing unstable lock flicker." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_LineOfSightTraceChannel_MetaData[] = {
+		{ "Category", "Player Lock-On|Line of Sight" },
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_CameraRotationInterpSpeed_MetaData[] = {
+		{ "Category", "Player Lock-On|Camera" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Camera/controller interpolation speed toward the locked soldier. Set to 0 for instant tracking. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Camera/controller interpolation speed toward the locked soldier. Set to 0 for instant tracking." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bTrackTargetPitch_MetaData[] = {
+		{ "Category", "Player Lock-On|Camera" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Tracks vertical camera pitch as well as yaw. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Tracks vertical camera pitch as well as yaw." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_TargetLeadSeconds_MetaData[] = {
+		{ "Category", "Player Lock-On|Camera" },
+		{ "ClampMax", "1.0" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Adds movement prediction to the lock point. Hitscan weapons usually need only a very small value. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Adds movement prediction to the lock point. Hitscan weapons usually need only a very small value." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_TargetAimOffset_MetaData[] = {
+		{ "Category", "Player Lock-On|Camera" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Additional world-space offset applied to the combat aim point. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Additional world-space offset applied to the combat aim point." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bAimPlayerShotsAtLockedTarget_MetaData[] = {
+		{ "Category", "Player Lock-On|Shooting" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Player shot direction is corrected to the locked soldier while the lock remains valid. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Player shot direction is corrected to the locked soldier while the lock remains valid." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_MaximumShotAssistAngleDegrees_MetaData[] = {
+		{ "Category", "Player Lock-On|Shooting" },
+		{ "ClampMax", "90.0" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Maximum angle over which lock-on may correct the submitted player shot direction. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bAimPlayerShotsAtLockedTarget" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Maximum angle over which lock-on may correct the submitted player shot direction." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableTargetSwitching_MetaData[] = {
+		{ "Category", "Player Lock-On|Switching" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Enables manual target cycling. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Enables manual target cycling." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_KeyboardMouseSwitchLeftKey_MetaData[] = {
+		{ "Category", "Player Lock-On|Switching" },
+		{ "EditCondition", "bEnableLockOn && bEnableTargetSwitching" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_KeyboardMouseSwitchRightKey_MetaData[] = {
+		{ "Category", "Player Lock-On|Switching" },
+		{ "EditCondition", "bEnableLockOn && bEnableTargetSwitching" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadSwitchLeftKey_MetaData[] = {
+		{ "Category", "Player Lock-On|Switching" },
+		{ "EditCondition", "bEnableLockOn && bEnableTargetSwitching" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_GamepadSwitchRightKey_MetaData[] = {
+		{ "Category", "Player Lock-On|Switching" },
+		{ "EditCondition", "bEnableLockOn && bEnableTargetSwitching" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bEnableRightStickFlickSwitching_MetaData[] = {
+		{ "Category", "Player Lock-On|Switching" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** A right-stick horizontal flick can cycle targets without requiring another gamepad button. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn && bEnableTargetSwitching" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "A right-stick horizontal flick can cycle targets without requiring another gamepad button." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_RightStickSwitchThreshold_MetaData[] = {
+		{ "Category", "Player Lock-On|Switching" },
+		{ "ClampMax", "1.0" },
+		{ "ClampMin", "0.1" },
+		{ "EditCondition", "bEnableLockOn && bEnableTargetSwitching && bEnableRightStickFlickSwitching" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_TargetSwitchCooldownSeconds_MetaData[] = {
+		{ "Category", "Player Lock-On|Switching" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bEnableLockOn && bEnableTargetSwitching" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_LockOnIndicatorTexture_MetaData[] = {
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Deprecated v1.5.1 location retained only so existing Blueprint assignments migrate to Targeting > Player Lock-On Visual. */" },
+#endif
+		{ "DeprecatedProperty", "" },
+		{ "DeprecationMessage", "Use Targeting.PlayerLockOnIndicatorTexture instead." },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Deprecated v1.5.1 location retained only so existing Blueprint assignments migrate to Targeting > Player Lock-On Visual." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_LockOnIndicatorWorldOffset_MetaData[] = {
+		{ "Category", "Player Lock-On|Indicator" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** World-space offset from the target combat aim point. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "World-space offset from the target combat aim point." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_LockOnIndicatorScale_MetaData[] = {
+		{ "Category", "Player Lock-On|Indicator" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Base world scale of the indicator billboard. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Base world scale of the indicator billboard." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bUseScreenSizeScaling_MetaData[] = {
+		{ "Category", "Player Lock-On|Indicator" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Keeps the indicator approximately consistent in screen size over distance. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Keeps the indicator approximately consistent in screen size over distance." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_IndicatorScreenSize_MetaData[] = {
+		{ "Category", "Player Lock-On|Indicator" },
+		{ "ClampMin", "0.0001" },
+		{ "EditCondition", "bEnableLockOn && bUseScreenSizeScaling" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_IndicatorPulseAmount_MetaData[] = {
+		{ "Category", "Player Lock-On|Indicator" },
+		{ "ClampMax", "1.0" },
+		{ "ClampMin", "0.0" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Subtle scale pulse amplitude. 0 disables pulsing. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Subtle scale pulse amplitude. 0 disables pulsing." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_IndicatorPulseSpeed_MetaData[] = {
+		{ "Category", "Player Lock-On|Indicator" },
+		{ "ClampMin", "0.0" },
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bDrawLockOnDebug_MetaData[] = {
+		{ "Category", "Player Lock-On|Debug" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Draws acquisition candidates, the active target line, and the line-of-sight result. */" },
+#endif
+		{ "EditCondition", "bEnableLockOn" },
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Draws acquisition candidates, the active target line, and the line-of-sight result." },
+#endif
+	};
+#endif // WITH_METADATA
+
+// ********** Begin ScriptStruct FRenegadePlayerLockOnSettings constinit property declarations *****
+	static void NewProp_bEnableLockOn_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bEnableLockOn = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnableLockOn;
+	static void NewProp_bUseAimInputAsLockOn_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bUseAimInputAsLockOn = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bUseAimInputAsLockOn;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseLockOnKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadLockOnKey;
+	static void NewProp_bAutomaticallyAimWhileLocking_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bAutomaticallyAimWhileLocking = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bAutomaticallyAimWhileLocking;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MaximumAcquisitionDistance;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_AcquisitionHalfAngleDegrees;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_BreakDistanceMultiplier;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_BreakHalfAngleDegrees;
+	static void NewProp_bRequireLineOfSightToAcquire_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bRequireLineOfSightToAcquire = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bRequireLineOfSightToAcquire;
+	static void NewProp_bBreakLockWhenOccluded_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bBreakLockWhenOccluded = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bBreakLockWhenOccluded;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_OcclusionGraceSeconds;
+	static const UECodeGen_Private::FBytePropertyParams NewProp_LineOfSightTraceChannel;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_CameraRotationInterpSpeed;
+	static void NewProp_bTrackTargetPitch_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bTrackTargetPitch = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bTrackTargetPitch;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_TargetLeadSeconds;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_TargetAimOffset;
+	static void NewProp_bAimPlayerShotsAtLockedTarget_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bAimPlayerShotsAtLockedTarget = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bAimPlayerShotsAtLockedTarget;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_MaximumShotAssistAngleDegrees;
+	static void NewProp_bEnableTargetSwitching_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bEnableTargetSwitching = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnableTargetSwitching;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseSwitchLeftKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_KeyboardMouseSwitchRightKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadSwitchLeftKey;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_GamepadSwitchRightKey;
+	static void NewProp_bEnableRightStickFlickSwitching_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bEnableRightStickFlickSwitching = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bEnableRightStickFlickSwitching;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_RightStickSwitchThreshold;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_TargetSwitchCooldownSeconds;
+	static const UECodeGen_Private::FObjectPropertyParams NewProp_LockOnIndicatorTexture;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_LockOnIndicatorWorldOffset;
+	static const UECodeGen_Private::FStructPropertyParams NewProp_LockOnIndicatorScale;
+	static void NewProp_bUseScreenSizeScaling_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bUseScreenSizeScaling = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bUseScreenSizeScaling;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_IndicatorScreenSize;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_IndicatorPulseAmount;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_IndicatorPulseSpeed;
+	static void NewProp_bDrawLockOnDebug_SetBit(void* Obj)
+	{
+		((FRenegadePlayerLockOnSettings*)Obj)->bDrawLockOnDebug = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bDrawLockOnDebug;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+// ********** End ScriptStruct FRenegadePlayerLockOnSettings constinit property declarations *******
+	static void* NewStructOps()
+	{
+		return (UScriptStruct::ICppStructOps*)new UScriptStruct::TCppStructOps<FRenegadePlayerLockOnSettings>();
+	}
+	static const UECodeGen_Private::FStructParams StructParams;
+}; // struct UHT_STATICS
+
+// ********** Begin ScriptStruct FRenegadePlayerLockOnSettings Property Definitions ****************
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableLockOn = { "bEnableLockOn", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bEnableLockOn_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableLockOn_MetaData), NewProp_bEnableLockOn_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUseAimInputAsLockOn = { "bUseAimInputAsLockOn", nullptr, (EPropertyFlags)0x0010000000000000, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bUseAimInputAsLockOn_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUseAimInputAsLockOn_MetaData), NewProp_bUseAimInputAsLockOn_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseLockOnKey = { "KeyboardMouseLockOnKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, KeyboardMouseLockOnKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseLockOnKey_MetaData), NewProp_KeyboardMouseLockOnKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadLockOnKey = { "GamepadLockOnKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, GamepadLockOnKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadLockOnKey_MetaData), NewProp_GamepadLockOnKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAutomaticallyAimWhileLocking = { "bAutomaticallyAimWhileLocking", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bAutomaticallyAimWhileLocking_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAutomaticallyAimWhileLocking_MetaData), NewProp_bAutomaticallyAimWhileLocking_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumAcquisitionDistance = { "MaximumAcquisitionDistance", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, MaximumAcquisitionDistance), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumAcquisitionDistance_MetaData), NewProp_MaximumAcquisitionDistance_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_AcquisitionHalfAngleDegrees = { "AcquisitionHalfAngleDegrees", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, AcquisitionHalfAngleDegrees), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_AcquisitionHalfAngleDegrees_MetaData), NewProp_AcquisitionHalfAngleDegrees_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_BreakDistanceMultiplier = { "BreakDistanceMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, BreakDistanceMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BreakDistanceMultiplier_MetaData), NewProp_BreakDistanceMultiplier_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_BreakHalfAngleDegrees = { "BreakHalfAngleDegrees", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, BreakHalfAngleDegrees), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BreakHalfAngleDegrees_MetaData), NewProp_BreakHalfAngleDegrees_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bRequireLineOfSightToAcquire = { "bRequireLineOfSightToAcquire", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bRequireLineOfSightToAcquire_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bRequireLineOfSightToAcquire_MetaData), NewProp_bRequireLineOfSightToAcquire_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bBreakLockWhenOccluded = { "bBreakLockWhenOccluded", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bBreakLockWhenOccluded_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bBreakLockWhenOccluded_MetaData), NewProp_bBreakLockWhenOccluded_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_OcclusionGraceSeconds = { "OcclusionGraceSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, OcclusionGraceSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_OcclusionGraceSeconds_MetaData), NewProp_OcclusionGraceSeconds_MetaData) };
+const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_LineOfSightTraceChannel = { "LineOfSightTraceChannel", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, LineOfSightTraceChannel), Z_Construct_UEnum_Engine_ECollisionChannel, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LineOfSightTraceChannel_MetaData), NewProp_LineOfSightTraceChannel_MetaData) }; // 3aff698625c18cc2ccaa87a587b2eac8c50cdec7
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_CameraRotationInterpSpeed = { "CameraRotationInterpSpeed", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, CameraRotationInterpSpeed), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_CameraRotationInterpSpeed_MetaData), NewProp_CameraRotationInterpSpeed_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bTrackTargetPitch = { "bTrackTargetPitch", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bTrackTargetPitch_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bTrackTargetPitch_MetaData), NewProp_bTrackTargetPitch_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_TargetLeadSeconds = { "TargetLeadSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, TargetLeadSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TargetLeadSeconds_MetaData), NewProp_TargetLeadSeconds_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_TargetAimOffset = { "TargetAimOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, TargetAimOffset), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TargetAimOffset_MetaData), NewProp_TargetAimOffset_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bAimPlayerShotsAtLockedTarget = { "bAimPlayerShotsAtLockedTarget", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bAimPlayerShotsAtLockedTarget_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bAimPlayerShotsAtLockedTarget_MetaData), NewProp_bAimPlayerShotsAtLockedTarget_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_MaximumShotAssistAngleDegrees = { "MaximumShotAssistAngleDegrees", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, MaximumShotAssistAngleDegrees), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_MaximumShotAssistAngleDegrees_MetaData), NewProp_MaximumShotAssistAngleDegrees_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableTargetSwitching = { "bEnableTargetSwitching", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bEnableTargetSwitching_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableTargetSwitching_MetaData), NewProp_bEnableTargetSwitching_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseSwitchLeftKey = { "KeyboardMouseSwitchLeftKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, KeyboardMouseSwitchLeftKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseSwitchLeftKey_MetaData), NewProp_KeyboardMouseSwitchLeftKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_KeyboardMouseSwitchRightKey = { "KeyboardMouseSwitchRightKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, KeyboardMouseSwitchRightKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_KeyboardMouseSwitchRightKey_MetaData), NewProp_KeyboardMouseSwitchRightKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadSwitchLeftKey = { "GamepadSwitchLeftKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, GamepadSwitchLeftKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadSwitchLeftKey_MetaData), NewProp_GamepadSwitchLeftKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_GamepadSwitchRightKey = { "GamepadSwitchRightKey", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, GamepadSwitchRightKey), Z_Construct_UScriptStruct_FKey, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_GamepadSwitchRightKey_MetaData), NewProp_GamepadSwitchRightKey_MetaData) }; // 64b3e4afc222613fc56ee34bd705dda53a3378d0
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bEnableRightStickFlickSwitching = { "bEnableRightStickFlickSwitching", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bEnableRightStickFlickSwitching_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bEnableRightStickFlickSwitching_MetaData), NewProp_bEnableRightStickFlickSwitching_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_RightStickSwitchThreshold = { "RightStickSwitchThreshold", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, RightStickSwitchThreshold), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_RightStickSwitchThreshold_MetaData), NewProp_RightStickSwitchThreshold_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_TargetSwitchCooldownSeconds = { "TargetSwitchCooldownSeconds", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, TargetSwitchCooldownSeconds), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_TargetSwitchCooldownSeconds_MetaData), NewProp_TargetSwitchCooldownSeconds_MetaData) };
+const UECodeGen_Private::FObjectPropertyParams UHT_STATICS::NewProp_LockOnIndicatorTexture = { "LockOnIndicatorTexture", nullptr, (EPropertyFlags)0x0114000000000000, UECodeGen_Private::EPropertyGenFlags::Object | UECodeGen_Private::EPropertyGenFlags::ObjectPtr, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, LockOnIndicatorTexture), Z_Construct_UClass_UTexture2D, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LockOnIndicatorTexture_MetaData), NewProp_LockOnIndicatorTexture_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_LockOnIndicatorWorldOffset = { "LockOnIndicatorWorldOffset", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, LockOnIndicatorWorldOffset), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LockOnIndicatorWorldOffset_MetaData), NewProp_LockOnIndicatorWorldOffset_MetaData) };
+const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_LockOnIndicatorScale = { "LockOnIndicatorScale", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Struct, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, LockOnIndicatorScale), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_LockOnIndicatorScale_MetaData), NewProp_LockOnIndicatorScale_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bUseScreenSizeScaling = { "bUseScreenSizeScaling", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bUseScreenSizeScaling_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bUseScreenSizeScaling_MetaData), NewProp_bUseScreenSizeScaling_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_IndicatorScreenSize = { "IndicatorScreenSize", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, IndicatorScreenSize), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_IndicatorScreenSize_MetaData), NewProp_IndicatorScreenSize_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_IndicatorPulseAmount = { "IndicatorPulseAmount", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, IndicatorPulseAmount), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_IndicatorPulseAmount_MetaData), NewProp_IndicatorPulseAmount_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_IndicatorPulseSpeed = { "IndicatorPulseSpeed", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadePlayerLockOnSettings, IndicatorPulseSpeed), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_IndicatorPulseSpeed_MetaData), NewProp_IndicatorPulseSpeed_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bDrawLockOnDebug = { "bDrawLockOnDebug", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadePlayerLockOnSettings), &UHT_STATICS::NewProp_bDrawLockOnDebug_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bDrawLockOnDebug_MetaData), NewProp_bDrawLockOnDebug_MetaData) };
+const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableLockOn,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bUseAimInputAsLockOn,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseLockOnKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadLockOnKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAutomaticallyAimWhileLocking,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumAcquisitionDistance,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_AcquisitionHalfAngleDegrees,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BreakDistanceMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BreakHalfAngleDegrees,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bRequireLineOfSightToAcquire,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bBreakLockWhenOccluded,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_OcclusionGraceSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LineOfSightTraceChannel,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_CameraRotationInterpSpeed,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bTrackTargetPitch,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TargetLeadSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TargetAimOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bAimPlayerShotsAtLockedTarget,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_MaximumShotAssistAngleDegrees,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableTargetSwitching,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseSwitchLeftKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_KeyboardMouseSwitchRightKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadSwitchLeftKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_GamepadSwitchRightKey,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bEnableRightStickFlickSwitching,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_RightStickSwitchThreshold,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TargetSwitchCooldownSeconds,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LockOnIndicatorTexture,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LockOnIndicatorWorldOffset,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_LockOnIndicatorScale,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bUseScreenSizeScaling,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_IndicatorScreenSize,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_IndicatorPulseAmount,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_IndicatorPulseSpeed,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bDrawLockOnDebug,
+};
+static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
+// ********** End ScriptStruct FRenegadePlayerLockOnSettings Property Definitions ******************
+const UECodeGen_Private::FStructParams UHT_STATICS::StructParams = {
+	(FTypeConstructFunc*)Z_Construct_UPackage__Script_RenegadeSoldierCombat,
+	nullptr,
+	&NewStructOps,
+	"RenegadePlayerLockOnSettings",
+	UHT_STATICS::PropPointers,
+	UE_ARRAY_COUNT(UHT_STATICS::PropPointers),
+	DataSizeOf<FRenegadePlayerLockOnSettings>(),
+	alignof(FRenegadePlayerLockOnSettings),
+	RF_Public|RF_Transient|RF_MarkAsNative,
+	EStructFlags(0x00000201),
+	METADATA_PARAMS(UE_ARRAY_COUNT(UHT_STATICS::Type_MetaData), UHT_STATICS::Type_MetaData)
+};
+static FStructRegistrationInfo Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings;
+UScriptStruct* Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings(ETypeConstructPhase Phase)
+{
+	if (Phase == ETypeConstructPhase::Outer)
+	{
+		if (!Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings.OuterSingleton)
+		{
+			Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings.OuterSingleton = GetStaticStruct(Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings, (UObject*)Z_Construct_UPackage__Script_RenegadeSoldierCombat(ETypeConstructPhase::Outer), TEXT("RenegadePlayerLockOnSettings"));
+		}
+		return Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings.OuterSingleton;
+	}
+	if (!Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings.InnerSingleton)
+	{
+		UECodeGen_Private::ConstructUScriptStruct(Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings.InnerSingleton, UHT_STATICS::StructParams);
+	}
+	return CastChecked<UScriptStruct>(Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings.InnerSingleton);
+}
+#undef UHT_STATICS
+// ********** End ScriptStruct FRenegadePlayerLockOnSettings ***************************************
 
 // ********** Begin ScriptStruct FRenegadePlayerInputSettings **************************************
 #ifdef UHT_STATICS
@@ -2829,16 +3429,17 @@ struct UHT_STATICS
 	};
 	static constexpr FStructRegisterCompiledInInfo ScriptStructInfo[] = {
 		{ Z_Construct_UScriptStruct_FRenegadeWeaponSettings, Z_Construct_UScriptStruct_FRenegadeWeaponSettings_Statics::NewStructOps, TEXT("RenegadeWeaponSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeWeaponSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeWeaponSettings), 3105848085U) },
-		{ Z_Construct_UScriptStruct_FRenegadeTargetingSettings, Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics::NewStructOps, TEXT("RenegadeTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeTargetingSettings), 1843514437U) },
+		{ Z_Construct_UScriptStruct_FRenegadeTargetingSettings, Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics::NewStructOps, TEXT("RenegadeTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeTargetingSettings), 2832958943U) },
 		{ Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings, Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings_Statics::NewStructOps, TEXT("RenegadeCombatMovementSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatMovementSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatMovementSettings), 3050183974U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings, Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings_Statics::NewStructOps, TEXT("RenegadePlayerCombatSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerCombatSettings), 3336172806U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings, Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings_Statics::NewStructOps, TEXT("RenegadePlayerAimPresentationSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerAimPresentationSettings), 2735215814U) },
+		{ Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings, Z_Construct_UScriptStruct_FRenegadePlayerLockOnSettings_Statics::NewStructOps, TEXT("RenegadePlayerLockOnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerLockOnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerLockOnSettings), 3815542472U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerInputSettings, Z_Construct_UScriptStruct_FRenegadePlayerInputSettings_Statics::NewStructOps, TEXT("RenegadePlayerInputSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerInputSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerInputSettings), 1482115598U) },
 		{ Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings, Z_Construct_UScriptStruct_FRenegadeCombatVisualSettings_Statics::NewStructOps, TEXT("RenegadeCombatVisualSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatVisualSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatVisualSettings), 793923901U) },
 		{ Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings, Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics::NewStructOps, TEXT("RenegadeHealthRespawnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeHealthRespawnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeHealthRespawnSettings), 1785623175U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_88f0acd0ef1fc7b88a62ef3a5b572bfad8f90bba{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_0e63b4ce535ee81f7091c9c83ac279ae77e870c5{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	nullptr, 0,
 	UHT_STATICS::ScriptStructInfo, UE_ARRAY_COUNT(UHT_STATICS::ScriptStructInfo),
