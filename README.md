@@ -1,6 +1,6 @@
 # Renegade-NXT
 
-<img width="1254" height="1254" alt="RenNXT" src="https://github.com/user-attachments/assets/e562dc64-d013-46f3-a6f3-2b089de417c2" />
+<img width="3540" height="1817" alt="Main" src="https://github.com/user-attachments/assets/ed3ce490-7257-4b9c-8548-8e58b930a585" />
 
 C&C Renegade NXT is an open-source third-person action game project being developed in Unreal Engine 5.8
 
