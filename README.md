@@ -89,6 +89,7 @@ Player Inputs:
 | Select automatic rifle | 1                  | D-Pad Up             |
 | Select pistol          | 2                  | D-Pad Down           |
 | Look and aim direction | Mouse X/Y          | Right Stick          |
+| Toggle Lock On Target  | Left Alt           | LB Button            |
 
 ==================================================
 
