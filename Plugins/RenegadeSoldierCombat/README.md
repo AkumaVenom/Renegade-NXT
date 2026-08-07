@@ -1,8 +1,8 @@
 # Renegade NXT Combat and Building Warfare
 
-> v1.6.1 extends the polished rocket system to player combat with a dedicated replicated launcher slot, independent ammo/profile settings, camera and lock-on aiming, reliable client fire requests, built-in selection controls, and the same authoritative travelling explosion used by NPC rocket soldiers.
+> v1.6.2 fixes large-building rocket damage by resolving explosion distance against the physical bounds of the building and its attached/child geometry. Direct impacts on multipart structures are recovered back to the registered Building Combat Component so health, destruction, and team-aware EVA under-attack announcements trigger correctly.
 
-**Current version: 1.6.1** — UE 5.8
+**Current version: 1.6.2** — UE 5.8
 
 A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manual player combat, rocket-launcher infantry, damageable team buildings, and automated base defences.
 

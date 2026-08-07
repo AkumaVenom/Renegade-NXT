@@ -241,6 +241,127 @@ namespace RenegadeCombatPrivate
 
         return nullptr;
     }
+
+    /** Build an AABB for a building owner plus attached/child actors so large multipart structures use their physical footprint for explosions. */
+    static bool GetActorHierarchyBounds(const AActor* RootActor, FVector& OutBoundsMin, FVector& OutBoundsMax)
+    {
+        if (!IsValid(RootActor))
+        {
+            return false;
+        }
+
+        bool bHasBounds = false;
+        auto AccumulateActorBounds = [&OutBoundsMin, &OutBoundsMax, &bHasBounds](const AActor* Actor)
+        {
+            if (!IsValid(Actor))
+            {
+                return;
+            }
+
+            FVector BoundsOrigin = Actor->GetActorLocation();
+            FVector BoundsExtent = FVector::ZeroVector;
+            Actor->GetActorBounds(true, BoundsOrigin, BoundsExtent);
+            const FVector ActorMin = BoundsOrigin - BoundsExtent;
+            const FVector ActorMax = BoundsOrigin + BoundsExtent;
+
+            if (!bHasBounds)
+            {
+                OutBoundsMin = ActorMin;
+                OutBoundsMax = ActorMax;
+                bHasBounds = true;
+                return;
+            }
+
+            OutBoundsMin.X = FMath::Min(OutBoundsMin.X, ActorMin.X);
+            OutBoundsMin.Y = FMath::Min(OutBoundsMin.Y, ActorMin.Y);
+            OutBoundsMin.Z = FMath::Min(OutBoundsMin.Z, ActorMin.Z);
+            OutBoundsMax.X = FMath::Max(OutBoundsMax.X, ActorMax.X);
+            OutBoundsMax.Y = FMath::Max(OutBoundsMax.Y, ActorMax.Y);
+            OutBoundsMax.Z = FMath::Max(OutBoundsMax.Z, ActorMax.Z);
+        };
+
+        AccumulateActorBounds(RootActor);
+
+        TArray<AActor*> AttachedActors;
+        RootActor->GetAttachedActors(AttachedActors, true, true);
+        for (AActor* AttachedActor : AttachedActors)
+        {
+            AccumulateActorBounds(AttachedActor);
+        }
+
+        TArray<AActor*> ChildActors;
+        RootActor->GetAllChildActors(ChildActors, true);
+        for (AActor* ChildActor : ChildActors)
+        {
+            AccumulateActorBounds(ChildActor);
+        }
+
+        return bHasBounds;
+    }
+
+    /** Return the closest physical building-bounds point to an explosion instead of relying on the single AI target point. */
+    static FVector GetClosestPointOnBuildingBounds(const URenegadeBuildingCombatComponent* Building, const FVector& QueryLocation)
+    {
+        if (!IsValid(Building) || !IsValid(Building->GetOwner()))
+        {
+            return QueryLocation;
+        }
+
+        FVector BoundsMin = FVector::ZeroVector;
+        FVector BoundsMax = FVector::ZeroVector;
+        if (!GetActorHierarchyBounds(Building->GetOwner(), BoundsMin, BoundsMax))
+        {
+            return Building->GetTargetAimLocation();
+        }
+
+        return FVector(
+            FMath::Clamp(QueryLocation.X, BoundsMin.X, BoundsMax.X),
+            FMath::Clamp(QueryLocation.Y, BoundsMin.Y, BoundsMax.Y),
+            FMath::Clamp(QueryLocation.Z, BoundsMin.Z, BoundsMax.Z));
+    }
+
+    /** Recover direct building hits when the trace struck multipart/child geometry that is not directly owned by the building Actor. */
+    static URenegadeBuildingCombatComponent* ResolveRegisteredBuildingAtImpactLocation(
+        UWorld* World,
+        const FVector& ImpactLocation,
+        const float ImpactTolerance)
+    {
+        if (!IsValid(World))
+        {
+            return nullptr;
+        }
+
+        URenegadeCombatRegistrySubsystem* Registry = World->GetSubsystem<URenegadeCombatRegistrySubsystem>();
+        if (!IsValid(Registry))
+        {
+            return nullptr;
+        }
+
+        TArray<URenegadeBuildingCombatComponent*> Buildings;
+        Registry->GetBuildings(Buildings);
+
+        URenegadeBuildingCombatComponent* BestBuilding = nullptr;
+        float BestDistanceSquared = TNumericLimits<float>::Max();
+        const float ToleranceSquared = FMath::Square(FMath::Max(0.0f, ImpactTolerance));
+
+        for (URenegadeBuildingCombatComponent* Building : Buildings)
+        {
+            if (!IsValid(Building) || Building->bIsDestroyed || Building->CurrentHealth <= 0.0f || !IsValid(Building->GetOwner()))
+            {
+                continue;
+            }
+
+            const FVector ClosestPoint = GetClosestPointOnBuildingBounds(Building, ImpactLocation);
+            const float DistanceSquared = FVector::DistSquared(ImpactLocation, ClosestPoint);
+            if (DistanceSquared <= ToleranceSquared && DistanceSquared < BestDistanceSquared)
+            {
+                BestDistanceSquared = DistanceSquared;
+                BestBuilding = Building;
+            }
+        }
+
+        return BestBuilding;
+    }
 }
 
 URenegadeSoldierCombatComponent::URenegadeSoldierCombatComponent()
@@ -4015,6 +4136,20 @@ bool URenegadeSoldierCombatComponent::ExecuteRocketLauncherShot(
     {
         DirectHitActor = HitBuilding->GetOwner();
     }
+    else if (bFinalBlockingHit)
+    {
+        // Large/multipart building Blueprints can be struck on child geometry whose Actor hierarchy does not
+        // directly expose the Building Combat Component. Recover the registered building from its bounds.
+        constexpr float DirectBuildingImpactTolerance = 12.0f;
+        if (URenegadeBuildingCombatComponent* RecoveredBuilding =
+            RenegadeCombatPrivate::ResolveRegisteredBuildingAtImpactLocation(
+                GetWorld(),
+                FinalHit.ImpactPoint,
+                DirectBuildingImpactTolerance))
+        {
+            DirectHitActor = RecoveredBuilding->GetOwner();
+        }
+    }
 
     const float Distance = FVector::Distance(LaunchLocation, ImpactLocation);
     const float FlightSeconds = FMath::Max(
@@ -4160,7 +4295,8 @@ void URenegadeSoldierCombatComponent::ApplyRocketExplosionDamage(
 
     auto TryDamageActor = [this, &Weapon, &ImpactLocation, DirectHitActor, &DirectHit, InnerRadius, OuterRadius,
                            MinimumDamageMultiplier, MaximumDamage, ResolvedDamageType, &ProcessedActors, &DamagedTargetCount]
-        (AActor* DamageActor, const FVector& DamageLocation, URenegadeSoldierCombatComponent* SoldierCombat)
+        (AActor* DamageActor, const FVector& DamageLocation, URenegadeSoldierCombatComponent* SoldierCombat,
+         URenegadeBuildingCombatComponent* BuildingCombat)
     {
         const TWeakObjectPtr<AActor> DamageActorKey(DamageActor);
         if (!IsValid(DamageActor) || ProcessedActors.Contains(DamageActorKey))
@@ -4183,9 +4319,12 @@ void URenegadeSoldierCombatComponent::ApplyRocketExplosionDamage(
         }
 
         const bool bDirectHitTarget = DamageActor == DirectHitActor;
+        const FVector RadialDamageLocation = IsValid(BuildingCombat)
+            ? RenegadeCombatPrivate::GetClosestPointOnBuildingBounds(BuildingCombat, ImpactLocation)
+            : DamageLocation;
         const FVector EffectiveDamageLocation = bDirectHitTarget && DirectHit.bBlockingHit
             ? DirectHit.ImpactPoint
-            : DamageLocation;
+            : RadialDamageLocation;
         const float Distance = bDirectHitTarget
             ? 0.0f
             : FVector::Distance(ImpactLocation, EffectiveDamageLocation);
@@ -4248,6 +4387,19 @@ void URenegadeSoldierCombatComponent::ApplyRocketExplosionDamage(
             GetOwner(),
             ResolvedDamageType);
 
+        if (Weapon.RocketLauncher.bDrawDebugRocket && IsValid(BuildingCombat))
+        {
+            UE_LOG(
+                LogRenegadeSoldierCombat,
+                Log,
+                TEXT("%s rocket explosion resolved building %s at %.1f cm from its bounds and applied %.2f damage%s."),
+                *GetNameSafe(GetOwner()),
+                *GetNameSafe(DamageActor),
+                Distance,
+                AppliedDamage,
+                bDirectHitTarget ? TEXT(" (direct hit)") : TEXT(""));
+        }
+
         if (IsValid(SoldierCombat))
         {
             SoldierCombat->ClearIncomingCombatHit();
@@ -4269,7 +4421,7 @@ void URenegadeSoldierCombatComponent::ApplyRocketExplosionDamage(
             {
                 continue;
             }
-            TryDamageActor(Combatant->GetOwner(), GetAimLocation(Combatant->GetOwner()), Combatant);
+            TryDamageActor(Combatant->GetOwner(), GetAimLocation(Combatant->GetOwner()), Combatant, nullptr);
         }
 
         TArray<URenegadeBuildingCombatComponent*> Buildings;
@@ -4280,7 +4432,7 @@ void URenegadeSoldierCombatComponent::ApplyRocketExplosionDamage(
             {
                 continue;
             }
-            TryDamageActor(Building->GetOwner(), Building->GetTargetAimLocation(), nullptr);
+            TryDamageActor(Building->GetOwner(), Building->GetTargetAimLocation(), nullptr, Building);
         }
     }
 

@@ -1,4 +1,4 @@
-# Rocket Launcher Soldiers and Players — v1.6.1
+# Rocket Launcher Soldiers and Players — v1.6.2
 
 This update adds a dedicated infantry rocket-launcher weapon path to `Renegade Soldier Combat Component`. It uses the existing team registry, targeting, combat movement, health, damage, building warfare, ragdoll, respawn, spline bridge, and multiplayer authority model.
 
@@ -47,6 +47,18 @@ The Blueprint library node `Make Rocket Launcher Preset` returns a starting prof
 
 The nested `Rocket Launcher > Cadence` values override the generic magazine, reload, and RPM values while `Override Standard Magazine And Cadence` is enabled.
 
+
+## Large-building impact and splash resolution (v1.6.2)
+
+Rocket explosions do **not** measure a building only from its AI target point. Large structures such as the Helipad can have roof/edge collision several metres away from that point.
+
+For buildings, radial distance is measured from the explosion to the closest point on the registered building's colliding Actor bounds. The bounds include the building Actor plus recursively attached and Child Actor geometry. This means a rocket that strikes or explodes beside a physical part of a large building can damage it even when its configured target point is outside the explosion radius.
+
+If a rocket directly strikes multipart/child geometry and the hit Actor does not expose the Building Combat Component through the normal owner/attachment hierarchy, the impact location is checked against registered building bounds and recovered to the correct building owner. Recovered direct hits receive the normal `Direct Hit Damage Multiplier`.
+
+Building damage continues through Unreal point damage. The Building Combat Component's existing damage listener therefore handles health loss, low-health warnings, destruction, and team-aware EVA under-attack announcements exactly as it does for rifle damage.
+
+For testing, enable `Draw Debug Rocket`. A successful building explosion writes a log entry containing the resolved building name, distance from the impact to its bounds, applied damage, and whether it was classified as a direct hit.
 
 ## Player launcher setup (v1.6.1)
 

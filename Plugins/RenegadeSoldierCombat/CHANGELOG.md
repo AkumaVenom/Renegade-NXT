@@ -1,3 +1,14 @@
+# Renegade Soldier Combat v1.6.2
+
+- Fixed rocket explosions potentially failing to damage large buildings such as the Helipad when the impact was far from the building's single AI target/aim point.
+- Rocket splash distance for buildings is now measured against the closest point on the building owner's colliding bounds rather than only `GetTargetAimLocation()`.
+- Building bounds include the owning Actor plus recursively attached and Child Actor geometry, improving support for multipart base structures.
+- Added a registered-building direct-impact recovery pass for rockets that strike multipart/child geometry whose hit Actor hierarchy does not directly expose the Building Combat Component.
+- Directly recovered building hits preserve the configured rocket direct-hit damage multiplier.
+- Building rocket damage still uses `UGameplayStatics::ApplyPointDamage`, so the existing Building Combat Component receives `OnTakeAnyDamage`, health reduction, low-health state, destruction, and team-aware EVA under-attack announcements normally.
+- Explosion occlusion, radial falloff, GDI/Nod hostility filtering, friendly-fire rules, NPC rockets, player rockets, AGT/Obelisk defence, rifles, lock-on, blood, ragdoll, respawn, and spline integration are otherwise unchanged.
+- When `Draw Debug Rocket` is enabled, rocket explosions now log the resolved building, distance to its bounds, applied damage, and direct-hit status for verification.
+
 # Renegade Soldier Combat v1.6.1
 
 - Added a dedicated `Rocket Launcher` value to the replicated player weapon-slot enum while preserving the existing rifle and pistol enum values.

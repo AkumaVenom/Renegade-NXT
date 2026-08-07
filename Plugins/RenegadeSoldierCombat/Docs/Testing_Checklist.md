@@ -1,3 +1,14 @@
+## Rocket building damage regression (v1.6.2)
+
+- Place a large building such as a Helipad with a configured `Renegade Building Combat Component`.
+- Confirm the building has an opposing team from the rocket soldier/player.
+- Fire at the centre, roof edge, outer platform edge, and attached/Child Actor geometry.
+- Confirm every physical direct hit reduces building health.
+- Confirm the correct team's EVA under-attack announcement is requested when damage is accepted.
+- Fire a rocket into nearby ground/cover inside and outside the configured outer splash radius and confirm bounds-aware falloff behaves correctly.
+- With explosion occlusion enabled, confirm solid intervening cover can still block non-direct splash damage.
+- Enable `Draw Debug Rocket` and verify the log reports the resolved building, bounds distance, applied damage, and direct-hit state.
+
 
 ## Player rocket launcher (v1.6.1)
 
