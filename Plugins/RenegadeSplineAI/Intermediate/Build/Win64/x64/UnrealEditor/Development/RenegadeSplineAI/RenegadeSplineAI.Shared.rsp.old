@@ -339,7 +339,7 @@
 /I "../Intermediate/Build/Win64/UnrealEditor/Inc/AIModule/UHT"
 /I "Runtime/AIModule/Classes"
 /I "Runtime/AIModule/Public"
-/I "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Intermediate/Build/Win64/x64/RenegadeNXTEditor/Development/UnrealEd"
+/I "C:/Users/619/Documents/Unreal Projects/Renegade-NXT/Intermediate/Build/Win64/x64/UnrealEditor/Development/UnrealEd"
 /external:W0
 /external:I "ThirdParty/GuidelinesSupportLibrary/GSL-1144/include"
 /external:I "ThirdParty/AtomicQueue"

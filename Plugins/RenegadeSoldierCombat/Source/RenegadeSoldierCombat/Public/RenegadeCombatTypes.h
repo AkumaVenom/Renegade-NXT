@@ -308,6 +308,19 @@ struct RENEGADESOLDIERCOMBAT_API FRenegadeTargetingSettings
     /** Multiplies building distance score. Values below 1 make buildings more attractive; values above 1 favour soldiers. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting|Buildings", meta=(ClampMin="0.01"))
     float BuildingTargetDistanceScoreMultiplier = 1.0f;
+
+
+    /** Allows autonomous infantry to acquire hostile Harvesters registered by RenegadeHarvesterCombatComponent. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting|Harvesters")
+    bool bTargetHostileHarvesters = true;
+
+    /** When true, a valid hostile infantry target always wins over a Harvester. Harvesters are still attacked when no soldier target is available. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting|Harvesters")
+    bool bPreferSoldiersOverHarvesters = true;
+
+    /** Multiplies Harvester distance score. Values below 1 make Harvesters more attractive to infantry. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Targeting|Harvesters", meta=(ClampMin="0.01"))
+    float HarvesterTargetDistanceScoreMultiplier = 1.35f;
 };
 
 USTRUCT(BlueprintType)

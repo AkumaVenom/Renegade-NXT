@@ -7,6 +7,8 @@
 
 class URenegadeBuildingCombatComponent;
 class URenegadeSoldierCombatComponent;
+class URenegadeHarvesterCombatComponent;
+class ARenegadeTeamCreditsManager;
 
 UCLASS()
 class RENEGADESOLDIERCOMBAT_API URenegadeCombatBlueprintLibrary : public UBlueprintFunctionLibrary
@@ -20,6 +22,9 @@ public:
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Buildings")
     static URenegadeBuildingCombatComponent* GetRenegadeBuildingCombatComponent(const AActor* Actor);
 
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Harvesters")
+    static URenegadeHarvesterCombatComponent* GetRenegadeHarvesterCombatComponent(const AActor* Actor);
+
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Combat")
     static bool AreRenegadeActorsHostile(const AActor* FirstActor, const AActor* SecondActor);
 
@@ -28,6 +33,19 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Combat")
     static bool SetRenegadeTeamId(AActor* Actor, FName NewTeamId);
+
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Economy", meta=(WorldContext="WorldContextObject"))
+    static ARenegadeTeamCreditsManager* GetRenegadeTeamCreditsManager(const UObject* WorldContextObject);
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Economy", meta=(WorldContext="WorldContextObject"))
+    static int32 GetRenegadeTeamCredits(const UObject* WorldContextObject, FName TeamId);
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Economy", meta=(WorldContext="WorldContextObject"))
+    static int32 AddRenegadeTeamCredits(const UObject* WorldContextObject, FName TeamId, int32 Amount);
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Economy", meta=(WorldContext="WorldContextObject"))
+    static bool SpendRenegadeTeamCredits(const UObject* WorldContextObject, FName TeamId, int32 Amount, int32& RemainingCredits);
 
     UFUNCTION(BlueprintPure, Category="Renegade NXT|Weapon Presets")
     static FRenegadeWeaponSettings MakeAutomaticRiflePreset();

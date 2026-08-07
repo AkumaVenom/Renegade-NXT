@@ -185,3 +185,20 @@ For modular characters using Set Leader Pose Component, put the `CombatRagdollMe
 Add a Scene Component named `BulletSpawn` to the soldier Blueprint and attach it to the gun or weapon socket. Position it at the barrel. In the combat component, assign that component to **Renegade NXT > Combat Visuals > Bullet Spawn > Bullet Visual Spawn Component**.
 
 For dynamically attached weapons, call **Set Bullet Visual Spawn Component** on Begin Play after the weapon is attached. The supplied component must be owned by the same soldier actor.
+
+## v1.7.0 Harvester quick setup
+
+Add `Renegade Harvester Combat Component` to the GDI/Nod Harvester Character BP, keep the existing Spline AI Character vehicle components, assign `HarvesterTarget`, `HarvesterTurret`, optional `HarvesterGunPitch`, and `HarvesterMuzzle` Scene Components/tags, then configure health/turret/economy/EVA/destruction. On the Refinery Building Combat Component enable the Harvester spawner and assign that Character class. Full setup is in `Harvester_Warfare.md`.
+
+
+## v1.7.2 Harvest Point + respawn route hookup
+
+1. Place `Renegade Harvest Point` in the Tiberium field.
+2. On the placed GDI/Nod Refinery's Building Combat Component, set `Harvester Harvest Point` to that level actor, or leave it empty and enable `Auto Find Harvester Harvest Point`.
+3. Add/tag `HarvesterSpawn` and `HarvesterDock` Scene Components on the Refinery Blueprint.
+4. Bind `On Harvester Spawned` to the initial outbound Spline AI route start.
+5. Bind `On Harvester Respawned` to the same outbound start/reacquire logic for replacement Harvesters.
+6. On the Harvester Combat Component, tune `Cycle` timings: Harvest Arrival Delay, Harvest Duration, Post Harvest Departure Delay, dock approach/acceptance distances, Unload Start Delay, Unload Duration, and Post Unload Departure Delay.
+7. Bind `On Return To Refinery Route Requested` to choose/start your return spline and `On Outbound Harvest Route Requested` to choose/start the next outbound spline.
+
+The Harvester automatically leaves the spline for the final field/dock approach once it enters the exposed approach radius; no custom final-approach Blueprint `AI MoveTo` is required.

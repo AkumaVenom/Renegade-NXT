@@ -8,6 +8,8 @@ class AActor;
 class UAudioComponent;
 class URenegadeBuildingCombatComponent;
 class URenegadeSoldierCombatComponent;
+class URenegadeHarvesterCombatComponent;
+class ARenegadeTeamCreditsManager;
 class USoundAttenuation;
 class USoundBase;
 class USoundConcurrency;
@@ -25,6 +27,13 @@ public:
     void RegisterBuilding(URenegadeBuildingCombatComponent* Building);
     void UnregisterBuilding(URenegadeBuildingCombatComponent* Building);
     void GetBuildings(TArray<URenegadeBuildingCombatComponent*>& OutBuildings);
+
+    void RegisterHarvester(URenegadeHarvesterCombatComponent* Harvester);
+    void UnregisterHarvester(URenegadeHarvesterCombatComponent* Harvester);
+    void GetHarvesters(TArray<URenegadeHarvesterCombatComponent*>& OutHarvesters);
+
+    /** Returns the one replicated match-wide credit bank. Authority may create it on demand. */
+    ARenegadeTeamCreditsManager* GetTeamCreditsManager(bool bSpawnIfMissing = true);
 
     /** Returns true when at least one live team Power Plant exists, or when no Power Plant exists and the caller allows that fallback. */
     bool IsTeamPowerOnline(FName TeamId, bool bTreatMissingPowerPlantAsPowered) const;
@@ -62,6 +71,12 @@ private:
 
     UPROPERTY(Transient)
     TArray<TWeakObjectPtr<URenegadeBuildingCombatComponent>> RegisteredBuildings;
+
+    UPROPERTY(Transient)
+    TArray<TWeakObjectPtr<URenegadeHarvesterCombatComponent>> RegisteredHarvesters;
+
+    UPROPERTY(Transient)
+    TObjectPtr<ARenegadeTeamCreditsManager> CachedTeamCreditsManager;
 
     UPROPERTY(Transient)
     TObjectPtr<UAudioComponent> ActiveBuildingEvaAudio;

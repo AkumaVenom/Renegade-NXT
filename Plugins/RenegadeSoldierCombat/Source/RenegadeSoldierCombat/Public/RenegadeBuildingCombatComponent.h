@@ -4,11 +4,16 @@
 #include "Components/ActorComponent.h"
 #include "Engine/EngineTypes.h"
 #include "RenegadeBuildingCombatTypes.h"
+#include "RenegadeHarvestPoint.h"
+#include "RenegadeRefineryDockPoint.h"
 #include "TimerManager.h"
 #include "RenegadeBuildingCombatComponent.generated.h"
 
 class AActor;
 class AController;
+class ACharacter;
+class ARenegadeHarvestPoint;
+class ARenegadeRefineryDockPoint;
 class UAudioComponent;
 class UPrimitiveComponent;
 class USceneComponent;
@@ -16,6 +21,7 @@ class UStaticMeshComponent;
 class UParticleSystemComponent;
 class UNiagaraComponent;
 class URenegadeSoldierCombatComponent;
+class URenegadeHarvesterCombatComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FRenegadeBuildingHealthChangedSignature, float, PreviousHealth, float, NewHealth, AActor*, DamageCauser, AController*, InstigatedBy);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadeBuildingUnderAttackSignature, AActor*, Attacker, float, Damage);
@@ -25,6 +31,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FRenegadeBuildingRestoredSignature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRenegadeBuildingDefenseTargetChangedSignature, AActor*, PreviousTarget, AActor*, NewTarget);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FRenegadeBuildingDefenseFiredSignature, ERenegadeBuildingDefenseType, DefenseType, FVector, TraceStart, FVector, TraceEnd);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeBuildingPowerChangedSignature, bool, bPowerOnline);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeRefineryHarvesterSpawnedSignature, AActor*, Harvester);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeRefineryHarvesterRespawnedSignature, AActor*, Harvester);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FRenegadeRefineryHarvesterRespawnScheduledSignature, float, DelaySeconds);
 
 struct FRenegadeBuildingRocketRuntimeState
 {
@@ -96,6 +105,88 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Audio")
     FRenegadeBuildingAudioSettings AudioSettings;
 
+    /** Refinery-only Harvester factory. The spawned Character BP should contain RenegadeHarvesterCombatComponent plus your existing Spline AI vehicle components. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner")
+    bool bEnableHarvesterSpawner = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner"))
+    TSubclassOf<ACharacter> HarvesterCharacterClass;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(UseComponentPicker, AllowedClasses="/Script/Engine.SceneComponent", EditCondition="bEnableHarvesterSpawner"))
+    FComponentReference HarvesterSpawnPointComponent;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner"))
+    FName HarvesterSpawnPointComponentTag = TEXT("HarvesterSpawn");
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner"))
+    FVector HarvesterSpawnRelativeOffset = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner"))
+    FRotator HarvesterSpawnRotationOffset = FRotator::ZeroRotator;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner"))
+    bool bAutoSpawnHarvesterOnBeginPlay = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(ClampMin="0.0", EditCondition="bEnableHarvesterSpawner && bAutoSpawnHarvesterOnBeginPlay", Units="s"))
+    float InitialHarvesterSpawnDelaySeconds = 0.5f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(ClampMin="0.0", EditCondition="bEnableHarvesterSpawner", Units="s"))
+    float HarvesterRespawnDelaySeconds = 20.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner"))
+    bool bRequireOperationalRefineryForHarvesterSpawn = true;
+
+    /** Ensures a runtime-spawned Harvester receives its Character Blueprint's configured default AI Controller even if Auto Possess AI is not set for spawned actors. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner"))
+    bool bEnsureSpawnedHarvesterHasAIController = true;
+
+    /** Enforces the Renegade rule of one operational Harvester per non-neutral team. The Refinery adopts an existing same-team Harvester anywhere in the world instead of spawning another. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner"))
+    bool bEnforceSingleActiveHarvesterPerTeam = true;
+
+    /** Prevents a manually placed/live matching Harvester near this Refinery from being duplicated by the BeginPlay auto-spawn. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner"))
+    bool bAdoptExistingHarvesterOnBeginPlay = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(ClampMin="100.0", EditCondition="bEnableHarvesterSpawner && bAdoptExistingHarvesterOnBeginPlay", Units="cm"))
+    float ExistingHarvesterAdoptionRadius = 2500.0f;
+
+
+    /** Level-placed field destination assigned to every Harvester spawned by this Refinery. */
+    UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner"))
+    TObjectPtr<ARenegadeHarvestPoint> HarvesterHarvestPoint;
+
+    /** Optional automatic fallback if Harvester Harvest Point is empty. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner"))
+    bool bAutoFindHarvesterHarvestPoint = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Spawner", meta=(EditCondition="bEnableHarvesterSpawner && bAutoFindHarvesterHarvestPoint"))
+    FName HarvesterHarvestPointGroup = NAME_None;
+
+    /** Preferred level-placed final unloading destination. This supersedes the legacy HarvesterDock Scene Component when assigned. */
+    UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Dock Point", meta=(EditCondition="bEnableHarvesterSpawner"))
+    TObjectPtr<ARenegadeRefineryDockPoint> HarvesterRefineryDockPoint;
+
+    /** If no Dock Point is explicitly assigned, automatically select the nearest compatible level Dock Point. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Dock Point", meta=(EditCondition="bEnableHarvesterSpawner"))
+    bool bAutoFindHarvesterRefineryDockPoint = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Dock Point", meta=(EditCondition="bEnableHarvesterSpawner && bAutoFindHarvesterRefineryDockPoint"))
+    FName HarvesterRefineryDockPointGroup = NAME_None;
+
+    /** Legacy/component-based final dock fallback. A placeable Harvester Refinery Dock Point Actor is preferred for new setups. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Dock|Legacy Component", meta=(UseComponentPicker, AllowedClasses="/Script/Engine.SceneComponent", EditCondition="bEnableHarvesterSpawner"))
+    FComponentReference HarvesterDockPointComponent;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Dock|Legacy Component", meta=(EditCondition="bEnableHarvesterSpawner"))
+    FName HarvesterDockPointComponentTag = TEXT("HarvesterDock");
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Dock|Legacy Component", meta=(EditCondition="bEnableHarvesterSpawner"))
+    FVector HarvesterDockRelativeOffset = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Refinery|Harvester Dock|Legacy Component", meta=(EditCondition="bEnableHarvesterSpawner"))
+    FRotator HarvesterDockRotationOffset = FRotator::ZeroRotator;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Renegade NXT|Building|Defence")
     bool bAutoStartDefenseOnBeginPlay = true;
 
@@ -153,6 +244,10 @@ public:
     UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_TeamPowerOnline, Category="Renegade NXT|Building|Runtime")
     bool bTeamPowerOnline = true;
 
+
+    UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_ActiveHarvester, Category="Renegade NXT|Building|Refinery|Runtime")
+    TObjectPtr<AActor> ActiveHarvester;
+
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Building|Events")
     FRenegadeBuildingHealthChangedSignature OnBuildingHealthChanged;
 
@@ -177,6 +272,18 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Building|Events")
     FRenegadeBuildingPowerChangedSignature OnTeamPowerChanged;
+
+
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Building|Refinery|Events")
+    FRenegadeRefineryHarvesterSpawnedSignature OnHarvesterSpawned;
+
+
+    /** Authority event fired only for replacement Harvesters after the first Harvester has already existed. Ideal for restarting/reacquiring the outbound spline. */
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Building|Refinery|Events")
+    FRenegadeRefineryHarvesterRespawnedSignature OnHarvesterRespawned;
+
+    UPROPERTY(BlueprintAssignable, Category="Renegade NXT|Building|Refinery|Events")
+    FRenegadeRefineryHarvesterRespawnScheduledSignature OnHarvesterRespawnScheduled;
 
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Building|Team")
     void SetTeamId(FName NewTeamId);
@@ -226,6 +333,29 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Building|Defence")
     void ClearDefenseTarget();
 
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Building|Refinery|Harvester Spawner")
+    AActor* SpawnHarvesterNow();
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Building|Refinery|Harvester Spawner")
+    void ScheduleHarvesterRespawn(float DelayOverrideSeconds = -1.0f);
+
+    /** Called automatically by RenegadeHarvesterCombatComponent when the current Harvester is destroyed. */
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Building|Refinery|Harvester Spawner")
+    void NotifyHarvesterDestroyed(AActor* DestroyedHarvester);
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Building|Refinery|Harvester Spawner")
+    FTransform GetHarvesterSpawnTransform() const;
+
+
+    UFUNCTION(BlueprintPure, Category="Renegade NXT|Building|Refinery|Harvester Dock")
+    FTransform GetHarvesterDockTransform() const;
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Building|Refinery|Harvester Spawner")
+    ARenegadeHarvestPoint* ResolveHarvesterHarvestPoint();
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Renegade NXT|Building|Refinery|Harvester Dock Point")
+    ARenegadeRefineryDockPoint* ResolveHarvesterRefineryDockPoint();
+
     UFUNCTION(BlueprintCallable, Category="Renegade NXT|Building|Target")
     void SetRuntimeTargetPointComponent(USceneComponent* NewComponent);
 
@@ -265,6 +395,12 @@ protected:
 
     UFUNCTION()
     void OnRep_TeamPowerOnline();
+
+    UFUNCTION()
+    void OnRep_ActiveHarvester(AActor* PreviousHarvester);
+
+    UFUNCTION()
+    void HandleSpawnedHarvesterActorDestroyed(AActor* DestroyedActor);
 
     UFUNCTION(NetMulticast, Unreliable)
     void MulticastBuildingUnderAttack(AActor* Attacker, float Damage, FVector_NetQuantize SoundLocation);
@@ -321,6 +457,14 @@ private:
     bool IsDefensePowerAvailable() const;
     void UpdateReplicatedPowerState();
 
+    void StartInitialHarvesterSpawn();
+    void HandleHarvesterRespawnTimer();
+    void ClearHarvesterRespawnTimer();
+    bool IsPrimaryHarvesterSpawnerForOwner() const;
+    AActor* FindExistingHarvesterForRefinery() const;
+    AActor* FindExistingTeamHarvester() const;
+    void AdoptHarvesterAsActive(ACharacter* Harvester);
+
     void FireAdvancedGuardTower();
     void BeginObeliskCharge();
     void FireObeliskLaser();
@@ -364,9 +508,13 @@ private:
     FTimerHandle DefenseRefreshTimer;
     FTimerHandle DefenseAttackTimer;
     FTimerHandle ObeliskChargeTimer;
+    FTimerHandle HarvesterRespawnTimer;
 
     float LastUnderAttackRequestTime = -BIG_NUMBER;
     bool bDefenseRunning = false;
     bool bOriginalOwnerHidden = false;
     bool bOriginalOwnerCollisionEnabled = true;
+    bool bHasSpawnedHarvesterAtLeastOnce = false;
+    bool bInitialHarvesterSpawnRequested = false;
+    bool bHarvesterSpawnInProgress = false;
 };

@@ -233,3 +233,24 @@ For infantry bullets, use the existing `Draw Debug Shot Line` setting on the sol
 ## Obelisk laser lifetime and cleanup (v1.4.3)
 
 `Laser Visual Lifetime Seconds` controls how long each Obelisk laser visual remains active after the authoritative shot. The default is `0.35` seconds. Looping Cascade systems are created inactive, configured with the trace source/target, activated only for the shot, then forcibly deactivated and destroyed. A new shot also removes any previous active beam so visuals cannot overlap or remain in the level.
+
+## v1.7.0 Refinery Harvester factory
+
+A Refinery Building Combat Component can now own one active Harvester Character. Enable `Harvester Spawner`, assign `Harvester Character Class`, and select/tag a `HarvesterSpawn` Scene Component. Initial spawn delay, respawn delay, local offset/rotation and operational-Refinery gating are exposed. `Active Harvester` replicates, while `On Harvester Spawned` and `On Harvester Respawn Scheduled` provide Blueprint hooks. See `Harvester_Warfare.md`.
+
+
+## v1.7.2 Refinery Harvest Point and dock additions
+
+Refinery Building Combat Components now additionally expose:
+
+- `Harvester Harvest Point` (level actor reference)
+- `Auto Find Harvester Harvest Point`
+- `Harvester Harvest Point Group`
+- `Harvester Dock Point Component`
+- `Harvester Dock Point Component Tag` (`HarvesterDock` by default)
+- dock relative location/rotation offsets
+- `Get Harvester Dock Transform`
+- `Resolve Harvester Harvest Point`
+- `On Harvester Respawned`
+
+`On Harvester Respawned` fires on authority only for replacement Harvesters after the initial one and passes the newly spawned Character Actor, making it the intended Blueprint hook for restarting/reacquiring the outbound Spline AI path.

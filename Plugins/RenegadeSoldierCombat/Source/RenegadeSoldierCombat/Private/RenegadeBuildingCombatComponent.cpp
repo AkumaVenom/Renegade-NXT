@@ -1,6 +1,10 @@
 #include "RenegadeBuildingCombatComponent.h"
 
 #include "RenegadeCombatRegistrySubsystem.h"
+#include "RenegadeHarvesterCombatComponent.h"
+#include "RenegadeHarvestPoint.h"
+#include "RenegadeRefineryDockPoint.h"
+#include "RenegadeTeamCreditsManager.h"
 #include "RenegadeSoldierCombatComponent.h"
 #include "RenegadeSoldierCombatModule.h"
 
@@ -12,6 +16,8 @@
 #include "CollisionQueryParams.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/DamageType.h"
 #include "GameFramework/Pawn.h"
@@ -110,6 +116,21 @@ void URenegadeBuildingCombatComponent::BeginPlay()
 
     RegisterWithCombatWorld();
 
+    if (HasAuthority() && BuildingType == ERenegadeBuildingType::Refinery && bEnableHarvesterSpawner)
+    {
+        if (UWorld* World = GetWorld())
+        {
+            if (URenegadeCombatRegistrySubsystem* Registry = World->GetSubsystem<URenegadeCombatRegistrySubsystem>())
+            {
+                Registry->GetTeamCreditsManager(true);
+            }
+        }
+        if (bAutoSpawnHarvesterOnBeginPlay)
+        {
+            StartInitialHarvesterSpawn();
+        }
+    }
+
     if (HasAuthority() && bAutoStartDefenseOnBeginPlay && DefenseType != ERenegadeBuildingDefenseType::None)
     {
         StartBuildingDefense();
@@ -166,6 +187,7 @@ void URenegadeBuildingCombatComponent::GetLifetimeReplicatedProps(TArray<FLifeti
     DOREPLIFETIME(URenegadeBuildingCombatComponent, CurrentDefenseTarget);
     DOREPLIFETIME(URenegadeBuildingCombatComponent, bObeliskCharging);
     DOREPLIFETIME(URenegadeBuildingCombatComponent, bTeamPowerOnline);
+    DOREPLIFETIME(URenegadeBuildingCombatComponent, ActiveHarvester);
 }
 
 bool URenegadeBuildingCombatComponent::HasAuthority() const
@@ -292,6 +314,13 @@ void URenegadeBuildingCombatComponent::SetTeamId(const FName NewTeamId)
     TeamId = NewTeamId;
     UpdateReplicatedPowerState();
     RefreshDefenseTargeting();
+    if (IsValid(ActiveHarvester))
+    {
+        if (URenegadeHarvesterCombatComponent* HarvesterCombat = ActiveHarvester->FindComponentByClass<URenegadeHarvesterCombatComponent>())
+        {
+            HarvesterCombat->SetTeamId(TeamId);
+        }
+    }
 
     if (AActor* Owner = GetOwner())
     {
@@ -315,6 +344,10 @@ bool URenegadeBuildingCombatComponent::IsHostileToActor(const AActor* OtherActor
     if (const URenegadeSoldierCombatComponent* SoldierCombat = OtherActor->FindComponentByClass<URenegadeSoldierCombatComponent>())
     {
         OtherTeam = SoldierCombat->TeamId;
+    }
+    else if (const URenegadeHarvesterCombatComponent* HarvesterCombat = OtherActor->FindComponentByClass<URenegadeHarvesterCombatComponent>())
+    {
+        OtherTeam = HarvesterCombat->TeamId;
     }
     else if (const URenegadeBuildingCombatComponent* BuildingCombat = OtherActor->FindComponentByClass<URenegadeBuildingCombatComponent>())
     {
@@ -489,6 +522,11 @@ void URenegadeBuildingCombatComponent::RestoreBuilding(const float RestoredHealt
         StartBuildingDefense();
     }
 
+    if (BuildingType == ERenegadeBuildingType::Refinery && bEnableHarvesterSpawner && !IsValid(ActiveHarvester))
+    {
+        ScheduleHarvesterRespawn(HarvesterRespawnDelaySeconds);
+    }
+
     if (AActor* Owner = GetOwner())
     {
         Owner->ForceNetUpdate();
@@ -557,6 +595,10 @@ void URenegadeBuildingCombatComponent::BeginBuildingDestroyed(AController* Insti
 
     bIsDestroyed = true;
     CurrentHealth = 0.0f;
+    if (bRequireOperationalRefineryForHarvesterSpawn)
+    {
+        ClearHarvesterRespawnTimer();
+    }
     if (bIsLowHealth)
     {
         bIsLowHealth = false;
@@ -1988,6 +2030,539 @@ void URenegadeBuildingCombatComponent::StopAllObeliskLaserVisuals()
         CleanupObeliskNiagaraVisual(NiagaraComponent);
     }
     ActiveObeliskNiagaraVisuals.Reset();
+}
+
+
+FTransform URenegadeBuildingCombatComponent::GetHarvesterSpawnTransform() const
+{
+    AActor* Owner = GetOwner();
+    if (!IsValid(Owner))
+    {
+        return FTransform::Identity;
+    }
+
+    USceneComponent* SpawnPoint = ResolveSceneComponent(HarvesterSpawnPointComponent, HarvesterSpawnPointComponentTag, nullptr);
+    if (IsValid(SpawnPoint))
+    {
+        const FTransform BaseTransform = SpawnPoint->GetComponentTransform();
+        const FVector WorldLocation = BaseTransform.TransformPositionNoScale(HarvesterSpawnRelativeOffset);
+        const FRotator WorldRotation = (BaseTransform.GetRotation() * HarvesterSpawnRotationOffset.Quaternion()).Rotator();
+        return FTransform(WorldRotation, WorldLocation, FVector::OneVector);
+    }
+
+    const FTransform OwnerTransform = Owner->GetActorTransform();
+    const FVector WorldLocation = OwnerTransform.TransformPositionNoScale(HarvesterSpawnRelativeOffset);
+    const FRotator WorldRotation = (OwnerTransform.GetRotation() * HarvesterSpawnRotationOffset.Quaternion()).Rotator();
+    return FTransform(WorldRotation, WorldLocation, FVector::OneVector);
+}
+
+FTransform URenegadeBuildingCombatComponent::GetHarvesterDockTransform() const
+{
+    if (IsValid(HarvesterRefineryDockPoint) && HarvesterRefineryDockPoint->IsCompatibleWithTeam(TeamId))
+    {
+        return HarvesterRefineryDockPoint->GetDockTransform();
+    }
+
+    AActor* Owner = GetOwner();
+    if (!IsValid(Owner))
+    {
+        return FTransform::Identity;
+    }
+
+    USceneComponent* DockPoint = ResolveSceneComponent(HarvesterDockPointComponent, HarvesterDockPointComponentTag, nullptr);
+    if (IsValid(DockPoint))
+    {
+        const FTransform BaseTransform = DockPoint->GetComponentTransform();
+        const FVector WorldLocation = BaseTransform.TransformPositionNoScale(HarvesterDockRelativeOffset);
+        const FRotator WorldRotation = (BaseTransform.GetRotation() * HarvesterDockRotationOffset.Quaternion()).Rotator();
+        return FTransform(WorldRotation, WorldLocation, FVector::OneVector);
+    }
+
+    const FTransform OwnerTransform = Owner->GetActorTransform();
+    const FVector WorldLocation = OwnerTransform.TransformPositionNoScale(HarvesterDockRelativeOffset);
+    const FRotator WorldRotation = (OwnerTransform.GetRotation() * HarvesterDockRotationOffset.Quaternion()).Rotator();
+    return FTransform(WorldRotation, WorldLocation, FVector::OneVector);
+}
+
+ARenegadeHarvestPoint* URenegadeBuildingCombatComponent::ResolveHarvesterHarvestPoint()
+{
+    if (IsValid(HarvesterHarvestPoint))
+    {
+        if (HarvesterHarvestPoint->IsCompatibleWithTeam(TeamId))
+        {
+            return HarvesterHarvestPoint;
+        }
+        return nullptr;
+    }
+
+    if (!HasAuthority() || !GetWorld() || !bAutoFindHarvesterHarvestPoint)
+    {
+        return nullptr;
+    }
+
+    const FVector Origin = IsValid(GetOwner()) ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
+    ARenegadeHarvestPoint* BestPoint = nullptr;
+    float BestDistanceSq = BIG_NUMBER;
+    for (TActorIterator<ARenegadeHarvestPoint> It(GetWorld()); It; ++It)
+    {
+        ARenegadeHarvestPoint* Candidate = *It;
+        if (!IsValid(Candidate) || !Candidate->IsCompatibleWithTeam(TeamId))
+        {
+            continue;
+        }
+        if (!HarvesterHarvestPointGroup.IsNone() && Candidate->HarvestPointGroup != HarvesterHarvestPointGroup)
+        {
+            continue;
+        }
+        const float DistanceSq = FVector::DistSquared2D(Origin, Candidate->GetHarvestLocation());
+        if (DistanceSq < BestDistanceSq)
+        {
+            BestDistanceSq = DistanceSq;
+            BestPoint = Candidate;
+        }
+    }
+
+    HarvesterHarvestPoint = BestPoint;
+    return BestPoint;
+}
+
+ARenegadeRefineryDockPoint* URenegadeBuildingCombatComponent::ResolveHarvesterRefineryDockPoint()
+{
+    if (IsValid(HarvesterRefineryDockPoint))
+    {
+        if (HarvesterRefineryDockPoint->IsCompatibleWithTeam(TeamId))
+        {
+            HarvesterRefineryDockPoint->SetOwningRefineryActor(GetOwner());
+            return HarvesterRefineryDockPoint;
+        }
+        return nullptr;
+    }
+
+    if (!HasAuthority() || !GetWorld() || !bAutoFindHarvesterRefineryDockPoint)
+    {
+        return nullptr;
+    }
+
+    const FVector Origin = IsValid(GetOwner()) ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
+    ARenegadeRefineryDockPoint* BestPoint = nullptr;
+    float BestDistanceSq = BIG_NUMBER;
+    for (TActorIterator<ARenegadeRefineryDockPoint> It(GetWorld()); It; ++It)
+    {
+        ARenegadeRefineryDockPoint* Candidate = *It;
+        if (!IsValid(Candidate) || !Candidate->IsCompatibleWithTeam(TeamId))
+        {
+            continue;
+        }
+        if (!HarvesterRefineryDockPointGroup.IsNone() && Candidate->DockPointGroup != HarvesterRefineryDockPointGroup)
+        {
+            continue;
+        }
+        if (IsValid(Candidate->OwningRefineryActor) && Candidate->OwningRefineryActor != GetOwner())
+        {
+            continue;
+        }
+        const float DistanceSq = FVector::DistSquared2D(Origin, Candidate->GetDockTransform().GetLocation());
+        if (DistanceSq < BestDistanceSq)
+        {
+            BestDistanceSq = DistanceSq;
+            BestPoint = Candidate;
+        }
+    }
+
+    HarvesterRefineryDockPoint = BestPoint;
+    if (IsValid(BestPoint))
+    {
+        BestPoint->SetOwningRefineryActor(GetOwner());
+    }
+    return BestPoint;
+}
+
+bool URenegadeBuildingCombatComponent::IsPrimaryHarvesterSpawnerForOwner() const
+{
+    AActor* Owner = GetOwner();
+    if (!IsValid(Owner))
+    {
+        return false;
+    }
+
+    TArray<URenegadeBuildingCombatComponent*> BuildingComponents;
+    Owner->GetComponents<URenegadeBuildingCombatComponent>(BuildingComponents);
+    for (URenegadeBuildingCombatComponent* Component : BuildingComponents)
+    {
+        if (IsValid(Component)
+            && Component->BuildingType == ERenegadeBuildingType::Refinery
+            && Component->bEnableHarvesterSpawner)
+        {
+            return Component == this;
+        }
+    }
+    return true;
+}
+
+AActor* URenegadeBuildingCombatComponent::FindExistingTeamHarvester() const
+{
+    if (!HasAuthority() || !GetWorld() || !HarvesterCharacterClass || TeamId.IsNone())
+    {
+        return nullptr;
+    }
+
+    for (TActorIterator<ACharacter> It(GetWorld()); It; ++It)
+    {
+        ACharacter* Candidate = *It;
+        if (!IsValid(Candidate) || !Candidate->IsA(HarvesterCharacterClass) || Candidate->IsHidden())
+        {
+            continue;
+        }
+
+        URenegadeHarvesterCombatComponent* HarvesterCombat = Candidate->FindComponentByClass<URenegadeHarvesterCombatComponent>();
+        if (!IsValid(HarvesterCombat) || !HarvesterCombat->IsOperational())
+        {
+            continue;
+        }
+
+        if (!HarvesterCombat->TeamId.IsNone()
+            && TeamId.IsEqual(HarvesterCombat->TeamId, ENameCase::IgnoreCase))
+        {
+            return Candidate;
+        }
+
+        if (URenegadeBuildingCombatComponent* ExistingRefinery = HarvesterCombat->GetOwningRefinery())
+        {
+            if (ExistingRefinery->GetOwner() == GetOwner())
+            {
+                return Candidate;
+            }
+        }
+    }
+    return nullptr;
+}
+
+AActor* URenegadeBuildingCombatComponent::FindExistingHarvesterForRefinery() const
+{
+    if (!HasAuthority() || !GetWorld() || !HarvesterCharacterClass || !IsValid(GetOwner()))
+    {
+        return nullptr;
+    }
+
+    const FVector SpawnLocation = GetHarvesterSpawnTransform().GetLocation();
+    const float MaxDistanceSq = FMath::Square(FMath::Max(100.0f, ExistingHarvesterAdoptionRadius));
+    ACharacter* Best = nullptr;
+    float BestDistanceSq = MaxDistanceSq;
+
+    for (TActorIterator<ACharacter> It(GetWorld()); It; ++It)
+    {
+        ACharacter* Candidate = *It;
+        if (!IsValid(Candidate) || !Candidate->IsA(HarvesterCharacterClass) || Candidate->IsHidden())
+        {
+            continue;
+        }
+
+        URenegadeHarvesterCombatComponent* HarvesterCombat = Candidate->FindComponentByClass<URenegadeHarvesterCombatComponent>();
+        if (!IsValid(HarvesterCombat) || !HarvesterCombat->IsOperational())
+        {
+            continue;
+        }
+
+        if (URenegadeBuildingCombatComponent* ExistingRefinery = HarvesterCombat->GetOwningRefinery())
+        {
+            if (ExistingRefinery != this && ExistingRefinery->GetOwner() != GetOwner())
+            {
+                continue;
+            }
+        }
+
+        if (!TeamId.IsNone() && !HarvesterCombat->TeamId.IsNone()
+            && !TeamId.IsEqual(HarvesterCombat->TeamId, ENameCase::IgnoreCase))
+        {
+            continue;
+        }
+
+        const float DistanceSq = FVector::DistSquared2D(Candidate->GetActorLocation(), SpawnLocation);
+        if (DistanceSq <= BestDistanceSq)
+        {
+            BestDistanceSq = DistanceSq;
+            Best = Candidate;
+        }
+    }
+
+    return Best;
+}
+
+void URenegadeBuildingCombatComponent::AdoptHarvesterAsActive(ACharacter* Harvester)
+{
+    if (!HasAuthority() || !IsValid(Harvester))
+    {
+        return;
+    }
+
+    ClearHarvesterRespawnTimer();
+    ActiveHarvester = Harvester;
+    Harvester->OnDestroyed.AddUniqueDynamic(this, &URenegadeBuildingCombatComponent::HandleSpawnedHarvesterActorDestroyed);
+
+    if (bEnsureSpawnedHarvesterHasAIController && !IsValid(Harvester->GetController()))
+    {
+        Harvester->SpawnDefaultController();
+    }
+
+    if (URenegadeHarvesterCombatComponent* HarvesterCombat = Harvester->FindComponentByClass<URenegadeHarvesterCombatComponent>())
+    {
+        HarvesterCombat->SetTeamId(TeamId);
+        HarvesterCombat->SetOwningRefinery(this);
+        HarvesterCombat->RequiredHarvestPointGroup = HarvesterHarvestPointGroup;
+        HarvesterCombat->RequiredRefineryDockPointGroup = HarvesterRefineryDockPointGroup;
+        if (ARenegadeHarvestPoint* HarvestPoint = ResolveHarvesterHarvestPoint())
+        {
+            HarvesterCombat->SetAssignedHarvestPoint(HarvestPoint);
+        }
+        if (ARenegadeRefineryDockPoint* DockPoint = ResolveHarvesterRefineryDockPoint())
+        {
+            HarvesterCombat->SetAssignedRefineryDockPoint(DockPoint);
+        }
+    }
+
+    const bool bWasRespawn = bHasSpawnedHarvesterAtLeastOnce;
+    bHasSpawnedHarvesterAtLeastOnce = true;
+    OnHarvesterSpawned.Broadcast(Harvester);
+    if (bWasRespawn)
+    {
+        OnHarvesterRespawned.Broadcast(Harvester);
+    }
+    if (AActor* Owner = GetOwner())
+    {
+        Owner->ForceNetUpdate();
+    }
+}
+
+void URenegadeBuildingCombatComponent::StartInitialHarvesterSpawn()
+{
+    if (!HasAuthority() || !GetWorld() || !IsPrimaryHarvesterSpawnerForOwner() || bInitialHarvesterSpawnRequested || bHarvesterSpawnInProgress || IsValid(ActiveHarvester))
+    {
+        return;
+    }
+    bInitialHarvesterSpawnRequested = true;
+
+    if (bEnforceSingleActiveHarvesterPerTeam)
+    {
+        if (ACharacter* ExistingTeamHarvester = Cast<ACharacter>(FindExistingTeamHarvester()))
+        {
+            UE_LOG(LogRenegadeSoldierCombat, Log, TEXT("Refinery %s adopted existing team Harvester %s instead of creating a duplicate."), *GetNameSafe(GetOwner()), *GetNameSafe(ExistingTeamHarvester));
+            AdoptHarvesterAsActive(ExistingTeamHarvester);
+            return;
+        }
+    }
+
+    if (bAdoptExistingHarvesterOnBeginPlay)
+    {
+        if (ACharacter* ExistingHarvester = Cast<ACharacter>(FindExistingHarvesterForRefinery()))
+        {
+            AdoptHarvesterAsActive(ExistingHarvester);
+            return;
+        }
+    }
+
+    ClearHarvesterRespawnTimer();
+    const float Delay = FMath::Max(0.0f, InitialHarvesterSpawnDelaySeconds);
+    if (Delay <= KINDA_SMALL_NUMBER)
+    {
+        SpawnHarvesterNow();
+        return;
+    }
+    GetWorld()->GetTimerManager().SetTimer(HarvesterRespawnTimer, this, &URenegadeBuildingCombatComponent::HandleHarvesterRespawnTimer, Delay, false);
+    OnHarvesterRespawnScheduled.Broadcast(Delay);
+}
+
+void URenegadeBuildingCombatComponent::HandleHarvesterRespawnTimer()
+{
+    SpawnHarvesterNow();
+}
+
+void URenegadeBuildingCombatComponent::ClearHarvesterRespawnTimer()
+{
+    if (UWorld* World = GetWorld())
+    {
+        World->GetTimerManager().ClearTimer(HarvesterRespawnTimer);
+    }
+}
+
+AActor* URenegadeBuildingCombatComponent::SpawnHarvesterNow()
+{
+    if (!HasAuthority() || !GetWorld() || !IsPrimaryHarvesterSpawnerForOwner() || BuildingType != ERenegadeBuildingType::Refinery || !bEnableHarvesterSpawner || !HarvesterCharacterClass)
+    {
+        return nullptr;
+    }
+    if (bHarvesterSpawnInProgress)
+    {
+        return ActiveHarvester;
+    }
+    if (bRequireOperationalRefineryForHarvesterSpawn && !IsBuildingOperational())
+    {
+        return nullptr;
+    }
+    if (IsValid(ActiveHarvester))
+    {
+        return ActiveHarvester;
+    }
+
+    if (bEnforceSingleActiveHarvesterPerTeam)
+    {
+        if (ACharacter* ExistingTeamHarvester = Cast<ACharacter>(FindExistingTeamHarvester()))
+        {
+            UE_LOG(LogRenegadeSoldierCombat, Log, TEXT("Refinery %s found existing team Harvester %s before spawn and adopted it."), *GetNameSafe(GetOwner()), *GetNameSafe(ExistingTeamHarvester));
+            AdoptHarvesterAsActive(ExistingTeamHarvester);
+            return ActiveHarvester;
+        }
+    }
+
+    if (bAdoptExistingHarvesterOnBeginPlay)
+    {
+        if (ACharacter* ExistingHarvester = Cast<ACharacter>(FindExistingHarvesterForRefinery()))
+        {
+            AdoptHarvesterAsActive(ExistingHarvester);
+            return ActiveHarvester;
+        }
+    }
+
+    ClearHarvesterRespawnTimer();
+    bHarvesterSpawnInProgress = true;
+    const FTransform SpawnTransform = GetHarvesterSpawnTransform();
+    ACharacter* NewHarvester = GetWorld()->SpawnActorDeferred<ACharacter>(
+        HarvesterCharacterClass,
+        SpawnTransform,
+        GetOwner(),
+        nullptr,
+        ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+    if (!IsValid(NewHarvester))
+    {
+        bHarvesterSpawnInProgress = false;
+        return nullptr;
+    }
+
+    // Claim the deferred actor immediately so any construction/BeginPlay re-entry cannot spawn a duplicate.
+    ActiveHarvester = NewHarvester;
+    NewHarvester->SetReplicates(true);
+    NewHarvester->SetReplicateMovement(true);
+    if (URenegadeHarvesterCombatComponent* HarvesterCombat = NewHarvester->FindComponentByClass<URenegadeHarvesterCombatComponent>())
+    {
+        HarvesterCombat->TeamId = TeamId;
+        HarvesterCombat->OwningRefineryActor = GetOwner();
+        HarvesterCombat->RequiredHarvestPointGroup = HarvesterHarvestPointGroup;
+        HarvesterCombat->RequiredRefineryDockPointGroup = HarvesterRefineryDockPointGroup;
+        HarvesterCombat->AssignedHarvestPoint = ResolveHarvesterHarvestPoint();
+        HarvesterCombat->AssignedRefineryDockPoint = ResolveHarvesterRefineryDockPoint();
+    }
+
+    UGameplayStatics::FinishSpawningActor(NewHarvester, SpawnTransform);
+    bHarvesterSpawnInProgress = false;
+
+    if (bEnsureSpawnedHarvesterHasAIController && !IsValid(NewHarvester->GetController()))
+    {
+        NewHarvester->SpawnDefaultController();
+        if (!IsValid(NewHarvester->GetController()))
+        {
+            UE_LOG(LogRenegadeSoldierCombat, Warning, TEXT("Refinery %s spawned Harvester %s but no AI Controller could be created. Check the Harvester Character Blueprint AI Controller Class."), *GetNameSafe(GetOwner()), *GetNameSafe(NewHarvester));
+        }
+    }
+
+    NewHarvester->OnDestroyed.AddUniqueDynamic(this, &URenegadeBuildingCombatComponent::HandleSpawnedHarvesterActorDestroyed);
+
+    if (URenegadeHarvesterCombatComponent* HarvesterCombat = NewHarvester->FindComponentByClass<URenegadeHarvesterCombatComponent>())
+    {
+        HarvesterCombat->SetTeamId(TeamId);
+        HarvesterCombat->SetOwningRefinery(this);
+        HarvesterCombat->RequiredHarvestPointGroup = HarvesterHarvestPointGroup;
+        HarvesterCombat->RequiredRefineryDockPointGroup = HarvesterRefineryDockPointGroup;
+        if (ARenegadeHarvestPoint* HarvestPoint = ResolveHarvesterHarvestPoint())
+        {
+            HarvesterCombat->SetAssignedHarvestPoint(HarvestPoint);
+        }
+        if (ARenegadeRefineryDockPoint* DockPoint = ResolveHarvesterRefineryDockPoint())
+        {
+            HarvesterCombat->SetAssignedRefineryDockPoint(DockPoint);
+        }
+    }
+    else
+    {
+        UE_LOG(LogRenegadeSoldierCombat, Warning, TEXT("Refinery %s spawned Harvester %s without RenegadeHarvesterCombatComponent."), *GetNameSafe(GetOwner()), *GetNameSafe(NewHarvester));
+    }
+
+    const bool bWasRespawn = bHasSpawnedHarvesterAtLeastOnce;
+    bHasSpawnedHarvesterAtLeastOnce = true;
+    OnHarvesterSpawned.Broadcast(NewHarvester);
+    if (bWasRespawn)
+    {
+        OnHarvesterRespawned.Broadcast(NewHarvester);
+    }
+    if (AActor* Owner = GetOwner())
+    {
+        Owner->ForceNetUpdate();
+    }
+    return NewHarvester;
+}
+
+void URenegadeBuildingCombatComponent::ScheduleHarvesterRespawn(const float DelayOverrideSeconds)
+{
+    if (!HasAuthority() || !GetWorld() || !IsPrimaryHarvesterSpawnerForOwner() || BuildingType != ERenegadeBuildingType::Refinery || !bEnableHarvesterSpawner || !HarvesterCharacterClass)
+    {
+        return;
+    }
+    if (bRequireOperationalRefineryForHarvesterSpawn && !IsBuildingOperational())
+    {
+        return;
+    }
+    if (IsValid(ActiveHarvester))
+    {
+        return;
+    }
+
+    ClearHarvesterRespawnTimer();
+    const float Delay = FMath::Max(0.0f, DelayOverrideSeconds >= 0.0f ? DelayOverrideSeconds : HarvesterRespawnDelaySeconds);
+    if (Delay <= KINDA_SMALL_NUMBER)
+    {
+        SpawnHarvesterNow();
+        return;
+    }
+    GetWorld()->GetTimerManager().SetTimer(HarvesterRespawnTimer, this, &URenegadeBuildingCombatComponent::HandleHarvesterRespawnTimer, Delay, false);
+    OnHarvesterRespawnScheduled.Broadcast(Delay);
+}
+
+void URenegadeBuildingCombatComponent::NotifyHarvesterDestroyed(AActor* DestroyedHarvester)
+{
+    if (!HasAuthority())
+    {
+        return;
+    }
+    if (IsValid(ActiveHarvester) && ActiveHarvester != DestroyedHarvester)
+    {
+        return;
+    }
+    ActiveHarvester = nullptr;
+    if (AActor* Owner = GetOwner())
+    {
+        Owner->ForceNetUpdate();
+    }
+    ScheduleHarvesterRespawn(HarvesterRespawnDelaySeconds);
+}
+
+void URenegadeBuildingCombatComponent::HandleSpawnedHarvesterActorDestroyed(AActor* DestroyedActor)
+{
+    if (!HasAuthority() || ActiveHarvester != DestroyedActor)
+    {
+        return;
+    }
+    ActiveHarvester = nullptr;
+    if (AActor* Owner = GetOwner())
+    {
+        Owner->ForceNetUpdate();
+    }
+    ScheduleHarvesterRespawn(HarvesterRespawnDelaySeconds);
+}
+
+void URenegadeBuildingCombatComponent::OnRep_ActiveHarvester(AActor* PreviousHarvester)
+{
+    if (ActiveHarvester != PreviousHarvester && IsValid(ActiveHarvester))
+    {
+        OnHarvesterSpawned.Broadcast(ActiveHarvester);
+    }
 }
 
 void URenegadeBuildingCombatComponent::SetRuntimeTargetPointComponent(USceneComponent* NewComponent)

@@ -1,13 +1,27 @@
-# Renegade NXT Combat and Building Warfare
+# Renegade NXT Combat, Harvester and Building Warfare
 
-> v1.6.2 fixes large-building rocket damage by resolving explosion distance against the physical bounds of the building and its attached/child geometry. Direct impacts on multipart structures are recovered back to the registered Building Combat Component so health, destruction, and team-aware EVA under-attack announcements trigger correctly.
 
-**Current version: 1.6.2** — UE 5.8
+## v1.7.12 turret targeting regression fix
 
-A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manual player combat, rocket-launcher infantry, damageable team buildings, and automated base defences.
+Harvester turret tracking has been restored to the proven v1.7.10 **world-space target solver** so authored Yaw/Pitch pivot layouts reliably track and fire at hostile infantry again. The long-session sideways drift fix is retained separately by restoring only each pivot's authored **relative roll** after aiming, rather than replacing the target solver.
+
+> v1.7.12 restores working Harvester target tracking and firing while keeping roll stabilization, generated skeletal muzzle-socket firing, and terrain-aligned chassis behavior.
+
+**Current version: 1.7.12** — UE 5.8
+
+A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manual player combat, rocket-launcher infantry, autonomous defensive Harvesters, replicated team economy, damageable team buildings, and automated base defences.
 
 ## Main features
 
+- First-class `Renegade Harvester Combat Component` for Character Blueprint Harvesters. Valid Spline AI routes own normal long-distance travel; the component temporarily claims only final approaches. If no actively usable spline route is available, direct navigation automatically takes over between Dock Point and Harvest Point.
+- Infantry-priority Harvester machine-gun turret with visible generated static/skeletal turret assets that can attach beneath authored yaw/pitch pivots, muzzle Scene Component or generated-skeletal-mesh muzzle socket, hitscan damage, pooled travelling bullet mesh, Cascade/Niagara muzzle and impact FX, sound, spread, cadence, range, LOS, and rotation limits.
+- Four-point Harvester visual ground alignment for vehicle-style pitch/roll over landscape bumps while keeping the Character capsule/root upright for NavMesh and Spline AI stability.
+- Replicated Harvester health, target, cargo and lifecycle state with team-aware GDI/Nod EVA under-attack, critical-health and destroyed announcements.
+- Placeable `Renegade Harvest Point` and `Renegade Refinery Dock Point` actors with automatic team/group lookup, reservation, final approach, exposed harvest/unload timing, and Harvester lifecycle Blueprint calls/events.
+- Match-wide replicated `Renegade Team Credits Manager` with per-team balances and Blueprint get/add/spend/set/reset APIs; Harvester unloading converts cargo into its team credit pool.
+- Refinery-owned Harvester factory on `Renegade Building Combat Component` with exposed Character Blueprint class, spawn component/tag, Harvest Point and Refinery Dock Point assignment/auto-find, legacy `HarvesterDock` component fallback, initial/respawn delays, operational-Refinery gating, and dedicated `On Harvester Respawned`.
+- Replicated Harvester destruction explosion with Cascade and/or Niagara, independent static/skeletal wreck Actor, optional wreck smoke, collision and exposed timed wreck cleanup.
+- Existing AI/player rifle and rocket paths resolve and damage hostile Harvesters, including hierarchy-aware direct hits and bounds-aware rocket splash.
 - Reusable `Renegade Building Combat Component` for the Refinery, Barracks, Silo, Hand of Nod, Weapons Factory, Power Plant, Helipad, Repair Pad, Airstrip, Obelisk, Advanced Guard Tower, and custom structures.
 - Server-authoritative building health, damage, destruction, repair, team ownership, target registration, and replicated Blueprint events.
 - Infantry building-target policies: never, only when no soldier is available, closest valid target, or prefer buildings.
@@ -37,6 +51,33 @@ A Blueprint-first runtime plugin for automatic GDI/Nod AI infantry combat, manua
 - Replicated health, target, team, ammo, death state, ragdoll/respawn RPCs, and shot cosmetic RPCs.
 
 
+
+
+
+
+## v1.7.9 Harvester skeletal turret muzzle sockets
+
+When `Turret Skeletal Mesh` is assigned, use `Turret Muzzle Socket Name` under `Harvester > Turret > Generated Mesh` to select the actual barrel/muzzle socket from that skeletal asset. The Details panel dropdown is populated from the mesh's active socket list. A valid socket takes priority over the older `Turret Muzzle Component` / component-tag route, and `Turret Muzzle Relative Offset` becomes a socket-local fine-adjustment. Bullet traces and muzzle FX therefore stay attached to the animated barrel as the turret yaws/pitches. Leave the socket as `None` to keep the existing component/tag muzzle setup.
+
+## v1.7.8 Harvester turret visibility and terrain alignment
+
+When `Turret Yaw Component` / `Turret Pitch Component` are authored as Scene pivots, assigning `Turret Static Mesh` or `Turret Skeletal Mesh` now creates the visible turret asset beneath those pivots instead of suppressing it. Pitch is preferred as the generated visual parent so both yaw and pitch are inherited; `Attach Generated Turret Visual To Pitch` can be disabled for a yaw-only base. If no pivots exist, the generated mesh can still act as the controllable turret component.
+
+`Harvester > Ground Alignment` adds suspension-style visual terrain following. Set `Ground Alignment Visual Component` to the main Harvester chassis mesh, or tag it `HarvesterBody`; Character Blueprints automatically fall back to `CharacterMesh0`. Four downward probes sample the front-left, front-right, rear-left and rear-right ground heights and smoothly drive visual pitch/roll. The Character capsule/root is never tilted, so navigation and Spline AI remain stable. Recommended starting values are Front/Rear Probe Distance `220–320 cm`, Half Track Width `110–170 cm`, Maximum Pitch `12–20°`, Maximum Roll `8–15°`, and Rotation Interp Speed `5–9`.
+
+Use `Refresh Harvester Presentation` after changing runtime component references/assets, or `Set Runtime Ground Alignment Visual Component` when a dynamically chosen chassis mesh should receive the terrain tilt.
+
+## Harvester warfare and team economy (v1.7.0)
+
+Add `Renegade Harvester Combat Component` to each GDI/Nod Harvester Character Blueprint alongside the existing `RenegadeSplineFollowerComponent` and `RenegadeCharacterVehicleComponent` / Harvester-Heavy Utility setup. Spline AI remains responsible for normal road travel. When the Harvester comes within the configured Harvest Point or Refinery-dock approach radius, v1.7.2 acquires a cooperative Spline AI external movement claim and uses the Character AI controller only for the short final approach, then releases movement back to the spline follower. The defensive turret continues to aim independently throughout the cycle.
+
+Place one or more `Renegade Harvest Point` actors in the Tiberium/resource fields and a `Renegade Refinery Dock Point` at each unloading bay. Configure team/group filtering plus approach and interaction radii. On each Refinery's `Renegade Building Combat Component`, enable `Refinery > Harvester Spawner`, assign the Harvester Character Blueprint, spawn point, optional Harvest Point and optional Refinery Dock Point. Both destination actors can be auto-found by team/group. The older `HarvesterDock` Scene Component remains supported as a legacy fallback.
+
+Bind `On Harvester Spawned` for the initial outbound spline and `On Harvester Respawned` for replacement Harvesters when using Spline AI. If no usable spline route is assigned, v1.7.3 automatically drives the Harvester directly between the Dock Point and Harvest Point using AI `MoveTo`; valid spline routes always remain preferred. The Harvester exposes `On Return To Refinery Route Requested` after harvesting and `On Outbound Harvest Route Requested` after unloading so your existing Spline AI Blueprint can choose the appropriate route. Field arrival delay, harvest duration, dock approach distances, unload-start delay, unload duration and departure delays are exposed under `Harvester > Cycle`. Cargo gathering/unloading and team-credit conversion remain server authoritative.
+
+On destruction the original Harvester is replaced by an independent replicated wreck Actor. Assign a destroyed static or skeletal mesh, Cascade/Niagara explosion, optional Cascade/Niagara smoke, and `Wreck Cleanup Seconds`. The Refinery can respawn the replacement before the previous wreck is cleaned up, giving the battlefield persistent damage history without allowing debris to accumulate forever.
+
+See `Docs/Harvester_Warfare.md` for complete Blueprint setup, component tags, economy APIs, lifecycle hooks, Spline AI hand-off, replication notes and testing.
 
 
 ## Player rocket launcher (v1.6.1)
@@ -129,6 +170,22 @@ For modular soldiers, tag the main body/leader Skeletal Mesh with `CombatRagdoll
 
 If the body still stretches inside the Physics Asset Editor's Simulate mode, the Physics Asset itself has mismatched bodies/constraints or was generated for a different skeleton; runtime code cannot repair that asset.
 
+## v1.7.6 Harvester cycle stability and Blueprint movement controls
+
+The Harvester cycle now distinguishes an **actively usable Spline Follower route** from an assigned path that has already completed. Completed/idle routes no longer suppress direct navigation fallback. Runtime Harvester spawning from a Refinery can also ensure the Character receives its configured default AI Controller.
+
+New authority Blueprint nodes on `RenegadeHarvesterCombatComponent`:
+
+```text
+Go To Harvest Point
+Go To Refinery Dock Point
+```
+
+Use these from route-complete, spawn/respawn, or custom gameplay logic whenever an explicit destination hand-off is preferred. They work with the existing placeable Harvest Point / Refinery Dock Point actors and cooperate with the `HarvesterCycle` Spline AI movement claim.
+
+Autonomous infantry now prefers hostile soldiers over Harvesters by default, preventing a Harvester parked at a Refinery from pulling an entire infantry fight into the unloading bay.
+
+
 ## Installation
 
 1. Copy the `RenegadeSoldierCombat` folder into your project's `Plugins` folder.
@@ -188,3 +245,19 @@ The colour is an RGBA tint. RGB recolours the visible pixels and Alpha controls 
 ## Player lock-on aim-point control (v1.5.6)
 
 While locked, mouse or right-stick look input can shift the shared lock point vertically and horizontally around the selected soldier. The feature inherits the exposed camera sensitivity, dead-zone and inversion settings and adds dedicated limits, smoothing and optional automatic recentring. Enhanced Input projects can feed their look axis through `Player Add Lock On Aim Input`.
+
+## Harvester arrival lifecycle (v1.7.6)
+
+For explicit Blueprint route-complete logic, call `Arrived At Harvest Point` after the vehicle reaches its field destination and `Arrived At Refinery Dock Point` after it reaches the unloading position. The placeable actors' `Notify Harvester Arrived` / `Notify Harvester Docked` calls now forward into the same lifecycle automatically. Arrival checks account for the Character capsule radius so a large Harvester does not need to place its actor origin inside the interaction sphere.
+
+Refinery BeginPlay spawning is guarded against re-entrant deferred spawns. `Adopt Existing Harvester On Begin Play` can also reuse a matching live Harvester already near the Refinery instead of creating a second one.
+
+
+
+## v1.7.6 Harvester arrival/spawn hardening
+
+Refinery Harvester spawning now enforces one operational Harvester per non-neutral team by default and also prevents more than one Harvester-spawning Building Combat Component on the same Refinery Actor from creating duplicate BeginPlay Harvesters. Explicit `Arrived At Harvest Point` and `Arrived At Refinery Dock Point` Blueprint calls are authoritative lifecycle commands: destination reservations remain useful for automatic coordination but can no longer make an explicit arrival call silently do nothing.
+
+## v1.7.10 generated turret muzzle socket entry
+
+`Turret Muzzle Socket Name` is a normal editable Name field. Type the exact socket name from the generated skeletal turret mesh (for example `MuzzleFlash`). The optional `Get Generated Turret Socket Names` Blueprint function can still be used to inspect available socket names, but it no longer forces the Details field into a dropdown.

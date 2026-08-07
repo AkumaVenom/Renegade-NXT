@@ -1208,6 +1208,37 @@ struct UHT_STATICS
 		{ "ToolTip", "Multiplies building distance score. Values below 1 make buildings more attractive; values above 1 favour soldiers." },
 #endif
 	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bTargetHostileHarvesters_MetaData[] = {
+		{ "Category", "Targeting|Harvesters" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Allows autonomous infantry to acquire hostile Harvesters registered by RenegadeHarvesterCombatComponent. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Allows autonomous infantry to acquire hostile Harvesters registered by RenegadeHarvesterCombatComponent." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_bPreferSoldiersOverHarvesters_MetaData[] = {
+		{ "Category", "Targeting|Harvesters" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** When true, a valid hostile infantry target always wins over a Harvester. Harvesters are still attacked when no soldier target is available. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "When true, a valid hostile infantry target always wins over a Harvester. Harvesters are still attacked when no soldier target is available." },
+#endif
+	};
+	static constexpr UECodeGen_Private::FMetaDataPairParam NewProp_HarvesterTargetDistanceScoreMultiplier_MetaData[] = {
+		{ "Category", "Targeting|Harvesters" },
+		{ "ClampMin", "0.01" },
+#if !UE_BUILD_SHIPPING
+		{ "Comment", "/** Multiplies Harvester distance score. Values below 1 make Harvesters more attractive to infantry. */" },
+#endif
+		{ "ModuleRelativePath", "Public/RenegadeCombatTypes.h" },
+#if !UE_BUILD_SHIPPING
+		{ "ToolTip", "Multiplies Harvester distance score. Values below 1 make Harvesters more attractive to infantry." },
+#endif
+	};
 #endif // WITH_METADATA
 
 // ********** Begin ScriptStruct FRenegadeTargetingSettings constinit property declarations ********
@@ -1231,6 +1262,17 @@ struct UHT_STATICS
 	static const UECodeGen_Private::FBytePropertyParams NewProp_BuildingTargetPolicy_Underlying;
 	static const UECodeGen_Private::FEnumPropertyParams NewProp_BuildingTargetPolicy;
 	static const UECodeGen_Private::FFloatPropertyParams NewProp_BuildingTargetDistanceScoreMultiplier;
+	static void NewProp_bTargetHostileHarvesters_SetBit(void* Obj)
+	{
+		((FRenegadeTargetingSettings*)Obj)->bTargetHostileHarvesters = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bTargetHostileHarvesters;
+	static void NewProp_bPreferSoldiersOverHarvesters_SetBit(void* Obj)
+	{
+		((FRenegadeTargetingSettings*)Obj)->bPreferSoldiersOverHarvesters = 1;
+	}
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_bPreferSoldiersOverHarvesters;
+	static const UECodeGen_Private::FFloatPropertyParams NewProp_HarvesterTargetDistanceScoreMultiplier;
 	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
 // ********** End ScriptStruct FRenegadeTargetingSettings constinit property declarations **********
 	static void* NewStructOps()
@@ -1253,6 +1295,9 @@ const UECodeGen_Private::FStructPropertyParams UHT_STATICS::NewProp_PlayerLockOn
 const UECodeGen_Private::FBytePropertyParams UHT_STATICS::NewProp_BuildingTargetPolicy_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UECodeGen_Private::EPropertyGenFlags::Byte, nullptr, nullptr, 1, 0, nullptr, METADATA_PARAMS(0, nullptr) };
 const UECodeGen_Private::FEnumPropertyParams UHT_STATICS::NewProp_BuildingTargetPolicy = { "BuildingTargetPolicy", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Enum, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, BuildingTargetPolicy), Z_Construct_UEnum_RenegadeSoldierCombat_ERenegadeBuildingTargetPolicy, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BuildingTargetPolicy_MetaData), NewProp_BuildingTargetPolicy_MetaData) }; // 3f4a6f6bbc08b327f762e02f063cc8907da1ea50
 const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_BuildingTargetDistanceScoreMultiplier = { "BuildingTargetDistanceScoreMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, BuildingTargetDistanceScoreMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_BuildingTargetDistanceScoreMultiplier_MetaData), NewProp_BuildingTargetDistanceScoreMultiplier_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bTargetHostileHarvesters = { "bTargetHostileHarvesters", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeTargetingSettings), &UHT_STATICS::NewProp_bTargetHostileHarvesters_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bTargetHostileHarvesters_MetaData), NewProp_bTargetHostileHarvesters_MetaData) };
+const UECodeGen_Private::FBoolPropertyParams UHT_STATICS::NewProp_bPreferSoldiersOverHarvesters = { "bPreferSoldiersOverHarvesters", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, nullptr, nullptr, 1, sizeof(bool), sizeof(FRenegadeTargetingSettings), &UHT_STATICS::NewProp_bPreferSoldiersOverHarvesters_SetBit, METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_bPreferSoldiersOverHarvesters_MetaData), NewProp_bPreferSoldiersOverHarvesters_MetaData) };
+const UECodeGen_Private::FFloatPropertyParams UHT_STATICS::NewProp_HarvesterTargetDistanceScoreMultiplier = { "HarvesterTargetDistanceScoreMultiplier", nullptr, (EPropertyFlags)0x0010000000000005, UECodeGen_Private::EPropertyGenFlags::Float, nullptr, nullptr, 1, STRUCT_OFFSET(FRenegadeTargetingSettings, HarvesterTargetDistanceScoreMultiplier), METADATA_PARAMS(UE_ARRAY_COUNT(NewProp_HarvesterTargetDistanceScoreMultiplier_MetaData), NewProp_HarvesterTargetDistanceScoreMultiplier_MetaData) };
 const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] = {
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_SearchRadius,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_TargetRefreshSeconds,
@@ -1266,6 +1311,9 @@ const UECodeGen_Private::FPropertyParamsBase* const UHT_STATICS::PropPointers[] 
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BuildingTargetPolicy_Underlying,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BuildingTargetPolicy,
 	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_BuildingTargetDistanceScoreMultiplier,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bTargetHostileHarvesters,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_bPreferSoldiersOverHarvesters,
+	(const UECodeGen_Private::FPropertyParamsBase*)&UHT_STATICS::NewProp_HarvesterTargetDistanceScoreMultiplier,
 };
 static_assert(UE_ARRAY_COUNT(UHT_STATICS::PropPointers) < 2048);
 // ********** End ScriptStruct FRenegadeTargetingSettings Property Definitions *********************
@@ -4125,7 +4173,7 @@ struct UHT_STATICS
 	static constexpr FStructRegisterCompiledInInfo ScriptStructInfo[] = {
 		{ Z_Construct_UScriptStruct_FRenegadeRocketLauncherSettings, Z_Construct_UScriptStruct_FRenegadeRocketLauncherSettings_Statics::NewStructOps, TEXT("RenegadeRocketLauncherSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeRocketLauncherSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeRocketLauncherSettings), 2873491778U) },
 		{ Z_Construct_UScriptStruct_FRenegadeWeaponSettings, Z_Construct_UScriptStruct_FRenegadeWeaponSettings_Statics::NewStructOps, TEXT("RenegadeWeaponSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeWeaponSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeWeaponSettings), 1467266020U) },
-		{ Z_Construct_UScriptStruct_FRenegadeTargetingSettings, Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics::NewStructOps, TEXT("RenegadeTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeTargetingSettings), 4238528035U) },
+		{ Z_Construct_UScriptStruct_FRenegadeTargetingSettings, Z_Construct_UScriptStruct_FRenegadeTargetingSettings_Statics::NewStructOps, TEXT("RenegadeTargetingSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeTargetingSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeTargetingSettings), 2966032415U) },
 		{ Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings, Z_Construct_UScriptStruct_FRenegadeCombatMovementSettings_Statics::NewStructOps, TEXT("RenegadeCombatMovementSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeCombatMovementSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeCombatMovementSettings), 3050183974U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings, Z_Construct_UScriptStruct_FRenegadePlayerCombatSettings_Statics::NewStructOps, TEXT("RenegadePlayerCombatSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerCombatSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerCombatSettings), 3336172806U) },
 		{ Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings, Z_Construct_UScriptStruct_FRenegadePlayerAimPresentationSettings_Statics::NewStructOps, TEXT("RenegadePlayerAimPresentationSettings"),&Z_Registration_Info_UScriptStruct_FRenegadePlayerAimPresentationSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadePlayerAimPresentationSettings), 2735215814U) },
@@ -4135,7 +4183,7 @@ struct UHT_STATICS
 		{ Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings, Z_Construct_UScriptStruct_FRenegadeHealthRespawnSettings_Statics::NewStructOps, TEXT("RenegadeHealthRespawnSettings"),&Z_Registration_Info_UScriptStruct_FRenegadeHealthRespawnSettings, CONSTRUCT_RELOAD_VERSION_INFO(FStructReloadVersionInfo, sizeof(FRenegadeHealthRespawnSettings), 1785623175U) },
 	};
 }; // UHT_STATICS 
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_db92f980781794e6e86ba456c1e57f1b0d0f8628{
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_Users_619_Documents_Unreal_Projects_Renegade_NXT_Plugins_RenegadeSoldierCombat_Source_RenegadeSoldierCombat_Public_RenegadeCombatTypes_h__Script_RenegadeSoldierCombat_6a2762fa35766dbc0013ba439ff358bf46c5b008{
 	TEXT("/Script/RenegadeSoldierCombat"),
 	nullptr, 0,
 	UHT_STATICS::ScriptStructInfo, UE_ARRAY_COUNT(UHT_STATICS::ScriptStructInfo),

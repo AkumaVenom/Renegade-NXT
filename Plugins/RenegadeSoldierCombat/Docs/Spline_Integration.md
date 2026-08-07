@@ -37,3 +37,25 @@ While fighting, the component uses the possessed `AIController` and NavMesh to:
 - move toward the last-known enemy position after losing line of sight.
 
 When combat ends, it releases movement control so the spline plugin can continue from the soldier's current location rather than teleporting or restarting the full path.
+
+## v1.7.0 Character Harvester combat bridge
+
+`RenegadeHarvesterCombatComponent` does not issue movement commands. Keep the existing `RenegadeSplineFollowerComponent` + `RenegadeCharacterVehicleComponent` Harvester/Heavy Utility setup responsible for the chassis. The turret rotates/fires independently. Bind a Refinery's `On Harvester Spawned` event to route-start logic when the Harvester BP does not auto-start its route, and call the Harvester lifecycle functions from the existing field/refinery state logic.
+
+
+## v1.7.2 Harvester automatic field/dock hand-off
+
+Normal Harvester road travel is still owned by `RenegadeSplineFollowerComponent` + `RenegadeCharacterVehicleComponent`.
+
+Version 1.7.2 adds short final-approach movement only:
+
+1. Harvester follows the outbound spline normally.
+2. When it enters its assigned `RenegadeHarvestPoint` Approach Radius, `RenegadeHarvesterCombatComponent` calls the Spline follower's external movement-claim API at runtime using claim name `HarvesterCycle`.
+3. The Harvester AI controller performs a normal NavMesh `MoveTo` to the exact Harvest Point interaction location.
+4. After the exposed arrival delay/harvest duration, `On Return To Refinery Route Requested` fires and the claim is released so your Blueprint can select/start the return spline.
+5. Near the Refinery, the same claim is acquired for the short final approach to the `HarvesterDock` Scene Component.
+6. After unloading/departure, `On Outbound Harvest Route Requested` fires and the claim is released for the next outbound route.
+
+The integration is runtime/reflection based, so `RenegadeSoldierCombat` does not add a compile-time dependency on the Spline AI module.
+
+For Refinery-created replacement Harvesters, bind the Refinery component's new `On Harvester Respawned(Harvester)` event to the same outbound route start/reacquisition logic used for the initial spawn.

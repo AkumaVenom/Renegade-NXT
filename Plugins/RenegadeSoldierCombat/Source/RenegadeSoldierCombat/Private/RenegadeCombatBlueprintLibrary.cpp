@@ -1,6 +1,10 @@
 #include "RenegadeCombatBlueprintLibrary.h"
 #include "GameFramework/Actor.h"
 #include "RenegadeBuildingCombatComponent.h"
+#include "RenegadeHarvesterCombatComponent.h"
+#include "RenegadeCombatRegistrySubsystem.h"
+#include "RenegadeTeamCreditsManager.h"
+#include "Engine/World.h"
 #include "RenegadeSoldierCombatComponent.h"
 
 URenegadeSoldierCombatComponent* URenegadeCombatBlueprintLibrary::GetRenegadeCombatComponent(const AActor* Actor)
@@ -13,11 +17,21 @@ URenegadeBuildingCombatComponent* URenegadeCombatBlueprintLibrary::GetRenegadeBu
     return Actor ? Actor->FindComponentByClass<URenegadeBuildingCombatComponent>() : nullptr;
 }
 
+URenegadeHarvesterCombatComponent* URenegadeCombatBlueprintLibrary::GetRenegadeHarvesterCombatComponent(const AActor* Actor)
+{
+    return Actor ? Actor->FindComponentByClass<URenegadeHarvesterCombatComponent>() : nullptr;
+}
+
 bool URenegadeCombatBlueprintLibrary::AreRenegadeActorsHostile(const AActor* FirstActor, const AActor* SecondActor)
 {
     if (const URenegadeSoldierCombatComponent* FirstCombat = GetRenegadeCombatComponent(FirstActor))
     {
         return FirstCombat->IsHostileToActor(SecondActor);
+    }
+
+    if (const URenegadeHarvesterCombatComponent* FirstHarvester = GetRenegadeHarvesterCombatComponent(FirstActor))
+    {
+        return FirstHarvester->IsHostileToActor(SecondActor);
     }
 
     if (const URenegadeBuildingCombatComponent* FirstBuilding = GetRenegadeBuildingCombatComponent(FirstActor))
@@ -33,6 +47,11 @@ FName URenegadeCombatBlueprintLibrary::GetRenegadeTeamId(const AActor* Actor)
     if (const URenegadeSoldierCombatComponent* Combat = GetRenegadeCombatComponent(Actor))
     {
         return Combat->TeamId;
+    }
+
+    if (const URenegadeHarvesterCombatComponent* Harvester = GetRenegadeHarvesterCombatComponent(Actor))
+    {
+        return Harvester->TeamId;
     }
 
     if (const URenegadeBuildingCombatComponent* Building = GetRenegadeBuildingCombatComponent(Actor))
@@ -56,12 +75,60 @@ bool URenegadeCombatBlueprintLibrary::SetRenegadeTeamId(AActor* Actor, FName New
         return true;
     }
 
+    if (URenegadeHarvesterCombatComponent* Harvester = GetRenegadeHarvesterCombatComponent(Actor))
+    {
+        Harvester->SetTeamId(NewTeamId);
+        return true;
+    }
+
     if (URenegadeBuildingCombatComponent* Building = GetRenegadeBuildingCombatComponent(Actor))
     {
         Building->SetTeamId(NewTeamId);
         return true;
     }
 
+    return false;
+}
+
+ARenegadeTeamCreditsManager* URenegadeCombatBlueprintLibrary::GetRenegadeTeamCreditsManager(const UObject* WorldContextObject)
+{
+    UWorld* World = WorldContextObject ? WorldContextObject->GetWorld() : nullptr;
+    if (!World)
+    {
+        return nullptr;
+    }
+    if (URenegadeCombatRegistrySubsystem* Registry = World->GetSubsystem<URenegadeCombatRegistrySubsystem>())
+    {
+        return Registry->GetTeamCreditsManager(World->GetNetMode() != NM_Client);
+    }
+    return nullptr;
+}
+
+int32 URenegadeCombatBlueprintLibrary::GetRenegadeTeamCredits(const UObject* WorldContextObject, const FName TeamId)
+{
+    if (ARenegadeTeamCreditsManager* Manager = GetRenegadeTeamCreditsManager(WorldContextObject))
+    {
+        return Manager->GetTeamCredits(TeamId);
+    }
+    return 0;
+}
+
+int32 URenegadeCombatBlueprintLibrary::AddRenegadeTeamCredits(const UObject* WorldContextObject, const FName TeamId, const int32 Amount)
+{
+    if (ARenegadeTeamCreditsManager* Manager = GetRenegadeTeamCreditsManager(WorldContextObject))
+    {
+        return Manager->AddTeamCredits(TeamId, Amount);
+    }
+    return 0;
+}
+
+bool URenegadeCombatBlueprintLibrary::SpendRenegadeTeamCredits(const UObject* WorldContextObject, const FName TeamId, const int32 Amount, int32& RemainingCredits)
+{
+    RemainingCredits = 0;
+    if (ARenegadeTeamCreditsManager* Manager = GetRenegadeTeamCreditsManager(WorldContextObject))
+    {
+        return Manager->TrySpendTeamCredits(TeamId, Amount, RemainingCredits);
+    }
     return false;
 }
 

@@ -1,3 +1,177 @@
+# Changelog
+
+## 1.7.13
+
+- Fixed Harvester ground-alignment roll using the opposite lateral sign on sloped terrain.
+- When the terrain is higher under the right track, the visual chassis now rolls to raise the right side; when the terrain is higher under the left track, it raises the left side.
+- Front/rear pitch behavior, probe sampling, trace collision behavior, Character capsule/root navigation, turret aiming, harvesting, docking, economy, spawning and combat are unchanged.
+
+## 1.7.12
+
+- Fixed a v1.7.11 regression that could prevent Harvester turrets from visibly tracking and firing at hostile infantry.
+- Restored the proven v1.7.10 world-space target solver so arbitrary authored yaw/pitch pivot rotations remain compatible.
+- Retained turret drift prevention by stabilizing only the authored relative roll after aiming instead of replacing the target solver.
+- Separate yaw/pitch and combined turret pivot layouts remain supported.
+- No changes to the working harvest, dock, unload, credits, refinery spawn, muzzle socket or direct/spline cycle logic.
+
+# Renegade Soldier Combat v1.7.11
+
+## Harvester turret terrain-rotation drift fix
+
+- Fixed Harvester defensive turret yaw/pitch pivots slowly accumulating a sideways/roll offset after repeated target tracking while the chassis ground-alignment system pitches and rolls over terrain.
+- Replaced world-space yaw-pivot rotation with deterministic parent-local aiming.
+- The original authored relative rotations of the Turret Yaw and Turret Pitch components are now cached and used as the permanent mount baseline.
+- Yaw tracking now changes only the yaw pivot's local yaw; authored local pitch and roll are restored every update.
+- Independent pitch tracking now changes only the pitch pivot's local pitch; authored local yaw and roll are restored every update.
+- Terrain pitch/roll is inherited naturally from the Harvester visual-body parent instead of being cancelled through child world rotations.
+- Generated-turret fallback aiming uses the same stable authored-relative baseline when no separate pitch pivot is assigned.
+- Runtime turret-component changes and presentation refreshes invalidate/re-cache the mount baselines safely.
+- No harvesting, docking, unloading, refinery spawning, credits, muzzle-socket firing, ground-probe sampling, target selection, or weapon cadence behavior changed.
+
+# Renegade Soldier Combat v1.7.10
+
+## Harvester generated turret muzzle socket entry fix
+
+- Changed `Turret Muzzle Socket Name` back to a normal freely editable `FName` field in the Details panel.
+- Removed the `GetOptions` metadata that forced the field into a read-only-style dropdown when Unreal failed to enumerate sockets.
+- You can now type the exact skeletal socket name manually, for example `MuzzleFlash`, `Muzzle`, or `BarrelSocket`.
+- The existing socket lookup/firing priority is unchanged: valid skeletal muzzle socket -> explicit muzzle component/tag -> pitch/yaw offset fallback.
+- `Get Generated Turret Socket Names` remains available as an optional Blueprint query utility, but no longer controls the Details-panel editor.
+- No harvesting, docking, refinery spawning, credits, ground alignment, targeting, or weapon cadence behavior changed.
+
+# Renegade Soldier Combat v1.7.9
+
+- Added `Turret Muzzle Socket Name` for generated Harvester skeletal turrets, allowing machine-gun fire to originate directly from a socket on the assigned `Turret Skeletal Mesh`.
+- Added an editor socket-name dropdown populated from the skeletal mesh's active socket list, including mesh and skeleton sockets.
+- A valid selected skeletal muzzle socket now takes priority over the existing muzzle Scene Component/tag path; older component/tag setups remain unchanged when no socket is selected.
+- `Turret Muzzle Relative Offset` is applied in the selected socket's local space, so fine barrel-tip adjustment follows socket rotation correctly.
+- Socket lookup also supports an authored skeletal Turret Pitch/Yaw component when no generated skeletal visual is used.
+- Bullet traces, muzzle FX and range/LOS calculations now start from the resolved skeletal socket location when configured.
+- Preserved the confirmed-working v1.7.7 harvest/dock unload-repeat cycle and all v1.7.8 generated-turret visibility / terrain-ground-alignment behaviour.
+
+# Changelog
+
+## 1.7.8
+
+- Fixed selected Harvester `Turret Static Mesh` / `Turret Skeletal Mesh` assets remaining invisible whenever valid authored Turret Yaw/Pitch components were assigned.
+- Generated turret visuals are now created even with authored pivots and attach beneath the Pitch pivot when available, otherwise the Yaw pivot, so the visible asset inherits the already-working target tracking.
+- Preserved the generated-mesh fallback when no authored turret pivot exists; the generated mesh itself can still act as the yaw/pitch control component.
+- Hardened component resolution so an empty `FComponentReference` cannot silently resolve to the Character root and turn the whole Harvester body into a turret/target control component.
+- Added `Harvester > Ground Alignment` visual suspension with four terrain probes (front-left/front-right/rear-left/rear-right).
+- Added exposed ground probe layout, trace channel/range, maximum pitch/roll, interpolation speed and debug drawing.
+- Added selectable `Ground Alignment Visual Component` plus `HarvesterBody` tag fallback and automatic Character Mesh fallback. Only the visual body pitches/rolls; the Character capsule/root remains upright for NavMesh, Spline AI and replicated Character movement stability.
+- Added `Refresh Harvester Presentation` and runtime ground-alignment visual component Blueprint helpers.
+- Ground alignment is evaluated before turret aiming each frame so terrain tilt and independent turret tracking remain compatible.
+- Preserved the confirmed-working v1.7.7 Harvest Point / Refinery Dock unload-repeat cycle, one-Harvester spawning, economy, EVA, destruction and combat behaviour.
+
+## 1.7.7
+
+- Fixed the real Harvest Point / Refinery Dock arrival deadlock for large Character Harvesters. `AI MoveTo` was double-counting the vehicle capsule radius: the plugin expanded the acceptance radius manually and also used `bStopOnOverlap=true`, causing Unreal path following to stop up to an additional agent radius early. The vehicle could look correctly parked at the field/dock while never satisfying the plugin arrival test.
+- `RequestCycleMoveTo` now uses the plugin's explicit capsule-expanded acceptance radius with `bStopOnOverlap=false`, so navigation stopping distance and lifecycle arrival distance use the same physical footprint.
+- Added immediate physical arrival checks to `Go To Harvest Point` and `Go To Refinery Dock Point`. If the Harvester is already within the destination interaction footprint, the lifecycle advances immediately instead of issuing a redundant MoveTo.
+- The same correction applies to both Harvest Point arrival and Refinery Dock arrival, fixing the shared failure mode before harvesting and unloading.
+- Clarified that `On Harvest Point Arrived` / `On Refinery Dock Point Arrived` are output notifications. They should not be wired back into their corresponding `Arrived At ...` command nodes. Use `On Harvesting Started` / `On Refinery Unloading Started` for Blueprint presentation state.
+- Preserved v1.7.6 single-Harvester-per-team refinery enforcement and all combat/economy/destruction systems.
+
+## 1.7.6
+
+- Fixed explicit `Arrived At Harvest Point` silently doing nothing when the Harvest Point was already reserved (commonly caused by a duplicate Harvester). Explicit authoritative arrival now always advances into the harvest arrival delay / harvesting lifecycle.
+- `Arrived At Harvest Point` now also works as a deliberate Blueprint lifecycle command when no Harvest Point reference can be resolved, instead of returning without feedback.
+- Applied the same fail-safe behavior to `Arrived At Refinery Dock Point`; Dock reservations no longer silently discard an explicit authoritative dock-arrival command.
+- Added warning diagnostics for incompatible or already-reserved explicit arrival calls.
+- Added `Enforce Single Active Harvester Per Team` (default true) to Refinery Harvester spawning. A Refinery now searches the full world for an existing operational same-team Harvester before spawning another.
+- Added a per-Refinery-Actor primary-spawner guard so multiple Building Combat Component instances on one Refinery Actor cannot each create their own BeginPlay Harvester.
+- Same-Refinery ownership matching now treats Building Combat Components on the same Refinery Actor as the same Harvester owner.
+
+# Renegade Soldier Combat v1.7.5
+
+- Fixed `Notify Harvester Arrived` on the placeable Harvest Point being notification-only. It now forwards into the Harvester Combat lifecycle, sets/uses that Harvest Point, enters the arrival delay, and starts automatic harvesting.
+- Added explicit Harvester Blueprint node `Arrived At Harvest Point` for route-complete/manual workflows.
+- Fixed the equivalent Refinery Dock Point lifecycle gap: `Notify Harvester Docked` now forwards into the Harvester Combat dock/unload lifecycle.
+- Added explicit Harvester Blueprint node `Arrived At Refinery Dock Point`.
+- Arrival detection now accounts for the Harvester Character capsule radius instead of requiring the vehicle actor origin to enter the small interaction radius; this prevents large Harvesters stopping visually at the field/dock without ever registering arrival.
+- Direct `AI MoveTo` acceptance now includes the Harvester capsule radius, preventing the controller from trying to force the vehicle centre unrealistically close to a field/dock point.
+- Zero-second harvest-arrival and unload-start delays now advance immediately instead of waiting for another component tick.
+- Hardened Refinery BeginPlay spawning against duplicate/re-entrant deferred spawns by claiming the deferred Harvester as `Active Harvester` before `FinishSpawningActor` and using a spawn-in-progress guard.
+- Added `Adopt Existing Harvester On Begin Play` (default true) and `Existing Harvester Adoption Radius` so a manually placed matching Harvester near the Refinery can be adopted instead of duplicated by auto-spawn.
+- Added an initial-spawn request guard so the Refinery cannot schedule its automatic BeginPlay Harvester more than once.
+- Preserved v1.7.4 spline/direct fallback, Go-To nodes, AI-controller creation, infantry target preference, credits, turret combat, EVA, wrecks and building warfare.
+
+# Renegade Soldier Combat v1.7.4
+
+- Fixed Refinery-spawned Harvesters remaining parked at the spawn point when their Character Blueprint did not automatically possess an AI Controller at runtime; the Refinery can now explicitly ensure the spawned Harvester receives its configured default AI Controller.
+- Fixed direct-navigation fallback incorrectly treating a merely assigned/completed Spline Follower path as an active usable route. `Has Usable Spline Route` now inspects the follower's actual Follow State and treats Completed/Idle/Stopped/Suspended/Failed routes as inactive.
+- Fixed Harvesters becoming stuck after harvesting when the outbound spline remained assigned but had already completed; the return cycle can now fall back to the Refinery Dock Point correctly.
+- Added Blueprint-authority nodes `Go To Harvest Point` and `Go To Refinery Dock Point`. These explicitly reserve the destination, acquire the Harvester movement claim, set the correct lifecycle state, ensure an AI Controller exists, and issue the destination `AI MoveTo`.
+- `Begin Harvest Point Approach` now reuses the same explicit Harvest Point movement path, while `Start Refinery Docking` reuses the explicit Dock Point movement path.
+- Added Refinery option `Ensure Spawned Harvester Has AI Controller` (enabled by default), preserving the AI Controller Class configured on the Harvester Character Blueprint.
+- Reduced infantry attraction to Harvesters: Harvester target priority is lower by default, Harvester distance scoring now favours infantry targets, and new `Prefer Soldiers Over Harvesters` keeps soldiers fighting hostile infantry whenever one is available while still allowing Harvester attacks when no soldier target exists.
+- Preserved placeable Harvest/Dock Point actors, timed harvesting/unloading, credits, turret combat, EVA, wrecks, respawning, building warfare and Spline AI cooperative movement claims.
+
+# Renegade Soldier Combat v1.7.3
+
+- Added a placeable replicated `Renegade Refinery Dock Point` Actor, matching the level-authoring workflow of `Renegade Harvest Point`.
+- Dock Points expose team/group filtering, approach radius, interaction radius, transform offsets, optional exclusive reservation, owning-Refinery runtime reference and approach/docked/undocked Blueprint events.
+- Added Harvester `Assigned Refinery Dock Point`, automatic nearest compatible Dock Point lookup, search radius/group filtering, setters/getters and Dock Point approach/arrival events.
+- Refinery Harvester spawning now exposes an explicit/auto-found level Dock Point and automatically passes the resolved Dock Point plus Harvest/Dock group filters into newly spawned and respawned Harvesters.
+- `Get Harvester Dock Transform` now prefers the placeable Dock Point while retaining the existing `HarvesterDock` Scene Component/tag as a backward-compatible legacy fallback.
+- Added spline-aware direct navigation fallback. When the Harvester has no usable assigned `RenegadeSplineFollower` route, it automatically uses its AI Controller to travel the entire distance from Refinery/Dock Point to Harvest Point and back.
+- A valid assigned Spline AI route remains preferred for long-distance movement; direct fallback only activates when no usable spline path is detected, preventing the fallback from fighting the spline follower.
+- Added exposed `Enable Direct Navigation Fallback` and `Direct Navigation Fallback Delay Seconds` settings, including a spawn grace period so Blueprint spawn/respawn hooks can assign a spline before fallback navigation starts.
+- Direct-navigation fallback preserves the existing timed harvest, return, docking, unloading, team-credit deposit, post-unload departure, reservation and lifecycle event flow.
+- Dock reservations are released on undock, Refinery invalidation, Harvester destruction and EndPlay to avoid blocked unloading bays.
+- Preserved all v1.7.2 Spline AI final-approach behavior, Harvester turret combat, health/EVA, wreck cleanup, Refinery respawn hooks, global credits, infantry/rocket damage and existing building warfare.
+
+# Renegade Soldier Combat v1.7.2
+
+- Added a placeable replicated `Renegade Harvest Point` Actor for Tiberium/resource fields, with exposed team filtering, point group, approach radius, interaction radius, harvest-location offset and optional exclusive Harvester reservation.
+- Added automatic final Harvest Point approach: the Harvester stays on its normal Spline AI route until it enters the point's approach radius, then temporarily claims movement and uses its AI controller to drive to the exact harvesting position.
+- Added cooperative runtime integration with `RenegadeSplineAI` external movement claims without creating a compile-time dependency; the Harvester acquires `HarvesterCycle` for field/refinery final approach and releases it so the spline follower can reacquire normal route travel.
+- Added exposed Harvester cycle/timing settings for field arrival delay, harvest duration, finish-on-full, post-harvest departure delay, Refinery dock approach/acceptance distance, unload-start delay, unload duration, finish-on-empty, post-unload departure delay, movement retry interval and spline resume delay.
+- Added new replicated lifecycle states for Approaching Harvest Point, Waiting To Harvest and Refinery Docked while preserving the numeric values of all existing v1.7 lifecycle states.
+- Added `Set Assigned Harvest Point`, `Find Nearest Compatible Harvest Point` and `Begin Harvest Point Approach` Blueprint calls plus Harvest Point approach/arrival events.
+- Added `On Return To Refinery Route Requested` and `On Outbound Harvest Route Requested` authority Blueprint hooks for switching the existing Spline AI follower between outbound/return route logic without coupling the combat plugin to a specific spline path class.
+- Corrected lifecycle timing so `On Refinery Undocked` fires after the exposed post-unload departure delay; the outbound-route hook now runs before releasing the temporary Spline AI movement claim to prevent a brief resume of the old return route.
+- Added Refinery `Harvester Harvest Point` assignment and optional automatic compatible Harvest Point lookup by team/group.
+- Added Refinery `HarvesterDock` Scene Component/tag plus exposed dock position/rotation offsets and `Get Harvester Dock Transform`.
+- Added dedicated Refinery `On Harvester Respawned` event, distinct from `On Harvester Spawned`, so replacement Harvesters can immediately restart/reacquire their outbound spline.
+- Refinery-spawned Harvesters now inherit the Refinery's selected/auto-resolved Harvest Point before BeginPlay and retain the existing team/refinery ownership setup.
+- Preserved the v1.7 defensive turret, health/EVA, global credits, wreck/smoke cleanup, rifle/rocket damage and Refinery respawn systems.
+
+# Renegade Soldier Combat v1.7.1
+
+- Fixed UE5.8/MSVC compile error C2445 in Harvester wreck spawning by replacing an ambiguous `TSubclassOf<ARenegadeHarvesterWreck>` / `UClass*` conditional expression with explicit class assignment and fallback.
+- Fixed UE5.8/MSVC compile errors C2446/C2737 in rocket/Harvester damage resolution by explicitly converting the direct `FHitResult::ImpactPoint` value into `FVector` instead of mixing `FVector_NetQuantize` and `FVector` in a conditional expression.
+- No Harvester gameplay, turret, economy, EVA, Refinery spawn, wreck, Spline AI, rifle, rocket, building, or lock-on behaviour was intentionally changed.
+
+# Renegade Soldier Combat v1.7.0
+
+- Added first-class GDI/Nod Harvester warfare through the new `Renegade Harvester Combat Component` for Character Blueprint vehicles.
+- Preserved Spline AI movement ownership: Harvester combat never issues route or `MoveTo` requests, so the existing Character vehicle/spline system continues to drive the chassis while the turret aims independently.
+- Added an infantry-priority defensive machine-gun turret with configurable search/LOS, rotation speeds and limits, firing alignment tolerance, range, damage, RPM, spread, damage type and friendly-fire behaviour.
+- Added selectable existing yaw/pitch/muzzle Scene Components plus `HarvesterTurret`, `HarvesterGunPitch` and `HarvesterMuzzle` tag fallbacks.
+- Added optional generated static or skeletal turret mesh fallback with exposed socket, relative transform and scale.
+- Added pooled travelling bullet Static Mesh visuals with material override, scale, orientation, speed and pool size.
+- Added exposed Cascade and Niagara muzzle/impact particles, machine-gun fire sound and debug trace drawing.
+- Added robust child/attached/owner/instigator hit resolution for Harvester turret bullets and preserved Soldier Combat incoming-hit context.
+- Added replicated Harvester health, destroyed/critical state, current turret target, cargo, lifecycle state and owning Refinery.
+- Added team-aware GDI/Nod friendly/enemy Harvester EVA slots for under attack, critical health and destroyed announcements using the existing prioritized global EVA channel.
+- Added exposed Harvester destruction Cascade/Niagara explosion, explosion sound, static or skeletal wreck mesh, optional collision, Cascade/Niagara wreck smoke and configurable `Wreck Cleanup Seconds`.
+- Harvester wrecks are independent replicated Actors, allowing a new Harvester to respawn while the old wreck remains; server lifespan cleanup removes the wreck and attached smoke after the configured time.
+- Added explicit Blueprint lifecycle calls/events for Start/End Harvesting, Returning To Refinery, Start Docking, Docked, Start/End Unloading and Undocked.
+- Added automatic cargo gathering and unloading rates, cargo capacity and `Credits Per Cargo Unit` conversion.
+- Added an exposed fixed server economy update interval (default 0.10 s) so cargo/credit replication remains responsive without mutating the global balance every frame.
+- Added one replicated match-wide `Renegade Team Credits Manager` with generic FName team balances and Blueprint get/add/spend/set/reset support.
+- Harvester unloads deposit into the Harvester's own team balance, keeping GDI and Nod economies independent.
+- Extended the existing combat registry so Harvesters are valid team-aware combat targets.
+- Added infantry targeting settings for hostile Harvesters; AI rifles/rockets and player rifles/rockets can resolve and damage Harvester actors and multipart hit geometry.
+- Rocket splash against Harvesters now measures against the closest point on the vehicle/child-actor bounds, preventing large Harvester side impacts from being rejected because a single aim point is outside the splash radius.
+- Added Refinery-controlled Harvester spawning to `Renegade Building Combat Component` with exposed Character Blueprint class, spawn Scene Component/tag, local position/rotation offsets, auto-spawn, initial delay, respawn delay and operational-Refinery requirement.
+- Added replicated `Active Harvester`, `On Harvester Spawned` and `On Harvester Respawn Scheduled` Refinery hooks.
+- When the operational-Refinery requirement is enabled, a destroyed Refinery cancels pending replacement spawns; restored Refineries resume replacement scheduling when no active Harvester exists.
+- Fixed duplicate Refinery TeamId replication registration found during the v1.7.0 integration audit.
+- Existing rifle/pistol/rocket player combat, TPS lock-on, NPC combat, building health/EVA, AGT, Obelisk, bullet visuals, blood, ragdoll and existing Soldier respawn remain preserved.
+
 # Renegade Soldier Combat v1.6.2
 
 - Fixed rocket explosions potentially failing to damage large buildings such as the Helipad when the impact was far from the building's single AI target/aim point.

@@ -2,6 +2,9 @@
 
 #include "RenegadeBuildingCombatComponent.h"
 #include "RenegadeSoldierCombatComponent.h"
+#include "RenegadeHarvesterCombatComponent.h"
+#include "RenegadeTeamCreditsManager.h"
+#include "EngineUtils.h"
 
 #include "Components/AudioComponent.h"
 #include "Engine/World.h"
@@ -76,6 +79,71 @@ void URenegadeCombatRegistrySubsystem::GetBuildings(TArray<URenegadeBuildingComb
             OutBuildings.Add(Component);
         }
     }
+}
+
+
+void URenegadeCombatRegistrySubsystem::RegisterHarvester(URenegadeHarvesterCombatComponent* Harvester)
+{
+    if (IsValid(Harvester))
+    {
+        RegisteredHarvesters.AddUnique(Harvester);
+    }
+}
+
+void URenegadeCombatRegistrySubsystem::UnregisterHarvester(URenegadeHarvesterCombatComponent* Harvester)
+{
+    RegisteredHarvesters.RemoveAll([Harvester](const TWeakObjectPtr<URenegadeHarvesterCombatComponent>& Entry)
+    {
+        return !Entry.IsValid() || Entry.Get() == Harvester;
+    });
+}
+
+void URenegadeCombatRegistrySubsystem::GetHarvesters(TArray<URenegadeHarvesterCombatComponent*>& OutHarvesters)
+{
+    OutHarvesters.Reset();
+    RegisteredHarvesters.RemoveAll([](const TWeakObjectPtr<URenegadeHarvesterCombatComponent>& Entry)
+    {
+        return !Entry.IsValid();
+    });
+
+    OutHarvesters.Reserve(RegisteredHarvesters.Num());
+    for (const TWeakObjectPtr<URenegadeHarvesterCombatComponent>& Entry : RegisteredHarvesters)
+    {
+        if (URenegadeHarvesterCombatComponent* Component = Entry.Get())
+        {
+            OutHarvesters.Add(Component);
+        }
+    }
+}
+
+ARenegadeTeamCreditsManager* URenegadeCombatRegistrySubsystem::GetTeamCreditsManager(const bool bSpawnIfMissing)
+{
+    if (IsValid(CachedTeamCreditsManager))
+    {
+        return CachedTeamCreditsManager;
+    }
+
+    UWorld* World = GetWorld();
+    if (!IsValid(World))
+    {
+        return nullptr;
+    }
+
+    for (TActorIterator<ARenegadeTeamCreditsManager> It(World); It; ++It)
+    {
+        CachedTeamCreditsManager = *It;
+        return CachedTeamCreditsManager;
+    }
+
+    if (bSpawnIfMissing && World->GetNetMode() != NM_Client)
+    {
+        FActorSpawnParameters Params;
+        Params.Name = MakeUniqueObjectName(World, ARenegadeTeamCreditsManager::StaticClass(), TEXT("RenegadeTeamCreditsManager"));
+        Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        CachedTeamCreditsManager = World->SpawnActor<ARenegadeTeamCreditsManager>(ARenegadeTeamCreditsManager::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, Params);
+    }
+
+    return CachedTeamCreditsManager;
 }
 
 bool URenegadeCombatRegistrySubsystem::IsTeamPowerOnline(const FName TeamId, const bool bTreatMissingPowerPlantAsPowered) const
